@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">gotogether</string>
+    <string name="enter_username_hint">Enter Username</string>
+    <string name="enter_password_hint">Enter Password</string>
+    <string name="btn_login">Login here</string>
+    <string name="btn_register">new user? register here</string>
+    <string name="regis_username_hint">Enter username (8—14 character)</string>
+    <string name="regis_password_hint">Enter password (8—12 character)</string>
+    <string name="regis_password2_hint">Enter password again</string>
+    <string name="regis_firstname_hint">Enter your first name</string>
+    <string name="regis_lastname_hint">Enter your last name</string>
+    <string name="regis_displayname">Enter your display name (this name will show to other)</string>
+    <string name="regis_email_hint">Enter your E-mail</string>
+    <string name="regis_phone_hint">Enter your phone number (optional)</string>
+    <string name="btn_sign_up">Sign up now!</string>
+</resources>

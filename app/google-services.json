@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "691220502538",
+    "firebase_url": "https://settingmeetingpoint-81a89.firebaseio.com",
+    "project_id": "settingmeetingpoint-81a89",
+    "storage_bucket": "settingmeetingpoint-81a89.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:691220502538:android:043bb616ef061ebf",
+        "android_client_info": {
+          "package_name": "chanathip.gotogether"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "691220502538-1nfgpfcaibg5o3m5ldfhvd94cn1kehst.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrgoX5B6tW4KdHSDy-RIgE-mS3TQT1l7k"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

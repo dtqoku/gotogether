@@ -10,7 +10,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".LoginActivity"
-            android:label="gotogether"/>
+            android:label="gotogether" />
         <activity
             android:name=".RegisterActivity"
             android:label="Register" />
@@ -36,6 +36,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".AddFriendActivity"
+            android:label="Add new friend" />
+        <activity
+            android:name=".UserdetailActivity"
+            android:label="@string/title_activity_userdetail"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

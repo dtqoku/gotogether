@@ -78,6 +78,7 @@ public class RegisterActivity extends AppCompatActivity {
                     userdetail.child("Last name").setValue(userData.Lastname);
                     userdetail.child("display name").setValue(userData.displayname);
                     userdetail.child("Phone").setValue(userData.Phone);
+                    userdetail.child("email").setValue(firebaseUser.getEmail());
 
                     // TODO: 10/25/2016 maybe with introduce user feature of this app
 

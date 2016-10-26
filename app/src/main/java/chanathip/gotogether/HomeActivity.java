@@ -146,7 +146,7 @@ public class HomeActivity extends AppCompatActivity
                                 dataSnapshot.child("First name").getValue().toString(),
                                 dataSnapshot.child("Last name").getValue().toString(),
                                 dataSnapshot.child("display name").getValue().toString(),
-                                currentUserData.Email,
+                                dataSnapshot.child("email").getValue().toString(),
                                 dataSnapshot.child("Phone").getValue().toString()
                         );
 

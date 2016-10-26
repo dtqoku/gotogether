@@ -1,6 +1,7 @@
 <resources>
+
     <string name="app_name">gotogether</string>
-    <string name="enter_username_hint">Enter Username</string>
+    <string name="enter_username_hint">Enter E-mail</string>
     <string name="enter_password_hint">Enter Password</string>
     <string name="btn_login">Login here</string>
     <string name="btn_register">new user? register here</string>
@@ -13,4 +14,22 @@
     <string name="regis_email_hint">Enter your E-mail</string>
     <string name="regis_phone_hint">Enter your phone number (optional)</string>
     <string name="btn_sign_up">Sign up now!</string>
+    <string name="title_activity_home">HomeActivity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+
+    <string name="nav_home">home</string>
+    <string name="nav_group">Group</string>
+    <string name="nav_friend">Friend</string>
+    <string name="nav_setting">Setting</string>
+    <string name="nav_accountsetting">Account setting</string>
+    <string name="nav_appseting">Application setting</string>
+    <string name="nav_logout">Logout</string>
+    <string name="loading">Loading...</string>
+    <string name="title_activity_friend">FriendActivity</string>
+    <string name="title_activity_group">GroupActivity</string>
+    <string name="title_activity_main">MainActivity</string>
 </resources>

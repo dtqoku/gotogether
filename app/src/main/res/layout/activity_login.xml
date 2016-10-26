@@ -44,7 +44,7 @@
                         android:layout_below="@+id/signin_inputlayout_mobile"
                         android:hint="@string/enter_username_hint"
                         android:imeOptions="actionNext"
-                        android:inputType="text"
+                        android:inputType="textEmailAddress"
                         android:maxLines="1"
                         android:nextFocusForward="@+id/txtPass" />
                 </android.support.design.widget.TextInputLayout>

@@ -5,10 +5,9 @@ package chanathip.gotogether;
  */
 
 public class UserData {
-    int UserID;
+    String UserUid;
     String Firstname;
     String Lastname;
-    String Username;
     String password;
     String Email;
     String Emailwithoutadd;
@@ -17,11 +16,11 @@ public class UserData {
     double LocationLat;
     double LocationLng;
 
-    public void setData(String userID,String Firstname,String Lastname,String Username,String Email,String Phone){
-        this.UserID = Integer.parseInt(userID);
+    public void setData(String UserUid,String Firstname,String Lastname,String displayname,String Email,String Phone){
+        this.UserUid = UserUid;
         this.Firstname = Firstname;
         this.Lastname = Lastname;
-        this.Username = Username;
+        this.displayname = displayname;
         this.Email = Email;
         this.Phone = Phone;
     }

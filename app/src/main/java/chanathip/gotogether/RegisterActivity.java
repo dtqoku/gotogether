@@ -1,5 +1,6 @@
 package chanathip.gotogether;
 
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
@@ -72,13 +73,14 @@ public class RegisterActivity extends AppCompatActivity {
 
                     firebaseUser.updateProfile(userProfileChangeRequest);
 
-                    DatabaseReference userdetail = databaseReference.child(userData.Emailwithoutadd);
+                    DatabaseReference userdetail = databaseReference.child(firebaseUser.getUid());
                     userdetail.child("First name").setValue(userData.Firstname);
                     userdetail.child("Last name").setValue(userData.Lastname);
                     userdetail.child("display name").setValue(userData.displayname);
                     userdetail.child("Phone").setValue(userData.Phone);
 
-                    // TODO: 10/25/2016 after create user
+                    // TODO: 10/25/2016 maybe with introduce user feature of this app
+
                     onBackPressed();
                 }
             }
@@ -103,6 +105,20 @@ public class RegisterActivity extends AppCompatActivity {
             firebaseAuth.removeAuthStateListener(authStateListener);
         }
     }
+    @Override
+    protected void onPause(){
+        super.onPause();
+        if (firebaseAuth != null) {
+            firebaseAuth.removeAuthStateListener(authStateListener);
+        }
+    }
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed();
+        if (firebaseAuth != null) {
+            firebaseAuth.removeAuthStateListener(authStateListener);
+        }
+    }
 
     @SuppressWarnings("ConstantConditions")
     @OnClick(R.id.btnSubmit)
@@ -114,10 +130,33 @@ public class RegisterActivity extends AppCompatActivity {
         userData.Phone = _phone.getEditText().getText().toString();
         userData.displayname = _displayname.getEditText().getText().toString();
         if (CheckUserData()) {
-            Snackbar snackbar = Snackbar.make(_registerCoordinatorLayout, "Register...", Snackbar.LENGTH_INDEFINITE);
-            snackbar.show();
 
-            CheckEmailDuplicate();
+            final DialogConect dialogConect;
+            dialogConect = new DialogConect(this);
+            dialogConect.setTitle("Registering...");
+            dialogConect.setMessage("Please wait");
+            dialogConect.setCancelable(false);
+            dialogConect.setCanceledOnTouchOutside(false);
+            dialogConect.show();
+
+            firebaseAuth.createUserWithEmailAndPassword(userData.Email, userData.password)
+                    .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            dialogConect.dismiss();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            dialogConect.dismiss();
+                            Log.d("create user fail",e.toString());
+                            Snackbar snackbar = Snackbar.make(_registerCoordinatorLayout, "Authentication failed ," + e.getMessage(), Snackbar.LENGTH_INDEFINITE)
+                                    .setActionTextColor(Color.WHITE);
+                            snackbar.getView().setBackgroundColor(Color.RED);
+                            snackbar.show();
+                        }
+                    });
 
         }
         _password2.getEditText().setText("");
@@ -204,37 +243,5 @@ public class RegisterActivity extends AppCompatActivity {
             _displayname.setErrorEnabled(false);
         }
         return true;
-    }
-
-    private void CheckEmailDuplicate() {
-        userData.Emailwithoutadd = (userData.Email.split("@"))[0];
-
-        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (!dataSnapshot.hasChild(userData.Emailwithoutadd)) {
-                    firebaseAuth.createUserWithEmailAndPassword(userData.Email, userData.password)
-                            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    if (!task.isSuccessful()) {
-                                        Snackbar snackbar =
-                                                Snackbar.make(_registerCoordinatorLayout, "Authentication failed.", Snackbar.LENGTH_LONG)
-                                                        .setAction("Action", null);
-                                        snackbar.show();
-                                    }
-                                }
-                            });
-                } else {
-                    Snackbar snackbar = Snackbar.make(_registerCoordinatorLayout, "Authentication failed,Email Duplicate.", Snackbar.LENGTH_SHORT);
-                    snackbar.show();
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
     }
 }

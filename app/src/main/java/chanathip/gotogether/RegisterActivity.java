@@ -7,6 +7,7 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -161,6 +162,15 @@ public class RegisterActivity extends AppCompatActivity {
 
         }
         _password2.getEditText().setText("");
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+        return (super.onOptionsItemSelected(item));
     }
 
     private boolean CheckUserData() {

@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -50,6 +51,9 @@ public class LoginActivity extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
                 if (firebaseUser != null) {
+                    NotificationManager notificationManager = new NotificationManager(LoginActivity.this);
+                    notificationManager.updateToken(firebaseUser.getUid(), FirebaseInstanceId.getInstance().getToken());
+                    
                     Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                     startActivity(intent);
                 }
@@ -94,7 +98,8 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             dialogConect.dismiss();
-                            if (!task.isSuccessful()) {
+                            if (task.isSuccessful()) {
+
                             }
                         }
                     })

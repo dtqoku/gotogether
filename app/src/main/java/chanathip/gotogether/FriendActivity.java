@@ -142,6 +142,8 @@ public class FriendActivity extends AppCompatActivity
         } else if (id == R.id.nav_appseting) {
 
         } else if (id == R.id.nav_logout) {
+            NotificationManager notificationManager = new NotificationManager(this);
+            notificationManager.deleteToken(firebaseAuth.getCurrentUser().getUid());
             FirebaseAuth.getInstance().signOut();
         }
 

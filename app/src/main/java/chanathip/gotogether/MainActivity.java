@@ -13,6 +13,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 public class MainActivity extends AppCompatActivity {
     private FirebaseAuth firebaseAuth;
@@ -33,6 +34,9 @@ public class MainActivity extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
                 if (firebaseUser != null) {
+                    NotificationManager notificationManager = new NotificationManager(MainActivity.this);
+                    notificationManager.updateToken(firebaseUser.getUid(), FirebaseInstanceId.getInstance().getToken());
+
                     Intent intent = new Intent(MainActivity.this, HomeActivity.class);
                     startActivity(intent);
                 } else {

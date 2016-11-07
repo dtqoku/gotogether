@@ -1,6 +1,8 @@
 package chanathip.gotogether;
 
 import android.content.Context;
+import android.content.Intent;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -39,6 +41,7 @@ public class AddFriendListAdapter extends RecyclerView.Adapter<AddFriendListAdap
         public TextView noficationcount;
         public ImageView iconnoficationcount;
         public ImageView overflow;
+        public CardView cardView;
 
         public ViewHolder(View view) {
             super(view);
@@ -48,6 +51,7 @@ public class AddFriendListAdapter extends RecyclerView.Adapter<AddFriendListAdap
             iconnoficationcount = (ImageView) view.findViewById(R.id.ic_nofication_count);
             overflow = (ImageView) view.findViewById(R.id.overflow);
             frienddetail = (TextView) view.findViewById(R.id.txtfrienddetail);
+            cardView = (CardView) view.findViewById(R.id.cv);
         }
     }
 
@@ -77,6 +81,16 @@ public class AddFriendListAdapter extends RecyclerView.Adapter<AddFriendListAdap
         viewHolder.noficationcount.setVisibility(View.GONE);
         viewHolder.iconnoficationcount.setVisibility(View.GONE);
         viewHolder.overflow.setVisibility(View.GONE);
+
+        viewHolder.cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context,UserdetailActivity.class);
+                intent.putExtra("userUid",userData.UserUid);
+                intent.putExtra("userDisplayname",userData.displayname);
+                context.startActivity(intent);
+            }
+        });
     }
 
     @Override

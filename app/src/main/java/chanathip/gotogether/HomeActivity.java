@@ -49,9 +49,8 @@ public class HomeActivity extends AppCompatActivity
                     currentUserData.Email = firebaseUser.getEmail();
 
                     getcurrentuserdata();
-                }
-                else{
-                    Intent intent = new Intent(HomeActivity.this,LoginActivity.class);
+                } else {
+                    Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
                     startActivity(intent);
                 }
             }
@@ -114,18 +113,20 @@ public class HomeActivity extends AppCompatActivity
         if (id == R.id.nav_home) {
             // this
         } else if (id == R.id.nav_group) {
-            Intent intent = new Intent(this,GroupActivity.class);
+            Intent intent = new Intent(this, GroupActivity.class);
             startActivity(intent);
-            overridePendingTransition(0,0);
+            overridePendingTransition(0, 0);
         } else if (id == R.id.nav_friend) {
-            Intent intent = new Intent(this,FriendActivity.class);
+            Intent intent = new Intent(this, FriendActivity.class);
             startActivity(intent);
-            overridePendingTransition(0,0);
+            overridePendingTransition(0, 0);
         } else if (id == R.id.nav_accountsetting) {
 
         } else if (id == R.id.nav_appseting) {
 
         } else if (id == R.id.nav_logout) {
+            NotificationManager notificationManager = new NotificationManager(this);
+            notificationManager.deleteToken(firebaseAuth.getCurrentUser().getUid());
             FirebaseAuth.getInstance().signOut();
         }
 
@@ -134,7 +135,7 @@ public class HomeActivity extends AppCompatActivity
         return true;
     }
 
-    private void getcurrentuserdata(){
+    private void getcurrentuserdata() {
         DatabaseReference currentuserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentUserData.UserUid);
         currentuserDatabaseReference.keepSynced(true);
         currentuserDatabaseReference
@@ -160,7 +161,7 @@ public class HomeActivity extends AppCompatActivity
                 });
     }
 
-    private void updateUI(){
+    private void updateUI() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 

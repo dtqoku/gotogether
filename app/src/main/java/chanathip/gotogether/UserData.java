@@ -1,5 +1,7 @@
 package chanathip.gotogether;
 
+import java.util.ArrayList;
+
 /**
  * Created by neetc on 10/25/2016.
  */
@@ -15,6 +17,7 @@ public class UserData {
     String displayname;
     double LocationLat;
     double LocationLng;
+    ArrayList<String> FriendList;
 
     public void setData(String UserUid,String Firstname,String Lastname,String displayname,String Email,String Phone){
         this.UserUid = UserUid;

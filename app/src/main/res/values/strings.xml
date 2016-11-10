@@ -15,7 +15,7 @@
     <string name="regis_email_hint">Enter your E-mail</string>
     <string name="regis_phone_hint">Enter your phone number (optional)</string>
     <string name="btn_sign_up">Sign up now!</string>
-    <string name="title_activity_home">HomeActivity</string>
+    <string name="title_activity_home">Home</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -29,16 +29,16 @@
     <string name="nav_accountsetting">Account setting</string>
     <string name="nav_appseting">Application setting</string>
     <string name="nav_logout">Logout</string>
-    <string name="loading">Loading...</string>
-    <string name="title_activity_friend">FriendActivity</string>
-    <string name="title_activity_group">GroupActivity</string>
+    <string name="loading">Loading</string>
+    <string name="title_activity_friend">Friend</string>
+    <string name="title_activity_group">Group</string>
     <string name="title_activity_main">MainActivity</string>
 
     <string name="friend_empty_view">you not have any friend :(</string>
     <string name="addfriend_empty_view">not found any user</string>
 
     <string name="notification_count_zero">0</string>
-    <string name="title_activity_userdetail">Loading...</string>
+    <string name="title_activity_userdetail">Loading</string>
     <string name="label_activity_userDetail">Contect Detail</string>
     
     <string name="displayname">Displayname </string>
@@ -46,6 +46,8 @@
     <string name="lastname">Lastname </string>
     <string name="email">E-mail </string>
     <string name="phone">Phone </string>
+
+    <string name="accept">accept</string>
 
 
     <string name="large_text">

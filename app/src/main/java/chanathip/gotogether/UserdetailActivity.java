@@ -1,6 +1,8 @@
 package chanathip.gotogether;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +12,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -23,7 +27,11 @@ import butterknife.ButterKnife;
 
 public class UserdetailActivity extends AppCompatActivity {
     private UserData currentViewUserData;
-    private DatabaseReference databaseReference;
+    private UserData currentUserData;
+    private GotogetherNotificationManager gotogetherNotificationManager;
+    private FirebaseAuth firebaseAuth;
+    private FirebaseAuth.AuthStateListener authStateListener;
+
     @BindView(R.id.txtdisplayname)
     TextView _displayname;
     @BindView(R.id.txtFirstname)
@@ -34,6 +42,8 @@ public class UserdetailActivity extends AppCompatActivity {
     TextView _email;
     @BindView(R.id.txtPhone)
     TextView _phone;
+    @BindView(R.id.UserdeailCoordinatorLayout)
+    View _UserdeailCoordinatorLayout;
 
 
     @Override
@@ -43,17 +53,11 @@ public class UserdetailActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
         currentViewUserData = new UserData();
+        currentUserData = new UserData();
+        gotogetherNotificationManager = new GotogetherNotificationManager(this);
 
+        //get information from bundle
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             if (extras == null) {
@@ -69,8 +73,50 @@ public class UserdetailActivity extends AppCompatActivity {
         }
 
         toolbar.setTitle(currentViewUserData.displayname);
-        setSupportActionBar(toolbar);
 
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        //get currentuserdata
+        firebaseAuth = FirebaseAuth.getInstance();
+        authStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                if (firebaseUser != null) {
+                    currentUserData.UserUid = firebaseUser.getUid();
+                    DatabaseReference currentuserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentUserData.UserUid);
+                    currentuserDatabaseReference
+                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    currentUserData.setData(
+                                            currentUserData.UserUid,
+                                            dataSnapshot.child("First name").getValue().toString(),
+                                            dataSnapshot.child("Last name").getValue().toString(),
+                                            dataSnapshot.child("display name").getValue().toString(),
+                                            currentUserData.Email,
+                                            dataSnapshot.child("Phone").getValue().toString()
+                                    );
+                                }
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+                }
+                else{
+                    Intent intent = new Intent(UserdetailActivity.this,LoginActivity.class);
+                    startActivity(intent);
+                }
+            }
+        };
+        firebaseAuth.addAuthStateListener(authStateListener);
+
+        //get current view userdetail
         DatabaseReference userViewDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentViewUserData.UserUid);
         userViewDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @SuppressWarnings("unchecked")
@@ -84,6 +130,7 @@ public class UserdetailActivity extends AppCompatActivity {
                     currentViewUserData.Lastname = String.valueOf(userdataMap.get("Last name"));
                     currentViewUserData.Email = String.valueOf(userdataMap.get("email"));
                     currentViewUserData.Phone = String.valueOf(userdataMap.get("phone"));
+                    //currentViewUserData.FriendList = new ArrayList<>(userdataMap.get("friend"));
 
                     updateContectdetail();
                 }
@@ -94,7 +141,17 @@ public class UserdetailActivity extends AppCompatActivity {
                 Log.d("userdetailView", databaseError.toString());
             }
         });
+
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (firebaseAuth != null) {
+            firebaseAuth.removeAuthStateListener(authStateListener);
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -124,5 +181,21 @@ public class UserdetailActivity extends AppCompatActivity {
             _phone.setText("");
         else
             _phone.setText(currentViewUserData.Phone);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                gotogetherNotificationManager.sendFriendRequest(currentViewUserData.UserUid,currentUserData.displayname);
+
+                DatabaseReference userViewDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentViewUserData.UserUid);
+                userViewDatabaseReference.child("request").child("friend").child(currentUserData.UserUid).setValue("true");
+
+                Snackbar snackbar = Snackbar.make(_UserdeailCoordinatorLayout, "sent friend request to " + currentViewUserData.displayname, Snackbar.LENGTH_LONG);
+                snackbar.show();
+            }
+        });
     }
+
+
 }

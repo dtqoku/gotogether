@@ -3,11 +3,7 @@ package chanathip.gotogether;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -34,8 +30,8 @@ public class MainActivity extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
                 if (firebaseUser != null) {
-                    NotificationManager notificationManager = new NotificationManager(MainActivity.this);
-                    notificationManager.updateToken(firebaseUser.getUid(), FirebaseInstanceId.getInstance().getToken());
+                    GotogetherNotificationManager gotogetherNotificationManager = new GotogetherNotificationManager(MainActivity.this);
+                    gotogetherNotificationManager.updateToken(firebaseUser.getUid(), FirebaseInstanceId.getInstance().getToken());
 
                     Intent intent = new Intent(MainActivity.this, HomeActivity.class);
                     startActivity(intent);

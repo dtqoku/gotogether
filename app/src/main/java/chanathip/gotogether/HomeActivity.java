@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -24,20 +26,38 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-// TODO: 10/25/2016 fill this page when other fisnish
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
     private UserData currentUserData;
     private DatabaseReference databaseReference;
+    private List<NotificationData> notificationDatas;
+    private List<NotificationData> friendRequestNotificationDatas;
+    private RecyclerView.LayoutManager layoutManager;
+    private HomeNotificationAdapter homeNotificationAdapter;
+
+    @BindView(R.id.recycler_view)
+    RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        ButterKnife.bind(this);
+
         currentUserData = new UserData();
+        notificationDatas = new ArrayList<>();
+        friendRequestNotificationDatas = new ArrayList<NotificationData>();
 
         firebaseAuth = FirebaseAuth.getInstance();
         authStateListener = new FirebaseAuth.AuthStateListener() {
@@ -60,6 +80,7 @@ public class HomeActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
+        notificationDatas.clear();
 
         firebaseAuth.addAuthStateListener(authStateListener);
     }
@@ -125,8 +146,8 @@ public class HomeActivity extends AppCompatActivity
         } else if (id == R.id.nav_appseting) {
 
         } else if (id == R.id.nav_logout) {
-            NotificationManager notificationManager = new NotificationManager(this);
-            notificationManager.deleteToken(firebaseAuth.getCurrentUser().getUid());
+            GotogetherNotificationManager gotogetherNotificationManager = new GotogetherNotificationManager(this);
+            gotogetherNotificationManager.deleteToken(firebaseAuth.getCurrentUser().getUid());
             FirebaseAuth.getInstance().signOut();
         }
 
@@ -140,6 +161,7 @@ public class HomeActivity extends AppCompatActivity
         currentuserDatabaseReference.keepSynced(true);
         currentuserDatabaseReference
                 .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @SuppressWarnings("unchecked")
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         currentUserData.setData(
@@ -151,6 +173,46 @@ public class HomeActivity extends AppCompatActivity
                                 dataSnapshot.child("Phone").getValue().toString()
                         );
 
+
+                        //check friend request
+                        friendRequestNotificationDatas.clear();
+                        Map<String, String> FriendRequestMap = (Map<String, String>) dataSnapshot.child("request").child("friend").getValue();
+                        if (FriendRequestMap != null) {
+                            for (HashMap.Entry<String, String> entry : FriendRequestMap.entrySet()) {
+                                String key = entry.getKey();
+                                String value = entry.getValue();
+
+                                if (value.equals("true")) {
+                                    final NotificationData friendRequestNotificationData = new NotificationData();
+
+                                    DatabaseReference requestFriendDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(key);
+                                    requestFriendDatabaseReference
+                                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                                    friendRequestNotificationData.RequestUserdisplayname = dataSnapshot.child("display name").getValue().toString();
+                                                    friendRequestNotificationData.RequestUserLastname = dataSnapshot.child("Last name").getValue().toString();
+                                                    friendRequestNotificationData.RequestUserFirstname = dataSnapshot.child("First name").getValue().toString();
+                                                    friendRequestNotificationData.Type = "FriendRequest";
+                                                    friendRequestNotificationData.RequestUserUid = dataSnapshot.getKey();
+                                                    friendRequestNotificationData.CurrentuserUid = currentUserData.UserUid;
+                                                    friendRequestNotificationData.CurrentuserDisplayname = currentUserData.displayname;
+
+
+                                                    friendRequestNotificationDatas.add(friendRequestNotificationData);
+                                                    updateNotificationdata();
+
+                                                }
+
+                                                @Override
+                                                public void onCancelled(DatabaseError databaseError) {
+
+                                                }
+                                            });
+                                }
+                            }
+                        }
+
                         updateUI();
                     }
 
@@ -159,6 +221,20 @@ public class HomeActivity extends AppCompatActivity
 
                     }
                 });
+    }
+
+    private void updateNotificationdata() {
+        notificationDatas.clear();
+
+        NotificationData notificationData = new NotificationData();
+        notificationData.Type = "Title";
+        notificationData.titlename = "Friend Request";
+        notificationDatas.add(notificationData);
+
+        notificationDatas.addAll(friendRequestNotificationDatas);
+
+        homeNotificationAdapter.notifyDataSetChanged();
+
     }
 
     private void updateUI() {
@@ -189,5 +265,12 @@ public class HomeActivity extends AppCompatActivity
         _showuserEmail.setText(currentUserData.Email);
         navigationView.setNavigationItemSelectedListener(this);
 
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+
+        homeNotificationAdapter = new HomeNotificationAdapter(this, notificationDatas, recyclerView);
+
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(homeNotificationAdapter);
     }
 }

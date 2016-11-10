@@ -51,8 +51,8 @@ public class LoginActivity extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
                 if (firebaseUser != null) {
-                    NotificationManager notificationManager = new NotificationManager(LoginActivity.this);
-                    notificationManager.updateToken(firebaseUser.getUid(), FirebaseInstanceId.getInstance().getToken());
+                    GotogetherNotificationManager gotogetherNotificationManager = new GotogetherNotificationManager(LoginActivity.this);
+                    gotogetherNotificationManager.updateToken(firebaseUser.getUid(), FirebaseInstanceId.getInstance().getToken());
                     
                     Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                     startActivity(intent);

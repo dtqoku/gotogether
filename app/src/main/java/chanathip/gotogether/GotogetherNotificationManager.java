@@ -24,7 +24,7 @@ import java.net.URL;
  * Created by neetc on 11/7/2016.
  */
 
-public class NotificationManager {
+public class GotogetherNotificationManager {
     private Context context;
     private String connectionString;
 
@@ -41,16 +41,17 @@ public class NotificationManager {
             this.token = token;
         }
     }
-    private class UidForRequestFriend{
-        String SenderUid;
+    private class RequestFriendData{
         String ReceiveUid;
+        String Message;
 
-        UidForRequestFriend(String SenderUid,String ReceiveUid){
-            this.SenderUid =
+        RequestFriendData(String ReceiveUid,String Message){
+            this.ReceiveUid = ReceiveUid;
+            this.Message = Message;
         }
     }
 
-    NotificationManager(Context context) {
+    GotogetherNotificationManager(Context context) {
         connectionString = context.getResources().getString(R.string.connection_string);
         this.context = context;
     }
@@ -67,8 +68,19 @@ public class NotificationManager {
         UpdateTokenToServer updateTokenToServer = new UpdateTokenToServer(uidandtoken);
         updateTokenToServer.launchTask();
     }
-    public void sendFriendRequest(String SenderUid,String ReceiveUid){
-        SendFriendRequestToServer sendFriendRequestToServer = new
+    public void sendFriendRequest(String ReceiveUid,String SenderName){
+        String Message = SenderName + " send friend request to you";
+        RequestFriendData requestFriendData = new RequestFriendData(ReceiveUid,Message);
+
+        SendNotificationToServer sendNotificationToServer = new SendNotificationToServer(requestFriendData);
+        sendNotificationToServer.launchTask();
+    }
+    public void acceptFriendRequest(String ReceiveUid,String SenderName){
+        String Message = SenderName + " accept your request already";
+        RequestFriendData requestFriendData = new RequestFriendData(ReceiveUid,Message);
+
+        SendNotificationToServer sendNotificationToServer = new SendNotificationToServer(requestFriendData);
+        sendNotificationToServer.launchTask();
     }
 
     private class UpdateTokenToServer implements AsyncTaskCompleteListener<String> {
@@ -101,11 +113,11 @@ public class NotificationManager {
             updateTokenToServerTask.execute(uidandtoken);
         }
     }
-    private class SendFriendRequestToServer implements AsyncTaskCompleteListener<String> {
-        private Uidandtoken uidandtoken;
+    private class SendNotificationToServer implements AsyncTaskCompleteListener<String> {
+        private RequestFriendData requestFriendData;
 
-        UpdateTokenToServer(Uidandtoken uidandtoken) {
-            this.uidandtoken = uidandtoken;
+        SendNotificationToServer(RequestFriendData requestFriendData) {
+            this.requestFriendData = requestFriendData;
         }
 
         @Override
@@ -116,19 +128,19 @@ public class NotificationManager {
                 //solution
                 JSONObject jObject = new JSONObject(result);
                 String StatusReturnCode = jObject.getString("statuscode");
-                if (StatusReturnCode.equals("4") || StatusReturnCode.equals("1")) {
+                if (StatusReturnCode.equals("1")) {
 
                 } else {
                     launchTask();
                 }
             } catch (JSONException e) {
-                Log.e("Register", "JSONException", e);
+                Log.e("sendfriend notification", "JSONException", e);
             }
         }
 
         public void launchTask() {
-            UpdateTokenToServerTask updateTokenToServerTask = new UpdateTokenToServerTask(this);
-            updateTokenToServerTask.execute(uidandtoken);
+            SendNotificationToServerTask sendNotificationToServerTask = new SendNotificationToServerTask(this);
+            sendNotificationToServerTask.execute(requestFriendData);
         }
     }
 
@@ -203,25 +215,24 @@ public class NotificationManager {
             callback.OnTaskComplete(result);
         }
     }
-    private class SendFriendRequestToServerTask extends AsyncTask<Uidandtoken, Void, String> {
+    private class SendNotificationToServerTask extends AsyncTask<RequestFriendData, Void, String> {
         private HttpURLConnection urlConnection;
         private AsyncTaskCompleteListener<String> callback;
 
-        UpdateTokenToServerTask(AsyncTaskCompleteListener<String> cb) {
+        SendNotificationToServerTask(AsyncTaskCompleteListener<String> cb) {
             this.callback = cb;
         }
 
         @Override
-        protected String doInBackground(Uidandtoken... uidandtoken) {
+        protected String doInBackground(RequestFriendData... requestFriendData) {
             OutputStream os;
             InputStream in;
-
 
             //convert to json
             JSONObject jsonObject = new JSONObject();
             try {
-                jsonObject.put("Uid", uidandtoken[0].uid);
-                jsonObject.put("Token", uidandtoken[0].token);
+                jsonObject.put("ReceiveUid", requestFriendData[0].ReceiveUid);
+                jsonObject.put("Message", requestFriendData[0].Message);
             } catch (JSONException e) {
                 Log.e("JsonEncode", "exception", e);
             }
@@ -230,7 +241,7 @@ public class NotificationManager {
             //start connection
             StringBuilder result = new StringBuilder();
             try {
-                String connectURL = connectionString + "updatetoken.php";
+                String connectURL = connectionString + "sendNotification.php";
                 URL url = new URL(connectURL);
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setReadTimeout(10000 /*milliseconds*/);

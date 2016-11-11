@@ -47,6 +47,8 @@ public class HomeActivity extends AppCompatActivity
 
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
+    @BindView(R.id.nav_view)
+    NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +59,7 @@ public class HomeActivity extends AppCompatActivity
 
         currentUserData = new UserData();
         notificationDatas = new ArrayList<>();
-        friendRequestNotificationDatas = new ArrayList<NotificationData>();
+        friendRequestNotificationDatas = new ArrayList<>();
 
         firebaseAuth = FirebaseAuth.getInstance();
         authStateListener = new FirebaseAuth.AuthStateListener() {
@@ -81,6 +83,7 @@ public class HomeActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
         notificationDatas.clear();
+        navigationView.setCheckedItem(R.id.nav_home);
 
         firebaseAuth.addAuthStateListener(authStateListener);
     }

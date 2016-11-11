@@ -22,7 +22,7 @@
             android:id="@+id/lbl_Contect"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/label_activity_userDetail"
+            android:text="@string/label_activity_userDetail_contect"
             android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
 
@@ -31,6 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/lbl_Contect"
+            android:layout_marginBottom="10dp"
             android:layout_marginTop="10dp"
             card_view:cardUseCompatPadding="true">
 
@@ -48,16 +49,18 @@
                     android:layout_marginTop="@dimen/text_margin"
                     android:text="@string/displayname"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/txtdisplayname"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/text_margin"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginStart="5dp"
                     android:layout_marginTop="@dimen/text_margin"
-                    android:layout_toRightOf="@+id/lbldisplayname"
                     android:layout_toEndOf="@+id/lbldisplayname"
+                    android:layout_toRightOf="@+id/lbldisplayname"
                     android:text="@string/loading"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
@@ -67,16 +70,17 @@
                     android:layout_height="1dp"
                     android:layout_below="@+id/txtdisplayname"
                     android:background="@android:color/darker_gray" />
+
                 <TextView
                     android:id="@+id/lblFirstname"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_below="@+id/line"
                     android:layout_marginBottom="@dimen/text_margin"
                     android:layout_marginTop="@dimen/text_margin"
-                    android:layout_below="@+id/line"
                     android:text="@string/fristname"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/txtFirstname"
@@ -84,9 +88,11 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/line"
                     android:layout_marginBottom="@dimen/text_margin"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginStart="5dp"
                     android:layout_marginTop="@dimen/text_margin"
-                    android:layout_toRightOf="@+id/lblFirstname"
                     android:layout_toEndOf="@+id/lblFirstname"
+                    android:layout_toRightOf="@+id/lblFirstname"
                     android:text="@string/loading"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
@@ -96,16 +102,17 @@
                     android:layout_height="1dp"
                     android:layout_below="@+id/txtFirstname"
                     android:background="@android:color/darker_gray" />
+
                 <TextView
                     android:id="@+id/lblLastname"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_below="@+id/line2"
                     android:layout_marginBottom="@dimen/text_margin"
                     android:layout_marginTop="@dimen/text_margin"
-                    android:layout_below="@+id/line2"
                     android:text="@string/lastname"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/txtLastname"
@@ -113,9 +120,11 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/txtFirstname"
                     android:layout_marginBottom="@dimen/text_margin"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginStart="5dp"
                     android:layout_marginTop="@dimen/text_margin"
-                    android:layout_toRightOf="@+id/lblLastname"
                     android:layout_toEndOf="@+id/lblLastname"
+                    android:layout_toRightOf="@+id/lblLastname"
                     android:text="@string/loading"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
@@ -125,16 +134,17 @@
                     android:layout_height="1dp"
                     android:layout_below="@+id/txtLastname"
                     android:background="@android:color/darker_gray" />
+
                 <TextView
                     android:id="@+id/lblEmail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_below="@+id/line3"
                     android:layout_marginBottom="@dimen/text_margin"
                     android:layout_marginTop="@dimen/text_margin"
-                    android:layout_below="@+id/line3"
                     android:text="@string/email"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/txtEmail"
@@ -142,9 +152,11 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/line3"
                     android:layout_marginBottom="@dimen/text_margin"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginStart="5dp"
                     android:layout_marginTop="@dimen/text_margin"
-                    android:layout_toRightOf="@+id/lblEmail"
                     android:layout_toEndOf="@+id/lblEmail"
+                    android:layout_toRightOf="@+id/lblEmail"
                     android:text="@string/loading"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
@@ -154,16 +166,17 @@
                     android:layout_height="1dp"
                     android:layout_below="@+id/txtEmail"
                     android:background="@android:color/darker_gray" />
+
                 <TextView
                     android:id="@+id/lblPhone"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_below="@+id/line4"
                     android:layout_marginBottom="@dimen/text_margin"
                     android:layout_marginTop="@dimen/text_margin"
-                    android:layout_below="@+id/line4"
                     android:text="@string/phone"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/txtPhone"
@@ -171,14 +184,71 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/line4"
                     android:layout_marginBottom="@dimen/text_margin"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginStart="5dp"
                     android:layout_marginTop="@dimen/text_margin"
-                    android:layout_toRightOf="@+id/lblPhone"
                     android:layout_toEndOf="@+id/lblPhone"
+                    android:layout_toRightOf="@+id/lblPhone"
                     android:text="@string/loading"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
             </RelativeLayout>
 
         </android.support.v7.widget.CardView>
+
+        <TextView
+            android:id="@+id/lbl_Operation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/cv"
+            android:text="@string/label_activity_userDetail_operation"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:visibility="gone"/>
+
+        <android.support.v7.widget.CardView
+            android:id="@+id/cv2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/lbl_Operation"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            card_view:cardUseCompatPadding="true"
+            android:visibility="gone">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin">
+                <Button
+                    android:id="@+id/btnchat"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/chat"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:textStyle="bold"
+                    android:background="@android:color/transparent"/>
+
+                <View
+                    android:id="@+id/line5"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/btnchat"
+                    android:background="@android:color/darker_gray" />
+                <Button
+                    android:id="@+id/btnunfriend"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/line5"
+                    android:text="@string/unfriend"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:textStyle="bold"
+                    android:background="@android:color/transparent" />
+
+
+            </RelativeLayout>
+
+        </android.support.v7.widget.CardView>
+
     </RelativeLayout>
 
 </android.support.v4.widget.NestedScrollView>

@@ -43,7 +43,7 @@
         app:layout_anchor="@id/app_bar"
         app:layout_anchorGravity="bottom|end"
         app:srcCompat="@drawable/ic_group_add_black_24dp"
-        android:tint="@color/white"
-        app:backgroundTint="@color/green"  />
+        android:tint="@color/colorPrimaryDark"
+        app:backgroundTint="@color/white"  />
 
 </android.support.design.widget.CoordinatorLayout>

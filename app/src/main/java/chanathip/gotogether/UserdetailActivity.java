@@ -1,15 +1,20 @@
 package chanathip.gotogether;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -44,6 +49,14 @@ public class UserdetailActivity extends AppCompatActivity {
     TextView _phone;
     @BindView(R.id.UserdeailCoordinatorLayout)
     View _UserdeailCoordinatorLayout;
+    @BindView(R.id.lbl_Operation)
+    TextView _lbl_Operation;
+    @BindView(R.id.cv2)
+    CardView _cv2;
+    @BindView(R.id.btnunfriend)
+    Button btnUnfriend;
+    @BindView(R.id.btnchat)
+    Button btnChat;
 
 
     @Override
@@ -130,7 +143,16 @@ public class UserdetailActivity extends AppCompatActivity {
                     currentViewUserData.Lastname = String.valueOf(userdataMap.get("Last name"));
                     currentViewUserData.Email = String.valueOf(userdataMap.get("email"));
                     currentViewUserData.Phone = String.valueOf(userdataMap.get("phone"));
-                    //currentViewUserData.FriendList = new ArrayList<>(userdataMap.get("friend"));
+
+                    if(dataSnapshot.child("request").child("friend").getValue() != null){
+                        currentViewUserData.FriendStatus = "request";
+                    }
+                    else if(dataSnapshot.child("friend").child(currentUserData.UserUid).getValue() != null){
+                        currentViewUserData.FriendStatus = "friend";
+                    }
+                    else{
+                        currentViewUserData.FriendStatus = "notfriend";
+                    }
 
                     updateContectdetail();
                 }
@@ -182,17 +204,88 @@ public class UserdetailActivity extends AppCompatActivity {
         else
             _phone.setText(currentViewUserData.Phone);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        if(currentViewUserData.FriendStatus.equals("request")){
+            fab.setImageDrawable(ContextCompat.getDrawable(this,R.drawable.ic_access_time_black_24dp));
+        }
+        else if(currentViewUserData.FriendStatus.equals("friend")){
+            fab.setImageDrawable(ContextCompat.getDrawable(this,R.drawable.ic_comment_black_24dp));
+
+            _lbl_Operation.setVisibility(View.VISIBLE);
+            _cv2.setVisibility(View.VISIBLE);
+
+            btnUnfriend.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(UserdetailActivity.this);
+                    builder.setMessage("Are you sure to unfriend?")
+                            .setCancelable(false)
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentUserData.UserUid);
+                                    currentuserdatabaseReference.child("friend").child(currentViewUserData.UserUid).removeValue();
+
+                                    DatabaseReference requestuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentViewUserData.UserUid);
+                                    requestuserdatabaseReference.child("friend").child(currentUserData.UserUid).removeValue();
+
+                                    Snackbar snackbar = Snackbar.make(_cv2, "unfriend with " + currentViewUserData.displayname, Snackbar.LENGTH_LONG);
+                                    snackbar.show();
+
+                                    onBackPressed();
+                                }
+                            })
+                            .setNegativeButton("Cancel",new DialogInterface.OnClickListener(){
+                                public void onClick(DialogInterface dialog,int id){
+                                    //cancel
+                                }
+                            });
+                    AlertDialog alert = builder.create();
+                    alert.show();
+                }
+            });
+            btnChat.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(UserdetailActivity.this,PersonChatActivity.class);
+                    intent.putExtra("currentChatuserUid",currentViewUserData.UserUid);
+                    intent.putExtra("currentChatuserDisplayname",currentViewUserData.displayname);
+                    intent.putExtra("UserUid",currentUserData.UserUid);
+                    intent.putExtra("UserDisplayname",currentUserData.displayname);
+                    startActivity(intent);
+                }
+            });
+
+        }
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                gotogetherNotificationManager.sendFriendRequest(currentViewUserData.UserUid,currentUserData.displayname);
+                if(currentViewUserData.FriendStatus.equals("request")){
+                    final FloatingActionButton fabtemp = fab;
+                    DatabaseReference currentViewUserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentViewUserData.UserUid);
+                    currentViewUserDatabaseReference.child("request").child("friend").child(currentUserData.UserUid).removeValue();
 
-                DatabaseReference userViewDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentViewUserData.UserUid);
-                userViewDatabaseReference.child("request").child("friend").child(currentUserData.UserUid).setValue("true");
+                    Snackbar snackbar = Snackbar.make(_UserdeailCoordinatorLayout, "cancel " + currentViewUserData.displayname + " friend request", Snackbar.LENGTH_LONG);
+                    snackbar.show();
+                    fabtemp.setImageDrawable(ContextCompat.getDrawable(UserdetailActivity.this,R.drawable.ic_group_add_black_24dp));
+                }
+                else if(currentViewUserData.FriendStatus.equals("friend")){
+                    Intent intent = new Intent(UserdetailActivity.this,PersonChatActivity.class);
+                    intent.putExtra("currentChatuserUid",currentViewUserData.UserUid);
+                    intent.putExtra("currentChatuserDisplayname",currentViewUserData.displayname);
+                    intent.putExtra("UserUid",currentUserData.UserUid);
+                    intent.putExtra("UserDisplayname",currentUserData.displayname);
+                    startActivity(intent);
+                }
+                else {
+                    gotogetherNotificationManager.sendFriendRequest(currentViewUserData.UserUid, currentUserData.displayname);
 
-                Snackbar snackbar = Snackbar.make(_UserdeailCoordinatorLayout, "sent friend request to " + currentViewUserData.displayname, Snackbar.LENGTH_LONG);
-                snackbar.show();
+                    DatabaseReference userViewDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentViewUserData.UserUid);
+                    userViewDatabaseReference.child("request").child("friend").child(currentUserData.UserUid).setValue("true");
+
+                    Snackbar snackbar = Snackbar.make(_UserdeailCoordinatorLayout, "sent friend request to " + currentViewUserData.displayname, Snackbar.LENGTH_LONG);
+                    snackbar.show();
+                }
             }
         });
     }

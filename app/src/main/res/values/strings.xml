@@ -39,15 +39,21 @@
 
     <string name="notification_count_zero">0</string>
     <string name="title_activity_userdetail">Loading</string>
-    <string name="label_activity_userDetail">Contect Detail</string>
-    
+    <string name="label_activity_userDetail_contect">Contect Detail</string>
+    <string name="label_activity_userDetail_operation">Operation </string>
+
     <string name="displayname">Displayname </string>
     <string name="fristname">Firstname </string>
     <string name="lastname">Lastname </string>
     <string name="email">E-mail </string>
     <string name="phone">Phone </string>
 
-    <string name="accept">accept</string>
+    <string name="Send">Send</string>
+    <string name="accept">Accept</string>
+    <string name="submit_chat">Enter new massange</string>
+
+    <string name="unfriend">unfriend</string>
+    <string name="chat">chat</string>
 
 
     <string name="large_text">
@@ -139,4 +145,5 @@
         "For example, position the FAB to one side of stream of a cards so the FAB won’t interfere "
         "when a user tries to pick up one of cards.\n\n"
     </string>
+    <string name="title_activity_person_chat">PersonChatActivity</string>
 </resources>

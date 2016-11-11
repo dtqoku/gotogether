@@ -74,7 +74,7 @@ public class HomeNotificationAdapter extends RecyclerView.Adapter<RecyclerView.V
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         final NotificationData notificationData = notificationDatas.get(position);
         if (holder instanceof ViewHolderTitle) {
             ViewHolderTitle viewHolderTitle = (ViewHolderTitle) holder;
@@ -102,15 +102,33 @@ public class HomeNotificationAdapter extends RecyclerView.Adapter<RecyclerView.V
                 public void onClick(View v) {
                     DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(notificationData.CurrentuserUid);
                     currentuserdatabaseReference.child("friend").child(notificationData.RequestUserUid).setValue("true");
-                    currentuserdatabaseReference.child("request").child(notificationData.RequestUserUid).removeValue();
+                    currentuserdatabaseReference.child("request").child("friend").child(notificationData.RequestUserUid).removeValue();
 
                     DatabaseReference requestuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(notificationData.RequestUserUid);
                     requestuserdatabaseReference.child("friend").child(notificationData.CurrentuserUid).setValue("true");
+                    requestuserdatabaseReference.child("request").child("friend").child(notificationData.CurrentuserDisplayname).removeValue();
 
                     GotogetherNotificationManager gotogetherNotificationManager = new GotogetherNotificationManager(context);
                     gotogetherNotificationManager.acceptFriendRequest(notificationData.RequestUserUid,notificationData.CurrentuserDisplayname);
 
+                    notificationDatas.remove(position);
+                    notifyDataSetChanged();
+
                     Snackbar snackbar = Snackbar.make(parentView, "accept "+notificationData.RequestUserdisplayname+" friend request", Snackbar.LENGTH_LONG);
+                    snackbar.show();
+                }
+            });
+
+            viewHolderFriendRequest.reject.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(notificationData.CurrentuserUid);
+                    currentuserdatabaseReference.child("request").child("friend").child(notificationData.RequestUserUid).removeValue();
+
+                    notificationDatas.remove(position);
+                    notifyDataSetChanged();
+
+                    Snackbar snackbar = Snackbar.make(parentView, "reject "+notificationData.RequestUserdisplayname+" friend request", Snackbar.LENGTH_LONG);
                     snackbar.show();
                 }
             });

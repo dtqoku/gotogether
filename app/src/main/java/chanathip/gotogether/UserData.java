@@ -17,7 +17,8 @@ public class UserData {
     String displayname;
     double LocationLat;
     double LocationLng;
-    ArrayList<String> FriendList;
+
+    String FriendStatus;
 
     public void setData(String UserUid,String Firstname,String Lastname,String displayname,String Email,String Phone){
         this.UserUid = UserUid;

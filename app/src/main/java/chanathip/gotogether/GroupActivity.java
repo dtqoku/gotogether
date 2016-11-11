@@ -24,17 +24,28 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class GroupActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+    @BindView(R.id.nav_view)
+    NavigationView navigationView;
+
+
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
     private UserData currentUserData;
     private DatabaseReference databaseReference;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group);
+
+        ButterKnife.bind(this);
 
         currentUserData = new UserData();
 
@@ -61,6 +72,7 @@ public class GroupActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
 
+        navigationView.setCheckedItem(R.id.nav_group);
         firebaseAuth.addAuthStateListener(authStateListener);
     }
 

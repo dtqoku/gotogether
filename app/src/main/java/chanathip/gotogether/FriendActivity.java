@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -24,18 +26,29 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class FriendActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     @BindView(R.id.searchViewfriend)
     SearchView _searchViewfriend;
+    @BindView(R.id.nav_view)
+    NavigationView navigationView;
 
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
     private UserData currentUserData;
+    private List<UserData> friendUserdatas;
     private DatabaseReference databaseReference;
+    private FriendListAdapter friendListAdapter;
+    private RecyclerView.LayoutManager layoutManager;
 
 
     @Override
@@ -43,7 +56,10 @@ public class FriendActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friend);
 
+        ButterKnife.bind(this);
+
         currentUserData = new UserData();
+        friendUserdatas = new ArrayList<>();
 
         firebaseAuth = FirebaseAuth.getInstance();
         authStateListener = new FirebaseAuth.AuthStateListener() {
@@ -55,9 +71,8 @@ public class FriendActivity extends AppCompatActivity
                     currentUserData.Email = firebaseUser.getEmail();
 
                     getcurrentuserdata();
-                }
-                else{
-                    Intent intent = new Intent(FriendActivity.this,LoginActivity.class);
+                } else {
+                    Intent intent = new Intent(FriendActivity.this, LoginActivity.class);
                     startActivity(intent);
                 }
             }
@@ -67,6 +82,8 @@ public class FriendActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
+        friendUserdatas.clear();
+        navigationView.setCheckedItem(R.id.nav_friend);
 
         firebaseAuth.addAuthStateListener(authStateListener);
     }
@@ -86,7 +103,7 @@ public class FriendActivity extends AppCompatActivity
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
-            overridePendingTransition(0,0);
+            overridePendingTransition(0, 0);
         }
     }
 
@@ -119,13 +136,13 @@ public class FriendActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_home) {
-            Intent intent = new Intent(this,HomeActivity.class);
+            Intent intent = new Intent(this, HomeActivity.class);
             startActivity(intent);
-            overridePendingTransition(0,0);
+            overridePendingTransition(0, 0);
         } else if (id == R.id.nav_group) {
-            Intent intent = new Intent(this,GroupActivity.class);
+            Intent intent = new Intent(this, GroupActivity.class);
             startActivity(intent);
-            overridePendingTransition(0,0);
+            overridePendingTransition(0, 0);
         } else if (id == R.id.nav_friend) {
             //this
         } else if (id == R.id.nav_accountsetting) {
@@ -143,11 +160,12 @@ public class FriendActivity extends AppCompatActivity
         return true;
     }
 
-    private void getcurrentuserdata(){
+    private void getcurrentuserdata() {
         DatabaseReference currentuserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentUserData.UserUid);
         currentuserDatabaseReference.keepSynced(true);
-        currentuserDatabaseReference
-                .addListenerForSingleValueEvent(new ValueEventListener() {
+        currentuserDatabaseReference.addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @SuppressWarnings("unchecked")
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         currentUserData.setData(
@@ -155,21 +173,60 @@ public class FriendActivity extends AppCompatActivity
                                 dataSnapshot.child("First name").getValue().toString(),
                                 dataSnapshot.child("Last name").getValue().toString(),
                                 dataSnapshot.child("display name").getValue().toString(),
-                                currentUserData.Email,
+                                dataSnapshot.child("email").getValue().toString(),
                                 dataSnapshot.child("Phone").getValue().toString()
                         );
 
-                        updateUI();
+
+                        Map<String, String> friendUserdataMap = (Map<String, String>) dataSnapshot.child("friend").getValue();
+                        if (friendUserdataMap != null) {
+                            for (HashMap.Entry<String, String> entry : friendUserdataMap.entrySet()) {
+                                String key = entry.getKey();
+                                String value = entry.getValue();
+
+                                if (value.equals("true")) {
+                                    final UserData friendUserdata = new UserData();
+                                    final String Uid = key;
+
+                                    DatabaseReference FriendDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(key);
+                                    FriendDatabaseReference
+                                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                                    friendUserdata.UserUid = Uid;
+                                                    friendUserdata.Firstname = dataSnapshot.child("First name").getValue().toString();
+                                                    friendUserdata.Lastname = dataSnapshot.child("Last name").getValue().toString();
+                                                    friendUserdata.displayname = dataSnapshot.child("display name").getValue().toString();
+                                                    friendUserdata.Email = dataSnapshot.child("email").getValue().toString();
+                                                    friendUserdata.Phone = dataSnapshot.child("Phone").getValue().toString();
+                                                    friendUserdatas.add(friendUserdata);
+
+
+                                                    updateUI();
+
+                                                }
+
+                                                @Override
+                                                public void onCancelled(DatabaseError databaseError) {
+
+                                                }
+                                            });
+
+                                }
+                            }
+                        }
                     }
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
 
                     }
-                });
+                }
+
+        );
     }
 
-    private void updateUI(){
+    private void updateUI() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -177,7 +234,7 @@ public class FriendActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(FriendActivity.this,AddFriendActivity.class);
+                Intent intent = new Intent(FriendActivity.this, AddFriendActivity.class);
                 startActivity(intent);
             }
         });
@@ -201,6 +258,28 @@ public class FriendActivity extends AppCompatActivity
         _searchViewfriend = (SearchView) findViewById(R.id.searchViewfriend);
         _searchViewfriend.onActionViewExpanded();
         _searchViewfriend.clearFocus();
+        _searchViewfriend.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                friendListAdapter.filter(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                friendListAdapter.filter(newText);
+                return false;
+            }
+        });
+
+        friendListAdapter = new FriendListAdapter(this,friendUserdatas,_searchViewfriend,currentUserData);
+
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(friendListAdapter);
+
 
     }
 }

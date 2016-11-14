@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/CreategroupCoordinatorLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/createnewgrouplayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        tools:context="chanathip.settingmeetingpoint.CreateNewGroupActivity">
+
+        <ScrollView
+            android:id="@+id/scrollview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/m_table_menu">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/textinputlayout_textgroupname"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <android.support.design.widget.TextInputEditText
+                        android:id="@+id/editText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentTop="true"
+                        android:ems="10"
+                        android:hint="Enter Group Name"
+                        android:imeOptions="actionNext"
+                        android:inputType="text"
+                        android:maxLines="1"
+                        android:nextFocusForward="@+id/editText2" />
+                </android.support.design.widget.TextInputLayout>
+
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/textinputlayout_textgroupdescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_below="@+id/textinputlayout_textgroupname"
+                    android:hint="Enter Group Description">
+
+                    <android.support.design.widget.TextInputEditText
+                        android:id="@+id/editText2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignEnd="@+id/editText"
+                        android:layout_alignRight="@+id/editText"
+                        android:layout_below="@+id/editText"
+                        android:ems="10"
+                        android:inputType="textMultiLine"
+                        android:maxLines="3"/>
+                </android.support.design.widget.TextInputLayout>
+            </RelativeLayout>
+        </ScrollView>
+
+        <TableLayout
+            android:id="@+id/m_table_menu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:padding="0dp"
+            android:stretchColumns="*">
+
+            <Button
+                android:id="@+id/btncreate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                android:text="Create"
+                android:textColor="@android:color/white" />
+        </TableLayout>
+    </RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

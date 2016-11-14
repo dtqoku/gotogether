@@ -82,6 +82,13 @@ public class GotogetherNotificationManager {
         SendNotificationToServer sendNotificationToServer = new SendNotificationToServer(requestFriendData);
         sendNotificationToServer.launchTask();
     }
+    public void sendPersonChat(String ReceiveUid,String SenderName){
+        String Message = "new Message from "+SenderName;
+        RequestFriendData requestFriendData = new RequestFriendData(ReceiveUid,Message);
+
+        SendNotificationToServer sendNotificationToServer = new SendNotificationToServer(requestFriendData);
+        sendNotificationToServer.launchTask();
+    }
 
     private class UpdateTokenToServer implements AsyncTaskCompleteListener<String> {
         private Uidandtoken uidandtoken;

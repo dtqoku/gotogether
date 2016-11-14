@@ -42,6 +42,7 @@ public class HomeActivity extends AppCompatActivity
     private DatabaseReference databaseReference;
     private List<NotificationData> notificationDatas;
     private List<NotificationData> friendRequestNotificationDatas;
+    private List<NotificationData> unreadMassageNotificationDatas;
     private RecyclerView.LayoutManager layoutManager;
     private HomeNotificationAdapter homeNotificationAdapter;
 
@@ -60,6 +61,7 @@ public class HomeActivity extends AppCompatActivity
         currentUserData = new UserData();
         notificationDatas = new ArrayList<>();
         friendRequestNotificationDatas = new ArrayList<>();
+        unreadMassageNotificationDatas = new ArrayList<>();
 
         firebaseAuth = FirebaseAuth.getInstance();
         authStateListener = new FirebaseAuth.AuthStateListener() {
@@ -163,67 +165,124 @@ public class HomeActivity extends AppCompatActivity
         DatabaseReference currentuserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentUserData.UserUid);
         currentuserDatabaseReference.keepSynced(true);
         currentuserDatabaseReference
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @SuppressWarnings("unchecked")
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        currentUserData.setData(
-                                currentUserData.UserUid,
-                                dataSnapshot.child("First name").getValue().toString(),
-                                dataSnapshot.child("Last name").getValue().toString(),
-                                dataSnapshot.child("display name").getValue().toString(),
-                                dataSnapshot.child("email").getValue().toString(),
-                                dataSnapshot.child("Phone").getValue().toString()
-                        );
+                .addListenerForSingleValueEvent(
+                        new ValueEventListener() {
+                            @SuppressWarnings("unchecked")
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                currentUserData.setData(
+                                        currentUserData.UserUid,
+                                        dataSnapshot.child("First name").getValue().toString(),
+                                        dataSnapshot.child("Last name").getValue().toString(),
+                                        dataSnapshot.child("display name").getValue().toString(),
+                                        dataSnapshot.child("email").getValue().toString(),
+                                        dataSnapshot.child("Phone").getValue().toString()
+                                );
 
 
-                        //check friend request
-                        friendRequestNotificationDatas.clear();
-                        Map<String, String> FriendRequestMap = (Map<String, String>) dataSnapshot.child("request").child("friend").getValue();
-                        if (FriendRequestMap != null) {
-                            for (HashMap.Entry<String, String> entry : FriendRequestMap.entrySet()) {
-                                String key = entry.getKey();
-                                String value = entry.getValue();
+                                //check friend request
+                                friendRequestNotificationDatas.clear();
+                                Map<String, String> FriendRequestMap = (Map<String, String>) dataSnapshot.child("request").child("friend").getValue();
+                                if (FriendRequestMap != null) {
+                                    for (HashMap.Entry<String, String> entry : FriendRequestMap.entrySet()) {
+                                        String key = entry.getKey();
+                                        String value = entry.getValue();
 
-                                if (value.equals("true")) {
-                                    final NotificationData friendRequestNotificationData = new NotificationData();
+                                        if (value.equals("true")) {
+                                            final NotificationData friendRequestNotificationData = new NotificationData();
 
-                                    DatabaseReference requestFriendDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(key);
-                                    requestFriendDatabaseReference
-                                            .addListenerForSingleValueEvent(new ValueEventListener() {
-                                                @Override
-                                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                                    friendRequestNotificationData.RequestUserdisplayname = dataSnapshot.child("display name").getValue().toString();
-                                                    friendRequestNotificationData.RequestUserLastname = dataSnapshot.child("Last name").getValue().toString();
-                                                    friendRequestNotificationData.RequestUserFirstname = dataSnapshot.child("First name").getValue().toString();
-                                                    friendRequestNotificationData.Type = "FriendRequest";
-                                                    friendRequestNotificationData.RequestUserUid = dataSnapshot.getKey();
-                                                    friendRequestNotificationData.CurrentuserUid = currentUserData.UserUid;
-                                                    friendRequestNotificationData.CurrentuserDisplayname = currentUserData.displayname;
+                                            DatabaseReference requestFriendDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(key);
+                                            requestFriendDatabaseReference
+                                                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                                                        @Override
+                                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                                            friendRequestNotificationData.RequestUserdisplayname = dataSnapshot.child("display name").getValue().toString();
+                                                            friendRequestNotificationData.RequestUserLastname = dataSnapshot.child("Last name").getValue().toString();
+                                                            friendRequestNotificationData.RequestUserFirstname = dataSnapshot.child("First name").getValue().toString();
+                                                            friendRequestNotificationData.Type = "FriendRequest";
+                                                            friendRequestNotificationData.RequestUserUid = dataSnapshot.getKey();
+                                                            friendRequestNotificationData.CurrentuserUid = currentUserData.UserUid;
+                                                            friendRequestNotificationData.CurrentuserDisplayname = currentUserData.displayname;
 
 
-                                                    friendRequestNotificationDatas.add(friendRequestNotificationData);
-                                                    updateNotificationdata();
+                                                            friendRequestNotificationDatas.add(friendRequestNotificationData);
+                                                            updateNotificationdata();
 
-                                                }
+                                                        }
 
-                                                @Override
-                                                public void onCancelled(DatabaseError databaseError) {
+                                                        @Override
+                                                        public void onCancelled(DatabaseError databaseError) {
 
-                                                }
-                                            });
+                                                        }
+                                                    });
+                                        }
+                                    }
                                 }
+
+                                //check unread chat
+                                unreadMassageNotificationDatas.clear();
+                                Map<String, Object> massageMap = (Map<String, Object>) dataSnapshot.child("messages").getValue();
+                                if (massageMap != null) {
+                                    for (HashMap.Entry<String, Object> entry : massageMap.entrySet()) {
+                                        String key = entry.getKey();
+                                        Map<String, Object> value = (Map<String, Object>) entry.getValue();
+                                        int unreadcount = 0;
+                                        String sendermessage = "nomessage";
+
+                                        for (HashMap.Entry<String, Object> entry2 : value.entrySet()) {
+                                            String key2 = entry2.getKey();
+                                            Map<String, String> value2 = (Map<String, String>) entry2.getValue();
+
+                                            if (value2.get("read").equals("unread")) {
+                                                unreadcount = unreadcount + 1;
+                                                sendermessage = value2.get("message");
+                                            }
+                                        }
+
+
+                                        if (unreadcount != 0) {
+                                            final NotificationData unreadMassageNotificationData = new NotificationData();
+                                            final int unreadcountdata = unreadcount;
+                                            final String senderlastmessagedata = sendermessage;
+
+                                            DatabaseReference requestFriendDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(key);
+                                            requestFriendDatabaseReference
+                                                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                                                        @Override
+                                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                                            unreadMassageNotificationData.SenderDisplayname = dataSnapshot.child("display name").getValue().toString();
+                                                            unreadMassageNotificationData.Unreadcount = unreadcountdata;
+                                                            unreadMassageNotificationData.SenderLastmessage = senderlastmessagedata;
+                                                            unreadMassageNotificationData.Type = "Unread";
+                                                            unreadMassageNotificationData.SenderUid = dataSnapshot.getKey();
+                                                            unreadMassageNotificationData.CurrentuserUid = currentUserData.UserUid;
+                                                            unreadMassageNotificationData.CurrentuserDisplayname = currentUserData.displayname;
+
+
+                                                            unreadMassageNotificationDatas.add(unreadMassageNotificationData);
+                                                            updateNotificationdata();
+
+                                                        }
+
+                                                        @Override
+                                                        public void onCancelled(DatabaseError databaseError) {
+
+                                                        }
+                                                    });
+                                        }
+                                    }
+                                }
+
+                                updateUI();
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
                             }
                         }
 
-                        updateUI();
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
+                );
     }
 
     private void updateNotificationdata() {
@@ -233,8 +292,13 @@ public class HomeActivity extends AppCompatActivity
         notificationData.Type = "Title";
         notificationData.titlename = "Friend Request";
         notificationDatas.add(notificationData);
-
         notificationDatas.addAll(friendRequestNotificationDatas);
+
+        notificationData = new NotificationData();
+        notificationData.Type = "Title";
+        notificationData.titlename = "Unread Massage";
+        notificationDatas.add(notificationData);
+        notificationDatas.addAll(unreadMassageNotificationDatas);
 
         homeNotificationAdapter.notifyDataSetChanged();
 
@@ -275,5 +339,7 @@ public class HomeActivity extends AppCompatActivity
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(homeNotificationAdapter);
+
+        updateNotificationdata();
     }
 }

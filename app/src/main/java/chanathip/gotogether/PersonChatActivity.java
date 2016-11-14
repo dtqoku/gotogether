@@ -49,6 +49,10 @@ public class PersonChatActivity extends AppCompatActivity {
     private List<UserMessage> userMessages;
     private RecyclerView.LayoutManager layoutManager;
     private ChatAdapter chatAdapter;
+    private ChildEventListener currentChatUserDatabaseReferencechildEventListener;
+    private ChildEventListener userDataUserDatabaseReferencechildEventListener;
+    private DatabaseReference currentChatUserDatabaseReference;
+    private DatabaseReference userDataUserDatabaseReference;
 
     @BindView(R.id.txt_submit_chat)
     TextInputLayout txt_submit_chat;
@@ -95,9 +99,9 @@ public class PersonChatActivity extends AppCompatActivity {
         }
         setTitle(currentChatUserData.displayname + "'s message");
 
-        DatabaseReference currentChatUserDatabaseReference = FirebaseDatabase.getInstance().getReference()
+        currentChatUserDatabaseReference = FirebaseDatabase.getInstance().getReference()
                 .child("users").child(currentChatUserData.UserUid).child("messages").child(userData.UserUid);
-        currentChatUserDatabaseReference.addChildEventListener(new ChildEventListener() {
+        currentChatUserDatabaseReferencechildEventListener = new ChildEventListener() {
             @SuppressWarnings("unchecked")
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -124,19 +128,20 @@ public class PersonChatActivity extends AppCompatActivity {
                     }
                     DateFormat dateFormat1 = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", locale);
                     userMessage.time = dateFormat1.format(userMessage.calendar.getTime());
+                    userMessage.readstatus = ChatUserdataMap.get("read");
 
 
                     userMessages.add(userMessage);
                     Collections.sort(userMessages);
                     chatAdapter.notifyDataSetChanged();
 
-                    layoutManager.scrollToPosition(userMessages.size()-1);
+                    layoutManager.scrollToPosition(userMessages.size() - 1);
                 }
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
+                PersonChatActivity.this.recreate();
             }
 
             @Override
@@ -153,10 +158,11 @@ public class PersonChatActivity extends AppCompatActivity {
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });
-        DatabaseReference userDataUserDatabaseReference = FirebaseDatabase.getInstance().getReference()
+        };
+
+        userDataUserDatabaseReference = FirebaseDatabase.getInstance().getReference()
                 .child("users").child(userData.UserUid).child("messages").child(currentChatUserData.UserUid);
-        userDataUserDatabaseReference.addChildEventListener(new ChildEventListener() {
+        userDataUserDatabaseReferencechildEventListener = new ChildEventListener() {
             @SuppressWarnings("unchecked")
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -183,13 +189,19 @@ public class PersonChatActivity extends AppCompatActivity {
                     }
                     DateFormat dateFormat1 = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", locale);
                     userMessage.time = dateFormat1.format(userMessage.calendar.getTime());
+                    userMessage.readstatus = ChatUserdataMap.get("read");
 
                     userMessages.add(userMessage);
                     Collections.sort(userMessages);
                     chatAdapter.notifyDataSetChanged();
 
+                    DatabaseReference markReadDatabaseReference = FirebaseDatabase.getInstance().getReference()
+                            .child("users").child(userData.UserUid).child("messages").child(currentChatUserData.UserUid)
+                            .child(dataSnapshot.getKey()).child("read");
+                    markReadDatabaseReference.setValue("read");
 
-                    layoutManager.scrollToPosition(userMessages.size()-1);
+
+                    layoutManager.scrollToPosition(userMessages.size() - 1);
 
                 }
             }
@@ -213,8 +225,22 @@ public class PersonChatActivity extends AppCompatActivity {
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });
+        };
         updateUI();
+    }
+    @Override
+    protected void onStart(){
+        super.onStart();
+        currentChatUserDatabaseReference.addChildEventListener(currentChatUserDatabaseReferencechildEventListener);
+        userDataUserDatabaseReference.addChildEventListener(userDataUserDatabaseReferencechildEventListener);
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        currentChatUserDatabaseReference.removeEventListener(currentChatUserDatabaseReferencechildEventListener);
+        userDataUserDatabaseReference.removeEventListener(userDataUserDatabaseReferencechildEventListener);
     }
 
 
@@ -270,8 +296,8 @@ public class PersonChatActivity extends AppCompatActivity {
         DatabaseReference submitcurrentChatUserDatabaseReference = FirebaseDatabase.getInstance().getReference()
                 .child("users").child(currentChatUserData.UserUid).child("messages").child(userData.UserUid).child(now);
         if (txt_submit_chat.getEditText().getText().toString().length() != 0) {
-            submitcurrentChatUserDatabaseReference.child("message").setValue(txt_submit_chat.getEditText().getText().toString());
             submitcurrentChatUserDatabaseReference.child("read").setValue("unread");
+            submitcurrentChatUserDatabaseReference.child("message").setValue(txt_submit_chat.getEditText().getText().toString());
 
             txt_submit_chat.getEditText().setText("");
             View view = this.getCurrentFocus();
@@ -279,7 +305,10 @@ public class PersonChatActivity extends AppCompatActivity {
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
             }
-            layoutManager.scrollToPosition(userMessages.size()-1);
+            layoutManager.scrollToPosition(userMessages.size() - 1);
+
+            GotogetherNotificationManager gotogetherNotificationManager = new GotogetherNotificationManager(this);
+            gotogetherNotificationManager.sendPersonChat(currentChatUserData.UserUid, userData.displayname);
         }
     }
 }

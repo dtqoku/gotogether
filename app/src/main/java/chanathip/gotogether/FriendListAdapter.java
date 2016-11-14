@@ -4,7 +4,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -37,6 +40,8 @@ public class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.Vi
         public TextView friendname;
         public TextView frineddetail;
         public ImageView overflow;
+        public ImageView ic_nofication_count;
+        public TextView nofication_count;
 
         public ViewHolder(View view) {
             super(view);
@@ -44,6 +49,8 @@ public class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.Vi
             friendname = (TextView) view.findViewById(R.id.txtfriendname);
             frineddetail = (TextView) view.findViewById(R.id.txtfrienddetail);
             overflow = (ImageView) view.findViewById(R.id.overflow);
+            ic_nofication_count = (ImageView) view.findViewById(R.id.ic_nofication_count);
+            nofication_count = (TextView) view.findViewById(R.id.nofication_count);
         }
     }
 
@@ -71,6 +78,10 @@ public class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.Vi
 
         viewHolder.friendname.setText(userData.displayname);
         viewHolder.frineddetail.setText(userData.Firstname + " " + userData.Lastname);
+        viewHolder.nofication_count.setText(String.valueOf(userData.unreadMassage));
+        if(userData.unreadMassage != 0){
+            viewHolder.ic_nofication_count.setColorFilter(ContextCompat.getColor(mContext,R.color.colorPrimary));
+        }
 
         viewHolder.friendname.setOnClickListener(new View.OnClickListener() {
             @Override

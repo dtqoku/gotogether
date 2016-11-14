@@ -14,9 +14,19 @@ public class UserMessage implements Comparable<UserMessage> {
 
     String Type;
 
+    String readstatus;
+
+
     @Override
     public int compareTo(UserMessage o) {
 
         return calendar.compareTo(o.calendar);
+    }
+
+    public boolean isRead(){
+        if(readstatus.equals("read")){
+            return true;
+        }
+        else return false;
     }
 }

@@ -42,6 +42,9 @@
     <string name="label_activity_userDetail_contect">Contect Detail</string>
     <string name="label_activity_userDetail_operation">Operation </string>
 
+    <string name="group_activity_meetingpointset">meeting point set! click to get direction</string>
+    <string name="group_empty_view">you not join anygroup yet :(</string>
+
     <string name="displayname">Displayname </string>
     <string name="fristname">Firstname </string>
     <string name="lastname">Lastname </string>

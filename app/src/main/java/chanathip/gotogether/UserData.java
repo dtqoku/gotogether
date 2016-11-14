@@ -20,6 +20,8 @@ public class UserData {
 
     String FriendStatus;
 
+    int unreadMassage;
+
     public void setData(String UserUid,String Firstname,String Lastname,String displayname,String Email,String Phone){
         this.UserUid = UserUid;
         this.Firstname = Firstname;

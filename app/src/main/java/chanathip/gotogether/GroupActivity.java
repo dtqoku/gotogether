@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.SearchView;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -24,6 +25,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -31,11 +37,16 @@ public class GroupActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     @BindView(R.id.nav_view)
     NavigationView navigationView;
+    @BindView(R.id.empty_view)
+    TextView empty_view;
+    @BindView(R.id.searchViewgroup)
+    SearchView _searchViewgroup;
 
 
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
     private UserData currentUserData;
+    private List<GroupData> groupDatas;
     private DatabaseReference databaseReference;
 
 
@@ -48,6 +59,7 @@ public class GroupActivity extends AppCompatActivity
         ButterKnife.bind(this);
 
         currentUserData = new UserData();
+        groupDatas = new ArrayList<>();
 
         firebaseAuth = FirebaseAuth.getInstance();
         authStateListener = new FirebaseAuth.AuthStateListener() {
@@ -151,6 +163,7 @@ public class GroupActivity extends AppCompatActivity
         currentuserDatabaseReference.keepSynced(true);
         currentuserDatabaseReference
                 .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @SuppressWarnings("unchecked")
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         currentUserData.setData(
@@ -161,6 +174,31 @@ public class GroupActivity extends AppCompatActivity
                                 currentUserData.Email,
                                 dataSnapshot.child("Phone").getValue().toString()
                         );
+                        Map<String, String> groupUserdataMap = (Map<String, String>) dataSnapshot.child("group").getValue();
+                        if(groupUserdataMap != null){
+                            for (HashMap.Entry<String, String> entry : groupUserdataMap.entrySet()) {
+                                String key = entry.getKey();
+                                String value = entry.getValue();
+
+                                final GroupData groupData = new GroupData();
+                                final String GroupUid = key;
+                                final String Rank = value;
+
+                                DatabaseReference groupdatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups").child(key);
+                                groupdatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+
+                            }
+                        }
 
                         updateUI();
                     }
@@ -180,8 +218,9 @@ public class GroupActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Intent intent = new Intent(GroupActivity.this, CreateNewGroupActivity.class);
+                intent.putExtra("userUid",currentUserData.UserUid);
+                startActivity(intent);
             }
         });
 
@@ -199,6 +238,30 @@ public class GroupActivity extends AppCompatActivity
         _showuser.setText(currentUserData.displayname);
         _showuserEmail.setText(currentUserData.Email);
         navigationView.setNavigationItemSelectedListener(this);
+
+        _searchViewgroup.onActionViewExpanded();
+        _searchViewgroup.clearFocus();
+        /*_searchViewgroup.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                mAdapter.filter(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                mAdapter.filter(newText);
+                return false;
+            }
+        });*/
+
+        /*if (groupDatas.isEmpty()) {
+            recyclerView.setVisibility(View.GONE);
+            _empty_view.setVisibility(View.VISIBLE);
+        } else {
+            recyclerView.setVisibility(View.VISIBLE);
+            _empty_view.setVisibility(View.GONE);
+        }*/
 
     }
 }

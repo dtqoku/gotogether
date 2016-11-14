@@ -2,7 +2,12 @@ package chanathip.gotogether;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -58,6 +63,26 @@ public class HomeNotificationAdapter extends RecyclerView.Adapter<RecyclerView.V
         }
     }
 
+    public static class ViewHolderUnread extends RecyclerView.ViewHolder {
+        public TextView friendname;
+        public TextView frineddetail;
+        public ImageView overflow;
+        public TextView nofication_count;
+        public CardView cv;
+        public ImageView ic_nofication_count;
+
+        public ViewHolderUnread(View view) {
+            super(view);
+
+            friendname = (TextView) view.findViewById(R.id.txtfriendname);
+            frineddetail = (TextView) view.findViewById(R.id.txtfrienddetail);
+            overflow = (ImageView) view.findViewById(R.id.overflow);
+            nofication_count = (TextView) view.findViewById(R.id.nofication_count);
+            cv = (CardView) view.findViewById(R.id.cv);
+            ic_nofication_count = (ImageView) view.findViewById(R.id.ic_nofication_count);
+        }
+    }
+
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -68,6 +93,9 @@ public class HomeNotificationAdapter extends RecyclerView.Adapter<RecyclerView.V
             case 1:
                 return new ViewHolderFriendRequest(LayoutInflater.from(context)
                         .inflate(R.layout.recycler_row_friend_request, parent, false));
+            case 2:
+                return new ViewHolderUnread(LayoutInflater.from(context)
+                        .inflate(R.layout.recycler_row_friend, parent, false));
         }
         return new ViewHolderTitle(LayoutInflater.from(context)
                 .inflate(R.layout.recycler_row_title, parent, false));
@@ -109,12 +137,12 @@ public class HomeNotificationAdapter extends RecyclerView.Adapter<RecyclerView.V
                     requestuserdatabaseReference.child("request").child("friend").child(notificationData.CurrentuserDisplayname).removeValue();
 
                     GotogetherNotificationManager gotogetherNotificationManager = new GotogetherNotificationManager(context);
-                    gotogetherNotificationManager.acceptFriendRequest(notificationData.RequestUserUid,notificationData.CurrentuserDisplayname);
+                    gotogetherNotificationManager.acceptFriendRequest(notificationData.RequestUserUid, notificationData.CurrentuserDisplayname);
 
                     notificationDatas.remove(position);
                     notifyDataSetChanged();
 
-                    Snackbar snackbar = Snackbar.make(parentView, "accept "+notificationData.RequestUserdisplayname+" friend request", Snackbar.LENGTH_LONG);
+                    Snackbar snackbar = Snackbar.make(parentView, "accept " + notificationData.RequestUserdisplayname + " friend request", Snackbar.LENGTH_LONG);
                     snackbar.show();
                 }
             });
@@ -128,10 +156,33 @@ public class HomeNotificationAdapter extends RecyclerView.Adapter<RecyclerView.V
                     notificationDatas.remove(position);
                     notifyDataSetChanged();
 
-                    Snackbar snackbar = Snackbar.make(parentView, "reject "+notificationData.RequestUserdisplayname+" friend request", Snackbar.LENGTH_LONG);
+                    Snackbar snackbar = Snackbar.make(parentView, "reject " + notificationData.RequestUserdisplayname + " friend request", Snackbar.LENGTH_LONG);
                     snackbar.show();
                 }
             });
+        } else if (holder instanceof ViewHolderUnread){
+            ViewHolderUnread viewHolderUnread = (ViewHolderUnread) holder;
+
+            viewHolderUnread.friendname.setText(notificationData.SenderDisplayname);
+            viewHolderUnread.frineddetail.setText(notificationData.SenderLastmessage);
+            viewHolderUnread.nofication_count.setText(String.valueOf(notificationData.Unreadcount));
+
+            viewHolderUnread.overflow.setVisibility(View.GONE);
+
+            viewHolderUnread.cv.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context,PersonChatActivity.class);
+                    intent.putExtra("currentChatuserUid",notificationData.SenderUid);
+                    intent.putExtra("currentChatuserDisplayname",notificationData.SenderDisplayname);
+                    intent.putExtra("UserUid",notificationData.CurrentuserUid);
+                    intent.putExtra("UserDisplayname",notificationData.CurrentuserDisplayname);
+                    context.startActivity(intent);
+                }
+            });
+
+            viewHolderUnread.ic_nofication_count.setColorFilter(ContextCompat.getColor(context,R.color.colorPrimary));
+
         }
     }
 
@@ -142,6 +193,8 @@ public class HomeNotificationAdapter extends RecyclerView.Adapter<RecyclerView.V
             return 0;
         } else if (notificationData.Type.equals("FriendRequest")) {
             return 1;
+        } else if (notificationData.Type.equals("Unread")) {
+            return 2;
         } else {
             return 0;
         }

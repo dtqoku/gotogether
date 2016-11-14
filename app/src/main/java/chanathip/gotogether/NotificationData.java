@@ -18,4 +18,9 @@ public class NotificationData {
     String RequestUserLastname;
     String RequestUserdisplayname;
 
+    //unread message
+    String SenderUid;
+    String SenderLastmessage;
+    String SenderDisplayname;
+    int Unreadcount;
 }

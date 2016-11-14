@@ -28,12 +28,14 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public static class ViewHolderSelfMessage extends RecyclerView.ViewHolder {
         TextView Message;
         TextView Messagedetail;
+        ImageView check;
 
         ViewHolderSelfMessage(View view) {
             super(view);
 
             Message = (TextView) view.findViewById(R.id.txt_chat);
             Messagedetail = (TextView) view.findViewById(R.id.txt_chatdetail);
+            check = (ImageView) view.findViewById(R.id.check);
         }
     }
 
@@ -84,6 +86,10 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     viewHolderSelfMessage.Messagedetail.setVisibility(View.GONE);
                 }
             });
+
+            if(userMessage.isRead()){
+                viewHolderSelfMessage.check.setVisibility(View.VISIBLE);
+            }
 
         } else if (holder instanceof ChatAdapter.ViewHolderOtherMessage) {
             final ChatAdapter.ViewHolderOtherMessage viewHolderOtherMessage = (ChatAdapter.ViewHolderOtherMessage) holder;

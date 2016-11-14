@@ -41,6 +41,8 @@ public class FriendActivity extends AppCompatActivity
     SearchView _searchViewfriend;
     @BindView(R.id.nav_view)
     NavigationView navigationView;
+    @BindView(R.id.empty_view)
+    TextView empty_view;
 
     private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener authStateListener;
@@ -199,10 +201,38 @@ public class FriendActivity extends AppCompatActivity
                                                     friendUserdata.displayname = dataSnapshot.child("display name").getValue().toString();
                                                     friendUserdata.Email = dataSnapshot.child("email").getValue().toString();
                                                     friendUserdata.Phone = dataSnapshot.child("Phone").getValue().toString();
-                                                    friendUserdatas.add(friendUserdata);
 
+                                                    DatabaseReference checkUnreadDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentUserData.UserUid)
+                                                            .child("messages").child(Uid);
+                                                    checkUnreadDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                        @Override
+                                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                                            Map<String, Object> massageMap = (Map<String, Object>) dataSnapshot.getValue();
+                                                            if (massageMap != null) {
+                                                                int unreadcount = 0;
+                                                                for (HashMap.Entry<String, Object> entry : massageMap.entrySet()) {
+                                                                    String key2 = entry.getKey();
+                                                                    Map<String, String> value2 = (Map<String, String>) entry.getValue();
 
-                                                    updateUI();
+                                                                    if (value2.get("read").equals("unread")) {
+                                                                        unreadcount = unreadcount + 1;
+                                                                    }
+                                                                }
+
+                                                                friendUserdata.unreadMassage = unreadcount;
+                                                            } else {
+                                                                friendUserdata.unreadMassage = 0;
+                                                            }
+
+                                                            friendUserdatas.add(friendUserdata);
+                                                            updateUI();
+                                                        }
+
+                                                        @Override
+                                                        public void onCancelled(DatabaseError databaseError) {
+
+                                                        }
+                                                    });
 
                                                 }
 
@@ -215,6 +245,8 @@ public class FriendActivity extends AppCompatActivity
                                 }
                             }
                         }
+
+                        updateUI();
                     }
 
                     @Override
@@ -272,13 +304,33 @@ public class FriendActivity extends AppCompatActivity
             }
         });
 
-        friendListAdapter = new FriendListAdapter(this,friendUserdatas,_searchViewfriend,currentUserData);
+        friendListAdapter = new FriendListAdapter(this, friendUserdatas, _searchViewfriend, currentUserData);
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
 
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(friendListAdapter);
+        final FloatingActionButton fabscroll = fab;
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if (dy > 0)
+                    fabscroll.hide();
+                else
+                    fabscroll.show();
+                super.onScrolled(recyclerView, dx, dy);
+            }
+        });
+
+        if (friendUserdatas.isEmpty()) {
+            recyclerView.setVisibility(View.GONE);
+            empty_view.setVisibility(View.VISIBLE);
+        } else {
+            recyclerView.setVisibility(View.VISIBLE);
+            empty_view.setVisibility(View.GONE);
+        }
+
 
 
     }

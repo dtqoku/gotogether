@@ -65,7 +65,8 @@
         <activity
             android:name=".PersonChatActivity"
             android:label="@string/title_activity_person_chat"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".CreateNewGroupActivity"></activity>
     </application>
 
 </manifest>

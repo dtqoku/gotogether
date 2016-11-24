@@ -43,6 +43,7 @@ public class HomeActivity extends AppCompatActivity
     private List<NotificationData> notificationDatas;
     private List<NotificationData> friendRequestNotificationDatas;
     private List<NotificationData> unreadMassageNotificationDatas;
+    private List<NotificationData> groupRequestNotificationDatas;
     private RecyclerView.LayoutManager layoutManager;
     private HomeNotificationAdapter homeNotificationAdapter;
 
@@ -62,6 +63,7 @@ public class HomeActivity extends AppCompatActivity
         notificationDatas = new ArrayList<>();
         friendRequestNotificationDatas = new ArrayList<>();
         unreadMassageNotificationDatas = new ArrayList<>();
+        groupRequestNotificationDatas = new ArrayList<>();
 
         firebaseAuth = FirebaseAuth.getInstance();
         authStateListener = new FirebaseAuth.AuthStateListener() {
@@ -108,27 +110,6 @@ public class HomeActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.home, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -219,6 +200,44 @@ public class HomeActivity extends AppCompatActivity
                                     }
                                 }
 
+                                //check group request
+                                groupRequestNotificationDatas.clear();
+                                Map<String, String> GroupRequestMap = (Map<String, String>) dataSnapshot.child("request").child("group").getValue();
+                                if (GroupRequestMap != null) {
+                                    for (HashMap.Entry<String, String> entry : GroupRequestMap.entrySet()) {
+                                        String key = entry.getKey();
+                                        String value = entry.getValue();
+
+                                        if (value.equals("true")) {
+                                            final NotificationData groupRequestNotificationData = new NotificationData();
+
+                                            DatabaseReference requestFriendDatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups").child(key);
+                                            requestFriendDatabaseReference
+                                                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                                                        @Override
+                                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                                            groupRequestNotificationData.RequestGroupname = dataSnapshot.child("name").getValue().toString();
+                                                            groupRequestNotificationData.RequestGroupdetail = dataSnapshot.child("description").getValue().toString();
+                                                            groupRequestNotificationData.Type = "GroupRequest";
+                                                            groupRequestNotificationData.RequestGroupUid = dataSnapshot.getKey();
+                                                            groupRequestNotificationData.CurrentuserUid = currentUserData.UserUid;
+                                                            groupRequestNotificationData.CurrentuserDisplayname = currentUserData.displayname;
+
+
+                                                            groupRequestNotificationDatas.add(groupRequestNotificationData);
+                                                            updateNotificationdata();
+
+                                                        }
+
+                                                        @Override
+                                                        public void onCancelled(DatabaseError databaseError) {
+
+                                                        }
+                                                    });
+                                        }
+                                    }
+                                }
+
                                 //check unread chat
                                 unreadMassageNotificationDatas.clear();
                                 Map<String, Object> massageMap = (Map<String, Object>) dataSnapshot.child("messages").getValue();
@@ -293,6 +312,12 @@ public class HomeActivity extends AppCompatActivity
         notificationData.titlename = "Friend Request";
         notificationDatas.add(notificationData);
         notificationDatas.addAll(friendRequestNotificationDatas);
+
+        notificationData = new NotificationData();
+        notificationData.Type = "Title";
+        notificationData.titlename = "Group Request";
+        notificationDatas.add(notificationData);
+        notificationDatas.addAll(groupRequestNotificationDatas);
 
         notificationData = new NotificationData();
         notificationData.Type = "Title";

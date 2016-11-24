@@ -1,6 +1,7 @@
 package chanathip.gotogether;
 
 import android.content.Context;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,6 +30,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         TextView Message;
         TextView Messagedetail;
         ImageView check;
+        CardView cardView;
 
         ViewHolderSelfMessage(View view) {
             super(view);
@@ -36,18 +38,21 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             Message = (TextView) view.findViewById(R.id.txt_chat);
             Messagedetail = (TextView) view.findViewById(R.id.txt_chatdetail);
             check = (ImageView) view.findViewById(R.id.check);
+            cardView = (CardView) view.findViewById(R.id.cv);
         }
     }
 
     public static class ViewHolderOtherMessage extends RecyclerView.ViewHolder {
         TextView Message;
         TextView Messagedetail;
+        CardView cardView;
 
         ViewHolderOtherMessage(View view) {
             super(view);
 
             Message = (TextView) view.findViewById(R.id.txt_chat);
             Messagedetail = (TextView) view.findViewById(R.id.txt_chatdetail);
+            cardView = (CardView) view.findViewById(R.id.cv);
         }
     }
 
@@ -74,7 +79,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             viewHolderSelfMessage.Message.setText(userMessage.message);
             viewHolderSelfMessage.Messagedetail.setText("send by " + userMessage.sender + "\nat " + userMessage.time);
 
-            viewHolderSelfMessage.Message.setOnClickListener(new View.OnClickListener() {
+            viewHolderSelfMessage.cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     viewHolderSelfMessage.Messagedetail.setVisibility(View.VISIBLE);
@@ -90,6 +95,9 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if(userMessage.isRead()){
                 viewHolderSelfMessage.check.setVisibility(View.VISIBLE);
             }
+            else {
+                viewHolderSelfMessage.check.setVisibility(View.GONE);
+            }
 
         } else if (holder instanceof ChatAdapter.ViewHolderOtherMessage) {
             final ChatAdapter.ViewHolderOtherMessage viewHolderOtherMessage = (ChatAdapter.ViewHolderOtherMessage) holder;
@@ -97,7 +105,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             viewHolderOtherMessage.Message.setText(userMessage.message);
             viewHolderOtherMessage.Messagedetail.setText("send by " + userMessage.sender + "\nat " + userMessage.time);
 
-            viewHolderOtherMessage.Message.setOnClickListener(new View.OnClickListener() {
+            viewHolderOtherMessage.cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     viewHolderOtherMessage.Messagedetail.setVisibility(View.VISIBLE);

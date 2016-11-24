@@ -32,6 +32,11 @@ public class GotogetherNotificationManager {
         void OnTaskComplete(T result);
     }
 
+    GotogetherNotificationManager(Context context) {
+        connectionString = context.getResources().getString(R.string.connection_string);
+        this.context = context;
+    }
+
     private class Uidandtoken {
         String uid;
         String token;
@@ -49,11 +54,6 @@ public class GotogetherNotificationManager {
             this.ReceiveUid = ReceiveUid;
             this.Message = Message;
         }
-    }
-
-    GotogetherNotificationManager(Context context) {
-        connectionString = context.getResources().getString(R.string.connection_string);
-        this.context = context;
     }
 
     public void updateToken(String Uid, String token) {
@@ -84,6 +84,13 @@ public class GotogetherNotificationManager {
     }
     public void sendPersonChat(String ReceiveUid,String SenderName){
         String Message = "new Message from "+SenderName;
+        RequestFriendData requestFriendData = new RequestFriendData(ReceiveUid,Message);
+
+        SendNotificationToServer sendNotificationToServer = new SendNotificationToServer(requestFriendData);
+        sendNotificationToServer.launchTask();
+    }
+    public void sendInvitetoGroup(String ReceiveUid,String SenderName){
+        String Message = "get invite to "+SenderName;
         RequestFriendData requestFriendData = new RequestFriendData(ReceiveUid,Message);
 
         SendNotificationToServer sendNotificationToServer = new SendNotificationToServer(requestFriendData);

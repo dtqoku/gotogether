@@ -15,16 +15,18 @@ public class GroupData {
     //group with user
     String rank;
     int Membercount;
+    String thisUserUid;
 
 
     //method
-    public void setData(String Groupid,String name,String description,String rank,String MeetingPointStatus,String Membercount){
+    public void setData(String Groupid,String name,String description,String rank,String MeetingPointStatus,String Membercount,String thisUserUid){
         this.GroupUID = Groupid;
         this.Name = name;
         this.Description = description;
         this.rank = rank;
         this.MeetingPointStatus = MeetingPointStatus;
         this.Membercount = Integer.parseInt(Membercount);
+        this.thisUserUid = thisUserUid;
 
     }
     public boolean isleader(){

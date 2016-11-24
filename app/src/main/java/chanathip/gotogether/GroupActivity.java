@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -41,6 +43,8 @@ public class GroupActivity extends AppCompatActivity
     TextView empty_view;
     @BindView(R.id.searchViewgroup)
     SearchView _searchViewgroup;
+    @BindView(R.id.recycler_view)
+    RecyclerView recyclerView;
 
 
     private FirebaseAuth firebaseAuth;
@@ -48,7 +52,8 @@ public class GroupActivity extends AppCompatActivity
     private UserData currentUserData;
     private List<GroupData> groupDatas;
     private DatabaseReference databaseReference;
-
+    private GroupAdapter groupAdapter;
+    private RecyclerView.LayoutManager layoutManager;
 
 
     @Override
@@ -71,9 +76,8 @@ public class GroupActivity extends AppCompatActivity
                     currentUserData.Email = firebaseUser.getEmail();
 
                     getcurrentuserdata();
-                }
-                else{
-                    Intent intent = new Intent(GroupActivity.this,LoginActivity.class);
+                } else {
+                    Intent intent = new Intent(GroupActivity.this, LoginActivity.class);
                     startActivity(intent);
                 }
             }
@@ -83,7 +87,7 @@ public class GroupActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-
+        groupDatas.clear();
         navigationView.setCheckedItem(R.id.nav_group);
         firebaseAuth.addAuthStateListener(authStateListener);
     }
@@ -103,30 +107,8 @@ public class GroupActivity extends AppCompatActivity
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
-            overridePendingTransition(0,0);
+            overridePendingTransition(0, 0);
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.home, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -136,15 +118,15 @@ public class GroupActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_home) {
-            Intent intent = new Intent(this,HomeActivity.class);
+            Intent intent = new Intent(this, HomeActivity.class);
             startActivity(intent);
-            overridePendingTransition(0,0);
+            overridePendingTransition(0, 0);
         } else if (id == R.id.nav_group) {
             //this
         } else if (id == R.id.nav_friend) {
-            Intent intent = new Intent(this,FriendActivity.class);
+            Intent intent = new Intent(this, FriendActivity.class);
             startActivity(intent);
-            overridePendingTransition(0,0);
+            overridePendingTransition(0, 0);
         } else if (id == R.id.nav_accountsetting) {
 
         } else if (id == R.id.nav_appseting) {
@@ -158,7 +140,7 @@ public class GroupActivity extends AppCompatActivity
         return true;
     }
 
-    private void getcurrentuserdata(){
+    private void getcurrentuserdata() {
         DatabaseReference currentuserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentUserData.UserUid);
         currentuserDatabaseReference.keepSynced(true);
         currentuserDatabaseReference
@@ -175,7 +157,7 @@ public class GroupActivity extends AppCompatActivity
                                 dataSnapshot.child("Phone").getValue().toString()
                         );
                         Map<String, String> groupUserdataMap = (Map<String, String>) dataSnapshot.child("group").getValue();
-                        if(groupUserdataMap != null){
+                        if (groupUserdataMap != null) {
                             for (HashMap.Entry<String, String> entry : groupUserdataMap.entrySet()) {
                                 String key = entry.getKey();
                                 String value = entry.getValue();
@@ -188,6 +170,20 @@ public class GroupActivity extends AppCompatActivity
                                 groupdatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
+                                        groupData.setData(
+                                                GroupUid,
+                                                String.valueOf(dataSnapshot.child("name").getValue()),
+                                                String.valueOf(dataSnapshot.child("description").getValue()),
+                                                Rank,
+                                                String.valueOf(dataSnapshot.child("settingpoint").getValue()),
+                                                String.valueOf(dataSnapshot.child("membercount").getValue()),
+                                                currentUserData.UserUid
+                                        );
+
+                                        groupDatas.add(groupData);
+
+                                        updateUI();
+
 
                                     }
 
@@ -210,7 +206,7 @@ public class GroupActivity extends AppCompatActivity
                 });
     }
 
-    private void updateUI(){
+    private void updateUI() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -219,7 +215,7 @@ public class GroupActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(GroupActivity.this, CreateNewGroupActivity.class);
-                intent.putExtra("userUid",currentUserData.UserUid);
+                intent.putExtra("userUid", currentUserData.UserUid);
                 startActivity(intent);
             }
         });
@@ -239,29 +235,46 @@ public class GroupActivity extends AppCompatActivity
         _showuserEmail.setText(currentUserData.Email);
         navigationView.setNavigationItemSelectedListener(this);
 
+        groupAdapter = new GroupAdapter(this, groupDatas, _searchViewgroup);
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(groupAdapter);
+
+        final FloatingActionButton fabscroll = fab;
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if (dy > 0)
+                    fabscroll.hide();
+                else
+                    fabscroll.show();
+                super.onScrolled(recyclerView, dx, dy);
+            }
+        });
+
         _searchViewgroup.onActionViewExpanded();
         _searchViewgroup.clearFocus();
-        /*_searchViewgroup.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        _searchViewgroup.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                mAdapter.filter(query);
+                groupAdapter.filter(query);
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                mAdapter.filter(newText);
+                groupAdapter.filter(newText);
                 return false;
             }
-        });*/
+        });
 
-        /*if (groupDatas.isEmpty()) {
+        if (groupDatas.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
-            _empty_view.setVisibility(View.VISIBLE);
+            empty_view.setVisibility(View.VISIBLE);
         } else {
             recyclerView.setVisibility(View.VISIBLE);
-            _empty_view.setVisibility(View.GONE);
-        }*/
+            empty_view.setVisibility(View.GONE);
+        }
 
     }
 }

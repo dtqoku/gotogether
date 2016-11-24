@@ -18,6 +18,10 @@ public class UserData {
     double LocationLat;
     double LocationLng;
 
+    String rank;
+    String GroupUid;
+    String GroupName;
+
     String FriendStatus;
 
     int unreadMassage;

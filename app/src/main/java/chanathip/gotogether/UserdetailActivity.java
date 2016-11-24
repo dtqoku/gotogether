@@ -254,7 +254,8 @@ public class UserdetailActivity extends AppCompatActivity {
                     startActivity(intent);
                 }
             });
-
+        } else if(currentUserData.UserUid.equals(currentViewUserData.UserUid)){
+            fab.setVisibility(View.GONE);
         }
 
         fab.setOnClickListener(new View.OnClickListener() {

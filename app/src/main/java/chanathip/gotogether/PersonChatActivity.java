@@ -128,20 +128,59 @@ public class PersonChatActivity extends AppCompatActivity {
                     }
                     DateFormat dateFormat1 = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", locale);
                     userMessage.time = dateFormat1.format(userMessage.calendar.getTime());
-                    userMessage.readstatus = ChatUserdataMap.get("read");
-
+                    if (ChatUserdataMap.get("read") != null) {
+                        userMessage.readstatus = ChatUserdataMap.get("read");
+                    } else {
+                        userMessage.readstatus = "unread";
+                    }
 
                     userMessages.add(userMessage);
                     Collections.sort(userMessages);
                     chatAdapter.notifyDataSetChanged();
-
                     layoutManager.scrollToPosition(userMessages.size() - 1);
                 }
             }
 
+            @SuppressWarnings("unchecked")
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                PersonChatActivity.this.recreate();
+                UserMessage userMessage = new UserMessage();
+                if (dataSnapshot.getValue() != null) {
+                    Map<String, String> ChatUserdataMap = (Map<String, String>) dataSnapshot.getValue();
+
+                    userMessage.message = ChatUserdataMap.get("message");
+                    userMessage.Type = "self";
+                    userMessage.sender = userData.displayname;
+
+                    Locale locale;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        locale = getResources().getConfiguration().getLocales().get(0);
+                    } else {
+                        locale = getResources().getConfiguration().locale;
+                    }
+                    DateFormat dateFormat = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss", locale);
+                    try {
+                        userMessage.calendar = Calendar.getInstance();
+                        userMessage.calendar.setTime(dateFormat.parse(dataSnapshot.getKey()));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    DateFormat dateFormat1 = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", locale);
+                    userMessage.time = dateFormat1.format(userMessage.calendar.getTime());
+                    if (ChatUserdataMap.get("read") != null) {
+                        userMessage.readstatus = ChatUserdataMap.get("read");
+                    } else {
+                        userMessage.readstatus = "unread";
+                    }
+                }
+
+                for(UserMessage obj : userMessages){
+                    if(obj.time.equals(userMessage.time)){
+                        obj.readstatus = userMessage.readstatus;
+                        chatAdapter.notifyDataSetChanged();
+                    }
+
+                }
             }
 
             @Override
@@ -189,8 +228,11 @@ public class PersonChatActivity extends AppCompatActivity {
                     }
                     DateFormat dateFormat1 = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", locale);
                     userMessage.time = dateFormat1.format(userMessage.calendar.getTime());
-                    userMessage.readstatus = ChatUserdataMap.get("read");
-
+                    if (ChatUserdataMap.get("read") != null) {
+                        userMessage.readstatus = ChatUserdataMap.get("read");
+                    } else {
+                        userMessage.readstatus = "unread";
+                    }
                     userMessages.add(userMessage);
                     Collections.sort(userMessages);
                     chatAdapter.notifyDataSetChanged();
@@ -228,8 +270,9 @@ public class PersonChatActivity extends AppCompatActivity {
         };
         updateUI();
     }
+
     @Override
-    protected void onStart(){
+    protected void onStart() {
         super.onStart();
         currentChatUserDatabaseReference.addChildEventListener(currentChatUserDatabaseReferencechildEventListener);
         userDataUserDatabaseReference.addChildEventListener(userDataUserDatabaseReferencechildEventListener);
@@ -296,8 +339,8 @@ public class PersonChatActivity extends AppCompatActivity {
         DatabaseReference submitcurrentChatUserDatabaseReference = FirebaseDatabase.getInstance().getReference()
                 .child("users").child(currentChatUserData.UserUid).child("messages").child(userData.UserUid).child(now);
         if (txt_submit_chat.getEditText().getText().toString().length() != 0) {
-            submitcurrentChatUserDatabaseReference.child("read").setValue("unread");
             submitcurrentChatUserDatabaseReference.child("message").setValue(txt_submit_chat.getEditText().getText().toString());
+            submitcurrentChatUserDatabaseReference.child("read").setValue("unread");
 
             txt_submit_chat.getEditText().setText("");
             View view = this.getCurrentFocus();

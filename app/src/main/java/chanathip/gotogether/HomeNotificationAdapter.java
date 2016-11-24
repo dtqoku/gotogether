@@ -2,12 +2,8 @@ package chanathip.gotogether;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -19,7 +15,6 @@ import android.widget.TextView;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -83,6 +78,22 @@ public class HomeNotificationAdapter extends RecyclerView.Adapter<RecyclerView.V
         }
     }
 
+    public static class ViewHolderGroupRequest extends RecyclerView.ViewHolder {
+        public TextView groupname;
+        public TextView groupdetail;
+        public ImageView reject;
+        public TextView accept;
+
+        ViewHolderGroupRequest(View view) {
+            super(view);
+
+            groupname = (TextView) view.findViewById(R.id.txtfriendname);
+            reject = (ImageView) view.findViewById(R.id.reject);
+            accept = (TextView) view.findViewById(R.id.accept);
+            groupdetail = (TextView) view.findViewById(R.id.txtfrienddetail);
+        }
+    }
+
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -92,18 +103,23 @@ public class HomeNotificationAdapter extends RecyclerView.Adapter<RecyclerView.V
                         .inflate(R.layout.recycler_row_title, parent, false));
             case 1:
                 return new ViewHolderFriendRequest(LayoutInflater.from(context)
-                        .inflate(R.layout.recycler_row_friend_request, parent, false));
+                        .inflate(R.layout.recycler_row_request, parent, false));
             case 2:
                 return new ViewHolderUnread(LayoutInflater.from(context)
                         .inflate(R.layout.recycler_row_friend, parent, false));
+            case 3:
+                return new ViewHolderGroupRequest(LayoutInflater.from(context)
+                        .inflate(R.layout.recycler_row_request, parent, false));
+            default:
+                return new ViewHolderTitle(LayoutInflater.from(context)
+                        .inflate(R.layout.recycler_row_title, parent, false));
         }
-        return new ViewHolderTitle(LayoutInflater.from(context)
-                .inflate(R.layout.recycler_row_title, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         final NotificationData notificationData = notificationDatas.get(position);
+        final int positiontemp = position;
         if (holder instanceof ViewHolderTitle) {
             ViewHolderTitle viewHolderTitle = (ViewHolderTitle) holder;
 
@@ -139,7 +155,7 @@ public class HomeNotificationAdapter extends RecyclerView.Adapter<RecyclerView.V
                     GotogetherNotificationManager gotogetherNotificationManager = new GotogetherNotificationManager(context);
                     gotogetherNotificationManager.acceptFriendRequest(notificationData.RequestUserUid, notificationData.CurrentuserDisplayname);
 
-                    notificationDatas.remove(position);
+                    notificationDatas.remove(positiontemp);
                     notifyDataSetChanged();
 
                     Snackbar snackbar = Snackbar.make(parentView, "accept " + notificationData.RequestUserdisplayname + " friend request", Snackbar.LENGTH_LONG);
@@ -153,13 +169,65 @@ public class HomeNotificationAdapter extends RecyclerView.Adapter<RecyclerView.V
                     DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(notificationData.CurrentuserUid);
                     currentuserdatabaseReference.child("request").child("friend").child(notificationData.RequestUserUid).removeValue();
 
-                    notificationDatas.remove(position);
+                    notificationDatas.remove(positiontemp);
                     notifyDataSetChanged();
 
                     Snackbar snackbar = Snackbar.make(parentView, "reject " + notificationData.RequestUserdisplayname + " friend request", Snackbar.LENGTH_LONG);
                     snackbar.show();
                 }
             });
+        } else if (holder instanceof ViewHolderGroupRequest) {
+            ViewHolderGroupRequest viewHolderGroupRequest = (ViewHolderGroupRequest) holder;
+
+            viewHolderGroupRequest.groupname.setText(notificationData.RequestGroupname);
+            viewHolderGroupRequest.groupdetail.setText(notificationData.RequestGroupdetail);
+
+            viewHolderGroupRequest.groupname.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, GroupDetailActivity.class);
+                    intent.putExtra("GroupUID",notificationData.RequestGroupUid);
+                    intent.putExtra("GroupName",notificationData.RequestGroupname);
+                    intent.putExtra("UserUid",notificationData.CurrentuserUid);
+                    context.startActivity(intent);
+                }
+            });/*
+
+            viewHolderGroupRequest.accept.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(notificationData.CurrentuserUid);
+                    currentuserdatabaseReference.child("friend").child(notificationData.RequestUserUid).setValue("true");
+                    currentuserdatabaseReference.child("request").child("friend").child(notificationData.RequestUserUid).removeValue();
+
+                    DatabaseReference requestuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(notificationData.RequestUserUid);
+                    requestuserdatabaseReference.child("friend").child(notificationData.CurrentuserUid).setValue("true");
+                    requestuserdatabaseReference.child("request").child("friend").child(notificationData.CurrentuserDisplayname).removeValue();
+
+                    GotogetherNotificationManager gotogetherNotificationManager = new GotogetherNotificationManager(context);
+                    gotogetherNotificationManager.acceptFriendRequest(notificationData.RequestUserUid, notificationData.CurrentuserDisplayname);
+
+                    notificationDatas.remove(positiontemp);
+                    notifyDataSetChanged();
+
+                    Snackbar snackbar = Snackbar.make(parentView, "accept " + notificationData.RequestUserdisplayname + " friend request", Snackbar.LENGTH_LONG);
+                    snackbar.show();
+                }
+            });
+
+            viewHolderGroupRequest.reject.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(notificationData.CurrentuserUid);
+                    currentuserdatabaseReference.child("request").child("friend").child(notificationData.RequestUserUid).removeValue();
+
+                    notificationDatas.remove(positiontemp);
+                    notifyDataSetChanged();
+
+                    Snackbar snackbar = Snackbar.make(parentView, "reject " + notificationData.RequestUserdisplayname + " friend request", Snackbar.LENGTH_LONG);
+                    snackbar.show();
+                }
+            });*/
         } else if (holder instanceof ViewHolderUnread){
             ViewHolderUnread viewHolderUnread = (ViewHolderUnread) holder;
 
@@ -195,6 +263,8 @@ public class HomeNotificationAdapter extends RecyclerView.Adapter<RecyclerView.V
             return 1;
         } else if (notificationData.Type.equals("Unread")) {
             return 2;
+        } else if (notificationData.Type.equals("GroupRequest")) {
+            return 3;
         } else {
             return 0;
         }

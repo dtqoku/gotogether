@@ -2,7 +2,8 @@ package chanathip.gotogether;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
+import android.content.Intent;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -15,6 +16,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,6 +101,17 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
             viewHolder._line.setVisibility(View.GONE);
             viewHolder._btn_get_target_location.setVisibility(View.GONE);
         }
+
+        viewHolder.groupname.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext,GroupHomeActivity.class);
+                intent.putExtra("GroupUID",groupData.GroupUID);
+                intent.putExtra("GroupName",groupData.Name);
+                intent.putExtra("UserUid",groupData.thisUserUid);
+                mContext.startActivity(intent);
+            }
+        });
     }
 
     private void showpopupmenu(View view, GroupData groupData) {
@@ -109,8 +124,6 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
 
     private class MyMenuItemClickListener implements PopupMenu.OnMenuItemClickListener {
         GroupData groupData;
-        SharedPreferences sharedPreferences;
-        UserData userData;
 
         MyMenuItemClickListener(GroupData groupData) {
             this.groupData = groupData;
@@ -126,10 +139,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                     //leave group
-                                    if (groupData.Membercount == 1) {
-
-
-                                    } else {
+                                    if (groupData.isleader() && groupData.Membercount > 1) {
                                         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
                                         builder.setMessage("you cannot leave group if you are leader or not last one in group")
                                                 .setCancelable(false)
@@ -140,7 +150,32 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
                                                 });
                                         AlertDialog alertDialog2 = builder.create();
                                         alertDialog2.show();
+                                    } else if (groupData.rank.equals("leader")) {
+                                        //leave group as leader
+                                        DatabaseReference groupdatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups").child(groupData.GroupUID);
+                                        groupdatabaseReference.removeValue();
+
+                                        DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(groupData.thisUserUid);
+                                        currentuserdatabaseReference.child("group").child(groupData.GroupUID).removeValue();
+
+                                        groupdatas.remove(groupData);
+                                        notifyDataSetChanged();
+
+                                        Snackbar snackbar = Snackbar.make(parentView, "leave" + groupData.Name, Snackbar.LENGTH_LONG);
+                                        snackbar.show();
+                                    } else {
+                                        //just leave
+                                        DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(groupData.thisUserUid);
+                                        currentuserdatabaseReference.child("group").child(groupData.GroupUID).removeValue();
+
+                                        groupdatas.remove(groupData);
+                                        notifyDataSetChanged();
+
+                                        Snackbar snackbar = Snackbar.make(parentView, "leave" + groupData.Name, Snackbar.LENGTH_LONG);
+                                        snackbar.show();
+
                                     }
+
 
                                 }
                             })

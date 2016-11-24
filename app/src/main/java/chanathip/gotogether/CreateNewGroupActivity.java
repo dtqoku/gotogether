@@ -110,7 +110,9 @@ public class CreateNewGroupActivity extends AppCompatActivity {
             String key = groupdatabaseReference.push().getKey();
             groupdatabaseReference.child(key).child("name").setValue(groupData.Name);
             groupdatabaseReference.child(key).child("description").setValue(groupData.Description);
-            groupdatabaseReference.child(key).child("member").child(userData.UserUid).setValue("true");
+            groupdatabaseReference.child(key).child("member").child(userData.UserUid).setValue("leader");
+            groupdatabaseReference.child(key).child("settingpoint").setValue("notactive");
+            groupdatabaseReference.child(key).child("membercount").setValue("1");
 
             DatabaseReference userdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users")
                     .child(userData.UserUid).child("group");

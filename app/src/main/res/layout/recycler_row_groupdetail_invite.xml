@@ -17,41 +17,23 @@
             android:padding="16dp">
 
             <ImageView
-                android:id="@+id/ic_nofication_count"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_brightness_1_black_48dp"
-                android:tint="@color/gray"/>
-
-            <TextView
-                android:id="@+id/nofication_count"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignLeft="@+id/ic_nofication_count"
-                android:layout_alignStart="@+id/ic_nofication_count"
-                android:layout_alignTop="@+id/ic_nofication_count"
-                android:layout_alignRight="@+id/ic_nofication_count"
-                android:layout_alignEnd="@+id/ic_nofication_count"
-                android:layout_alignBottom="@+id/ic_nofication_count"
-                android:layout_margin="1dp"
-                android:gravity="center"
-                android:text="@string/notification_count_zero"
-                android:textColor="@color/white"/>
-
-            <ImageView
                 android:id="@+id/overflow"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_more_vert_black_24dp"
-                android:tint="@color/gray"
+                android:src="@drawable/ic_close_black_48dp"
+                android:tint="@color/red"
                 android:layout_centerVertical="true"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true"/>
+
+            <ImageView
+                android:id="@+id/leader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_access_time_black_24dp"
+                android:tint="@color/colorPrimary"/>
 
             <TextView
                 android:id="@+id/txtfriendname"
@@ -66,19 +48,6 @@
                 android:layout_toEndOf="@+id/leader"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
 
-
-
-            <ImageView
-                android:id="@+id/leader"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_record_voice_over_black_24dp"
-                android:tint="@color/colorPrimary"
-                android:layout_alignTop="@+id/nofication_count"
-                android:layout_toRightOf="@+id/ic_nofication_count"
-                android:layout_toEndOf="@+id/ic_nofication_count"
-                android:visibility="gone"/>
 
             <TextView
                 android:id="@+id/txtfrienddetail"

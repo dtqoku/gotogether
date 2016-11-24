@@ -23,4 +23,9 @@ public class NotificationData {
     String SenderLastmessage;
     String SenderDisplayname;
     int Unreadcount;
+
+    //group request
+    String RequestGroupUid;
+    String RequestGroupname;
+    String RequestGroupdetail;
 }

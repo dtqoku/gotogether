@@ -1,5 +1,5 @@
 <resources>
-    <string name="connection_string">http://192.168.1.17/notification/</string>
+    <string name="connection_string">http://w499.cs.science.cmu.ac.th:83/u560510593/</string>
 
     <string name="app_name">gotogether</string>
     <string name="enter_username_hint">Enter E-mail</string>
@@ -45,6 +45,16 @@
     <string name="group_activity_meetingpointset">meeting point set! click to get direction</string>
     <string name="group_empty_view">you not join anygroup yet :(</string>
 
+    <string name="grouphome_activity_menu_leavegroup">leave</string>
+    <string name="grouphome_activity_menu_map">map</string>
+
+    <string name="map_activity_btn_setpoint">setting meeting point</string>
+    <string name="map_activity_memberlist">member location</string>
+
+    <string name="menu_member_give_leader">give leader</string>
+    <string name="menu_member_kick">kick this member</string>
+    <string name="menu_add_more_member">add more member</string>
+
     <string name="displayname">Displayname </string>
     <string name="fristname">Firstname </string>
     <string name="lastname">Lastname </string>
@@ -58,6 +68,8 @@
     <string name="unfriend">unfriend</string>
     <string name="chat">chat</string>
 
+    <string name="groupname">Name</string>
+    <string name="groupdescription">description</string>
 
     <string name="large_text">
         "Material is the metaphor.\n\n"
@@ -148,5 +160,8 @@
         "For example, position the FAB to one side of stream of a cards so the FAB won’t interfere "
         "when a user tries to pick up one of cards.\n\n"
     </string>
-    <string name="title_activity_person_chat">PersonChatActivity</string>
+    <string name="title_activity_person_chat">Chat</string>
+    <string name="title_activity_group_home">Group</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="title_activity_navigation">Navigation</string>
 </resources>

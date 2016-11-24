@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/activity_add_member"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="chanathip.gotogether.AddMemberActivity">
+
+    <android.support.v7.widget.SearchView
+        android:id="@+id/searchViewfriend"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:iconifiedByDefault="false"
+        app:queryHint="Search user by displayname" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/searchViewfriend"
+        android:scrollbars="vertical" />
+
+    <TextView
+        android:id="@+id/empty_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/searchViewfriend"
+        android:gravity="center"
+        android:text="@string/addfriend_empty_view"
+        android:visibility="gone" />
+
+</RelativeLayout>

@@ -5,6 +5,11 @@ package chanathip.gotogether;
  */
 
 public class NotificationData {
+    NotificationData(){
+        UserData userData = new UserData();
+        GroupData groupData = new GroupData();
+    }
+
     String Type;
     String CurrentuserUid;
     String CurrentuserDisplayname;
@@ -28,4 +33,7 @@ public class NotificationData {
     String RequestGroupUid;
     String RequestGroupname;
     String RequestGroupdetail;
+
+    //group
+    GroupData groupData;
 }

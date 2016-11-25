@@ -17,8 +17,12 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -145,7 +149,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
                                                 .setCancelable(false)
                                                 .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                                                     public void onClick(DialogInterface dialog, int id) {
-                                                        ((GroupActivity) mContext).recreate();
+                                                        //do nothing
                                                     }
                                                 });
                                         AlertDialog alertDialog2 = builder.create();
@@ -158,6 +162,8 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
                                         DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(groupData.thisUserUid);
                                         currentuserdatabaseReference.child("group").child(groupData.GroupUID).removeValue();
 
+                                        FirebaseMessaging.getInstance().unsubscribeFromTopic(groupData.GroupUID);
+
                                         groupdatas.remove(groupData);
                                         notifyDataSetChanged();
 
@@ -168,10 +174,29 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
                                         DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(groupData.thisUserUid);
                                         currentuserdatabaseReference.child("group").child(groupData.GroupUID).removeValue();
 
+                                        DatabaseReference groupdatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups").child(groupData.GroupUID);
+                                        groupdatabaseReference.child("member").child(groupData.thisUserUid).removeValue();
+                                        final DatabaseReference databaseReference = groupdatabaseReference;
+                                        groupdatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                int membercount = Integer.valueOf(String.valueOf(dataSnapshot.child("membercount").getValue()));
+                                                membercount = membercount-1;
+                                                databaseReference.child("membercount").setValue(membercount);
+                                            }
+
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+
+                                            }
+                                        });
+
+                                        FirebaseMessaging.getInstance().unsubscribeFromTopic(groupData.GroupUID);
+
                                         groupdatas.remove(groupData);
                                         notifyDataSetChanged();
 
-                                        Snackbar snackbar = Snackbar.make(parentView, "leave" + groupData.Name, Snackbar.LENGTH_LONG);
+                                        Snackbar snackbar = Snackbar.make(parentView, "leave " + groupData.Name, Snackbar.LENGTH_LONG);
                                         snackbar.show();
 
                                     }

@@ -21,6 +21,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context context;
     private View parentView;
 
+
     ChatAdapter(Context context, List<UserMessage> dataset, View view) {
         userMessages = dataset;
         this.context = context;

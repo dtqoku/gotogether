@@ -22,6 +22,8 @@ public class UserData {
     String GroupUid;
     String GroupName;
 
+    String Status;
+
     String FriendStatus;
 
     int unreadMassage;

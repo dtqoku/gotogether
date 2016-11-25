@@ -46,11 +46,11 @@ public class GotogetherNotificationManager {
             this.token = token;
         }
     }
-    private class RequestFriendData{
+    private class NotificationSendData{
         String ReceiveUid;
         String Message;
 
-        RequestFriendData(String ReceiveUid,String Message){
+        NotificationSendData(String ReceiveUid,String Message){
             this.ReceiveUid = ReceiveUid;
             this.Message = Message;
         }
@@ -70,32 +70,49 @@ public class GotogetherNotificationManager {
     }
     public void sendFriendRequest(String ReceiveUid,String SenderName){
         String Message = SenderName + " send friend request to you";
-        RequestFriendData requestFriendData = new RequestFriendData(ReceiveUid,Message);
+        NotificationSendData requestFriendData = new NotificationSendData(ReceiveUid,Message);
 
         SendNotificationToServer sendNotificationToServer = new SendNotificationToServer(requestFriendData);
         sendNotificationToServer.launchTask();
     }
     public void acceptFriendRequest(String ReceiveUid,String SenderName){
         String Message = SenderName + " accept your request already";
-        RequestFriendData requestFriendData = new RequestFriendData(ReceiveUid,Message);
+        NotificationSendData requestFriendData = new NotificationSendData(ReceiveUid,Message);
 
         SendNotificationToServer sendNotificationToServer = new SendNotificationToServer(requestFriendData);
         sendNotificationToServer.launchTask();
     }
     public void sendPersonChat(String ReceiveUid,String SenderName){
         String Message = "new Message from "+SenderName;
-        RequestFriendData requestFriendData = new RequestFriendData(ReceiveUid,Message);
+        NotificationSendData requestFriendData = new NotificationSendData(ReceiveUid,Message);
 
         SendNotificationToServer sendNotificationToServer = new SendNotificationToServer(requestFriendData);
         sendNotificationToServer.launchTask();
     }
     public void sendInvitetoGroup(String ReceiveUid,String SenderName){
         String Message = "get invite to "+SenderName;
-        RequestFriendData requestFriendData = new RequestFriendData(ReceiveUid,Message);
+        NotificationSendData requestFriendData = new NotificationSendData(ReceiveUid,Message);
 
         SendNotificationToServer sendNotificationToServer = new SendNotificationToServer(requestFriendData);
         sendNotificationToServer.launchTask();
     }
+    public void acceptGroupRequest(String ReceiveUid,String SenderName){
+        String Message = SenderName + " accept group request already";
+        String ReceiveGroup = "/topics/"+ReceiveUid;
+        NotificationSendData requestFriendData = new NotificationSendData(ReceiveGroup,Message);
+
+        SendNotificationTopicToServer sendNotificationTopicToServer = new SendNotificationTopicToServer(requestFriendData);
+        sendNotificationTopicToServer.launchTask();
+    }
+    public void sendGroupChat(String ReceiveUid,String SenderName){
+        String Message = "new Message from "+SenderName+" group";
+        String ReceiveGroup = "/topics/"+ReceiveUid;
+        NotificationSendData requestFriendData = new NotificationSendData(ReceiveGroup,Message);
+
+        SendNotificationTopicToServer sendNotificationTopicToServer = new SendNotificationTopicToServer(requestFriendData);
+        sendNotificationTopicToServer.launchTask();
+    }
+
 
     private class UpdateTokenToServer implements AsyncTaskCompleteListener<String> {
         private Uidandtoken uidandtoken;
@@ -128,9 +145,9 @@ public class GotogetherNotificationManager {
         }
     }
     private class SendNotificationToServer implements AsyncTaskCompleteListener<String> {
-        private RequestFriendData requestFriendData;
+        private NotificationSendData requestFriendData;
 
-        SendNotificationToServer(RequestFriendData requestFriendData) {
+        SendNotificationToServer(NotificationSendData requestFriendData) {
             this.requestFriendData = requestFriendData;
         }
 
@@ -155,6 +172,36 @@ public class GotogetherNotificationManager {
         public void launchTask() {
             SendNotificationToServerTask sendNotificationToServerTask = new SendNotificationToServerTask(this);
             sendNotificationToServerTask.execute(requestFriendData);
+        }
+    }
+    private class SendNotificationTopicToServer implements AsyncTaskCompleteListener<String> {
+        private NotificationSendData requestFriendData;
+
+        SendNotificationTopicToServer(NotificationSendData requestFriendData) {
+            this.requestFriendData = requestFriendData;
+        }
+
+        @Override
+        public void OnTaskComplete(String result) {
+            Log.d("test response", result);
+
+            try {
+                //solution
+                JSONObject jObject = new JSONObject(result);
+                String StatusReturnCode = jObject.getString("statuscode");
+                if (StatusReturnCode.equals("1")) {
+
+                } else {
+                    launchTask();
+                }
+            } catch (JSONException e) {
+                Log.e("sendfriend notification", "JSONException", e);
+            }
+        }
+
+        public void launchTask() {
+            SendNotificationTopicToServerTask sendNotificationTopicToServerTask = new SendNotificationTopicToServerTask(this);
+            sendNotificationTopicToServerTask.execute(requestFriendData);
         }
     }
 
@@ -229,7 +276,7 @@ public class GotogetherNotificationManager {
             callback.OnTaskComplete(result);
         }
     }
-    private class SendNotificationToServerTask extends AsyncTask<RequestFriendData, Void, String> {
+    private class SendNotificationToServerTask extends AsyncTask<NotificationSendData, Void, String> {
         private HttpURLConnection urlConnection;
         private AsyncTaskCompleteListener<String> callback;
 
@@ -238,7 +285,7 @@ public class GotogetherNotificationManager {
         }
 
         @Override
-        protected String doInBackground(RequestFriendData... requestFriendData) {
+        protected String doInBackground(NotificationSendData... requestFriendData) {
             OutputStream os;
             InputStream in;
 
@@ -256,6 +303,76 @@ public class GotogetherNotificationManager {
             StringBuilder result = new StringBuilder();
             try {
                 String connectURL = connectionString + "sendNotification.php";
+                URL url = new URL(connectURL);
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setReadTimeout(10000 /*milliseconds*/);
+                urlConnection.setConnectTimeout(15000 /* milliseconds */);
+                urlConnection.setRequestMethod("POST");
+                urlConnection.setDoInput(true);
+                urlConnection.setDoOutput(true);
+                urlConnection.setFixedLengthStreamingMode(outputJson.getBytes().length);
+                urlConnection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+
+                //open
+                urlConnection.connect();
+
+                //prepare send
+                os = new BufferedOutputStream(urlConnection.getOutputStream());
+                os.write(outputJson.getBytes());
+                //clean up
+                os.flush();
+
+                //do something with response
+                in = new BufferedInputStream(urlConnection.getInputStream());
+                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    result.append(line);
+                }
+
+                //clean up
+                os.close();
+                in.close();
+            } catch (Exception e) {
+                Log.e("ConnectDatabase", "exception", e);
+            } finally {
+                urlConnection.disconnect();
+            }
+            return result.toString();
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            callback.OnTaskComplete(result);
+        }
+    }
+    private class SendNotificationTopicToServerTask extends AsyncTask<NotificationSendData, Void, String> {
+        private HttpURLConnection urlConnection;
+        private AsyncTaskCompleteListener<String> callback;
+
+        SendNotificationTopicToServerTask(AsyncTaskCompleteListener<String> cb) {
+            this.callback = cb;
+        }
+
+        @Override
+        protected String doInBackground(NotificationSendData... requestFriendData) {
+            OutputStream os;
+            InputStream in;
+
+            //convert to json
+            JSONObject jsonObject = new JSONObject();
+            try {
+                jsonObject.put("ReceiveUid", requestFriendData[0].ReceiveUid);
+                jsonObject.put("Message", requestFriendData[0].Message);
+            } catch (JSONException e) {
+                Log.e("JsonEncode", "exception", e);
+            }
+            String outputJson = jsonObject.toString();
+
+            //start connection
+            StringBuilder result = new StringBuilder();
+            try {
+                String connectURL = connectionString + "sendNotificationToTopic.php";
                 URL url = new URL(connectURL);
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setReadTimeout(10000 /*milliseconds*/);

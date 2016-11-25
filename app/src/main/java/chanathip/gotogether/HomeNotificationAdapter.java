@@ -1,19 +1,29 @@
 package chanathip.gotogether;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.List;
 
@@ -94,6 +104,28 @@ public class HomeNotificationAdapter extends RecyclerView.Adapter<RecyclerView.V
         }
     }
 
+    public static class ViewHolderGroup extends RecyclerView.ViewHolder {
+        public TextView groupname;
+        public TextView groupdescription;
+        public ImageView _overflow;
+        public ImageView _leader;
+        public View _line;
+        public ImageView _target_status;
+        public Button _btn_get_target_location;
+
+        public ViewHolderGroup(View view) {
+            super(view);
+
+            groupname = (TextView) view.findViewById(R.id.txtgroupname);
+            groupdescription = (TextView) view.findViewById(R.id.txtgroupdescription);
+            _overflow = (ImageView) view.findViewById(R.id.overflow);
+            _leader = (ImageView) view.findViewById(R.id.leader);
+            _target_status = (ImageView) view.findViewById(R.id.target_status);
+            _line = (View) view.findViewById(R.id.line);
+            _btn_get_target_location = (Button) view.findViewById(R.id.btn_get_target_location);
+        }
+    }
+
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -110,6 +142,9 @@ public class HomeNotificationAdapter extends RecyclerView.Adapter<RecyclerView.V
             case 3:
                 return new ViewHolderGroupRequest(LayoutInflater.from(context)
                         .inflate(R.layout.recycler_row_request, parent, false));
+            case 4:
+                return new ViewHolderGroup(LayoutInflater.from(context)
+                        .inflate(R.layout.recycler_row_group, parent, false));
             default:
                 return new ViewHolderTitle(LayoutInflater.from(context)
                         .inflate(R.layout.recycler_row_title, parent, false));
@@ -191,26 +226,42 @@ public class HomeNotificationAdapter extends RecyclerView.Adapter<RecyclerView.V
                     intent.putExtra("UserUid",notificationData.CurrentuserUid);
                     context.startActivity(intent);
                 }
-            });/*
+            });
 
             viewHolderGroupRequest.accept.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(notificationData.CurrentuserUid);
-                    currentuserdatabaseReference.child("friend").child(notificationData.RequestUserUid).setValue("true");
-                    currentuserdatabaseReference.child("request").child("friend").child(notificationData.RequestUserUid).removeValue();
+                    currentuserdatabaseReference.child("request").child("group").child(notificationData.RequestGroupUid).removeValue();
+                    currentuserdatabaseReference.child("group").child(notificationData.RequestGroupUid).setValue("member");
 
-                    DatabaseReference requestuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(notificationData.RequestUserUid);
-                    requestuserdatabaseReference.child("friend").child(notificationData.CurrentuserUid).setValue("true");
-                    requestuserdatabaseReference.child("request").child("friend").child(notificationData.CurrentuserDisplayname).removeValue();
+                    DatabaseReference groupdatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups").child(notificationData.RequestGroupUid);
+                    groupdatabaseReference.child("invite").child(notificationData.CurrentuserUid).removeValue();
+                    groupdatabaseReference.child("member").child(notificationData.CurrentuserUid).setValue("member");
+                    final DatabaseReference databaseReference = groupdatabaseReference;
+                    groupdatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            int membercount = Integer.valueOf(String.valueOf(dataSnapshot.child("membercount").getValue()));
+                            membercount = membercount+1;
+                            databaseReference.child("membercount").setValue(membercount);
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+                    FirebaseMessaging.getInstance().subscribeToTopic(notificationData.RequestGroupUid);
 
                     GotogetherNotificationManager gotogetherNotificationManager = new GotogetherNotificationManager(context);
-                    gotogetherNotificationManager.acceptFriendRequest(notificationData.RequestUserUid, notificationData.CurrentuserDisplayname);
+                    gotogetherNotificationManager.acceptGroupRequest(notificationData.RequestGroupUid, notificationData.CurrentuserDisplayname);
 
                     notificationDatas.remove(positiontemp);
                     notifyDataSetChanged();
 
-                    Snackbar snackbar = Snackbar.make(parentView, "accept " + notificationData.RequestUserdisplayname + " friend request", Snackbar.LENGTH_LONG);
+                    Snackbar snackbar = Snackbar.make(parentView, "accept " + notificationData.RequestGroupname + " group request", Snackbar.LENGTH_LONG);
                     snackbar.show();
                 }
             });
@@ -219,15 +270,18 @@ public class HomeNotificationAdapter extends RecyclerView.Adapter<RecyclerView.V
                 @Override
                 public void onClick(View v) {
                     DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(notificationData.CurrentuserUid);
-                    currentuserdatabaseReference.child("request").child("friend").child(notificationData.RequestUserUid).removeValue();
+                    currentuserdatabaseReference.child("request").child("group").child(notificationData.RequestGroupUid).removeValue();
+
+                    DatabaseReference groupdatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups").child(notificationData.RequestGroupUid);
+                    groupdatabaseReference.child("invite").child(notificationData.CurrentuserUid).removeValue();
 
                     notificationDatas.remove(positiontemp);
                     notifyDataSetChanged();
 
-                    Snackbar snackbar = Snackbar.make(parentView, "reject " + notificationData.RequestUserdisplayname + " friend request", Snackbar.LENGTH_LONG);
+                    Snackbar snackbar = Snackbar.make(parentView, "reject " + notificationData.RequestGroupname + " group request", Snackbar.LENGTH_LONG);
                     snackbar.show();
                 }
-            });*/
+            });
         } else if (holder instanceof ViewHolderUnread){
             ViewHolderUnread viewHolderUnread = (ViewHolderUnread) holder;
 
@@ -251,6 +305,144 @@ public class HomeNotificationAdapter extends RecyclerView.Adapter<RecyclerView.V
 
             viewHolderUnread.ic_nofication_count.setColorFilter(ContextCompat.getColor(context,R.color.colorPrimary));
 
+        } else if (holder instanceof ViewHolderGroup){
+            ViewHolderGroup viewHolderGroup = (ViewHolderGroup) holder;
+
+            viewHolderGroup.groupname.setText(notificationData.groupData.Name + " (" + String.valueOf(notificationData.groupData.Membercount) + ")");
+            viewHolderGroup.groupdescription.setText(notificationData.groupData.Description);
+
+            final ViewHolderGroup viewHolderGrouptemp = viewHolderGroup;
+            viewHolderGroup._overflow.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showpopupmenu(viewHolderGrouptemp._overflow, notificationData);
+                }
+            });
+
+            if (notificationData.groupData.isleader()) {
+                viewHolderGroup._leader.setVisibility(View.VISIBLE);
+            } else {
+                viewHolderGroup._leader.setVisibility(View.GONE);
+            }
+
+            if (notificationData.groupData.isMeetingPointSet()) {
+                viewHolderGroup._target_status.setVisibility(View.VISIBLE);
+                viewHolderGroup._line.setVisibility(View.VISIBLE);
+                viewHolderGroup._btn_get_target_location.setVisibility(View.VISIBLE);
+            } else {
+                viewHolderGroup._target_status.setVisibility(View.GONE);
+                viewHolderGroup._line.setVisibility(View.GONE);
+                viewHolderGroup._btn_get_target_location.setVisibility(View.GONE);
+            }
+
+            viewHolderGroup.groupname.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context,GroupHomeActivity.class);
+                    intent.putExtra("GroupUID",notificationData.groupData.GroupUID);
+                    intent.putExtra("GroupName",notificationData.groupData.Name);
+                    intent.putExtra("UserUid",notificationData.groupData.thisUserUid);
+                    context.startActivity(intent);
+                }
+            });
+        }
+    }
+    private void showpopupmenu(View view, NotificationData notificationData) {
+        PopupMenu popupMenu = new PopupMenu(context, view);
+        MenuInflater inflater = popupMenu.getMenuInflater();
+        inflater.inflate(R.menu.menu_group, popupMenu.getMenu());
+        popupMenu.setOnMenuItemClickListener(new MyMenuItemClickListener(notificationData));
+        popupMenu.show();
+    }
+
+    private class MyMenuItemClickListener implements PopupMenu.OnMenuItemClickListener {
+        NotificationData notificationData;
+
+        MyMenuItemClickListener(NotificationData notificationData) {
+            this.notificationData = notificationData;
+        }
+
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.action_leave:
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setMessage("Are you sure to leave this group?")
+                            .setCancelable(false)
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    //leave group
+                                    if (notificationData.groupData.isleader() && notificationData.groupData.Membercount > 1) {
+                                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                                        builder.setMessage("you cannot leave group if you are leader or not last one in group")
+                                                .setCancelable(false)
+                                                .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int id) {
+                                                        //do nothing
+                                                    }
+                                                });
+                                        AlertDialog alertDialog2 = builder.create();
+                                        alertDialog2.show();
+                                    } else if (notificationData.groupData.rank.equals("leader")) {
+                                        //leave group as leader
+                                        DatabaseReference groupdatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups").child(notificationData.groupData.GroupUID);
+                                        groupdatabaseReference.removeValue();
+
+                                        DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(notificationData.groupData.thisUserUid);
+                                        currentuserdatabaseReference.child("group").child(notificationData.groupData.GroupUID).removeValue();
+
+                                        FirebaseMessaging.getInstance().unsubscribeFromTopic(notificationData.groupData.GroupUID);
+
+                                        notificationDatas.remove(notificationData);
+                                        notifyDataSetChanged();
+
+                                        Snackbar snackbar = Snackbar.make(parentView, "leave" + notificationData.groupData.Name, Snackbar.LENGTH_LONG);
+                                        snackbar.show();
+                                    } else {
+                                        //just leave
+                                        DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(notificationData.groupData.thisUserUid);
+                                        currentuserdatabaseReference.child("group").child(notificationData.groupData.GroupUID).removeValue();
+
+                                        DatabaseReference groupdatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups").child(notificationData.groupData.GroupUID);
+                                        groupdatabaseReference.child("member").child(notificationData.groupData.thisUserUid).removeValue();
+                                        final DatabaseReference databaseReference = groupdatabaseReference;
+                                        groupdatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                int membercount = Integer.valueOf(String.valueOf(dataSnapshot.child("membercount").getValue()));
+                                                membercount = membercount-1;
+                                                databaseReference.child("membercount").setValue(membercount);
+                                            }
+
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+
+                                            }
+                                        });
+
+                                        FirebaseMessaging.getInstance().unsubscribeFromTopic(notificationData.groupData.GroupUID);
+
+                                        notificationDatas.remove(notificationData);
+                                        notifyDataSetChanged();
+
+                                        Snackbar snackbar = Snackbar.make(parentView, "leave " + notificationData.groupData.Name, Snackbar.LENGTH_LONG);
+                                        snackbar.show();
+
+                                    }
+
+
+                                }
+                            })
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    //cancel
+                                }
+                            });
+                    AlertDialog alert = builder.create();
+                    alert.show();
+                    return true;
+            }
+            return false;
         }
     }
 
@@ -265,6 +457,8 @@ public class HomeNotificationAdapter extends RecyclerView.Adapter<RecyclerView.V
             return 2;
         } else if (notificationData.Type.equals("GroupRequest")) {
             return 3;
+        } else if (notificationData.Type.equals("Group")) {
+            return 4;
         } else {
             return 0;
         }

@@ -13,6 +13,7 @@ import android.widget.Button;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -117,6 +118,8 @@ public class CreateNewGroupActivity extends AppCompatActivity {
             DatabaseReference userdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users")
                     .child(userData.UserUid).child("group");
             userdatabaseReference.child(key).setValue("leader");
+
+            FirebaseMessaging.getInstance().subscribeToTopic(key);
 
             onBackPressed();
         }

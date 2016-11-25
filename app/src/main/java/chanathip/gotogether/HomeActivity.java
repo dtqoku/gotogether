@@ -44,6 +44,7 @@ public class HomeActivity extends AppCompatActivity
     private List<NotificationData> friendRequestNotificationDatas;
     private List<NotificationData> unreadMassageNotificationDatas;
     private List<NotificationData> groupRequestNotificationDatas;
+    private List<NotificationData> groupNotificationDatas;
     private RecyclerView.LayoutManager layoutManager;
     private HomeNotificationAdapter homeNotificationAdapter;
 
@@ -64,6 +65,7 @@ public class HomeActivity extends AppCompatActivity
         friendRequestNotificationDatas = new ArrayList<>();
         unreadMassageNotificationDatas = new ArrayList<>();
         groupRequestNotificationDatas = new ArrayList<>();
+        groupNotificationDatas = new ArrayList<>();
 
         firebaseAuth = FirebaseAuth.getInstance();
         authStateListener = new FirebaseAuth.AuthStateListener() {
@@ -292,6 +294,52 @@ public class HomeActivity extends AppCompatActivity
                                     }
                                 }
 
+                                //check friend
+                                groupNotificationDatas.clear();
+                                Map<String, String> groupUserdataMap = (Map<String, String>) dataSnapshot.child("group").getValue();
+                                if (groupUserdataMap != null) {
+                                    for (HashMap.Entry<String, String> entry : groupUserdataMap.entrySet()) {
+                                        String key = entry.getKey();
+                                        String value = entry.getValue();
+
+                                        final NotificationData groupNotificationData = new NotificationData();
+                                        final String GroupUid = key;
+                                        final String Rank = value;
+
+                                        DatabaseReference groupdatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups").child(key);
+                                        groupdatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                groupNotificationData.groupData = new GroupData();
+                                                groupNotificationData.groupData.setData(
+                                                        GroupUid,
+                                                        String.valueOf(dataSnapshot.child("name").getValue()),
+                                                        String.valueOf(dataSnapshot.child("description").getValue()),
+                                                        Rank,
+                                                        String.valueOf(dataSnapshot.child("settingpoint").getValue()),
+                                                        String.valueOf(dataSnapshot.child("membercount").getValue()),
+                                                        currentUserData.UserUid
+                                                );
+                                                groupNotificationData.Type = "Group";
+                                                groupNotificationData.CurrentuserUid = currentUserData.UserUid;
+                                                groupNotificationData.CurrentuserDisplayname = currentUserData.displayname;
+
+                                                groupNotificationDatas.add(groupNotificationData);
+
+                                                updateNotificationdata();
+
+
+                                            }
+
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+
+                                            }
+                                        });
+
+                                    }
+                                }
+
                                 updateUI();
                             }
 
@@ -324,6 +372,12 @@ public class HomeActivity extends AppCompatActivity
         notificationData.titlename = "Unread Massage";
         notificationDatas.add(notificationData);
         notificationDatas.addAll(unreadMassageNotificationDatas);
+
+        notificationData = new NotificationData();
+        notificationData.Type = "Title";
+        notificationData.titlename = "groups";
+        notificationDatas.add(notificationData);
+        notificationDatas.addAll(groupNotificationDatas);
 
         homeNotificationAdapter.notifyDataSetChanged();
 

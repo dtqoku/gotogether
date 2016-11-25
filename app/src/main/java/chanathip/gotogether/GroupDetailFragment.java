@@ -77,8 +77,6 @@ public class GroupDetailFragment extends Fragment {
             groupData.Name = (String) savedInstanceState.getSerializable("GroupName");
             userData.UserUid = (String) savedInstanceState.getSerializable("UserUid");
         }
-        String test = userData.UserUid;
-        String test2 = groupData.GroupUID;
 
 
     }
@@ -95,8 +93,6 @@ public class GroupDetailFragment extends Fragment {
         super.onStart();
         memberDatas.clear();
         inviteDatas.clear();
-        String test = userData.UserUid;
-        String test2 = groupData.GroupUID;
 
         //get current userdata
         DatabaseReference currentuserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(userData.UserUid);

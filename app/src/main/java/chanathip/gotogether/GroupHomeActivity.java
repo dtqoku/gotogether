@@ -1,10 +1,12 @@
 package chanathip.gotogether;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -20,6 +22,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.TextView;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 public class GroupHomeActivity extends AppCompatActivity {
     private UserData userData;
@@ -116,12 +125,94 @@ public class GroupHomeActivity extends AppCompatActivity {
                 onBackPressed();
                 return true;
             case R.id.leave:
+                DatabaseReference groupdatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups").child(groupData.GroupUID);
+                groupdatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        groupData.rank = String.valueOf(dataSnapshot.child("member").child(userData.UserUid).getValue());
+                        groupData.Membercount = Integer.valueOf(String.valueOf(dataSnapshot.child("membercount").getValue()));
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(GroupHomeActivity.this);
+                        builder.setMessage("Are you sure to leave this group?")
+                                .setCancelable(false)
+                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        //leave group
+                                        if (groupData.rank.equals("leader") && groupData.Membercount > 1) {
+                                            AlertDialog.Builder builder = new AlertDialog.Builder(GroupHomeActivity.this);
+                                            builder.setMessage("you cannot leave group if you are leader or not last one in group")
+                                                    .setCancelable(false)
+                                                    .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                                                        public void onClick(DialogInterface dialog, int id) {
+                                                            //do nothing
+                                                        }
+                                                    });
+                                            AlertDialog alertDialog2 = builder.create();
+                                            alertDialog2.show();
+                                        } else if (groupData.rank.equals("leader")) {
+                                            //leave group as leader
+                                            DatabaseReference groupdatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups").child(groupData.GroupUID);
+                                            groupdatabaseReference.removeValue();
+
+                                            DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(groupData.thisUserUid);
+                                            currentuserdatabaseReference.child("group").child(groupData.GroupUID).removeValue();
+
+                                            FirebaseMessaging.getInstance().unsubscribeFromTopic(groupData.GroupUID);
+
+                                            onBackPressed();
+                                        } else {
+                                            //just leave
+                                            DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(userData.UserUid);
+                                            currentuserdatabaseReference.child("group").child(groupData.GroupUID).removeValue();
+
+                                            DatabaseReference groupdatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups").child(groupData.GroupUID);
+                                            groupdatabaseReference.child("member").child(userData.UserUid).removeValue();
+                                            final DatabaseReference databaseReference = groupdatabaseReference;
+                                            groupdatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                                    int membercount = Integer.valueOf(String.valueOf(dataSnapshot.child("membercount").getValue()));
+                                                    membercount = membercount-1;
+                                                    databaseReference.child("membercount").setValue(membercount);
+                                                }
+
+                                                @Override
+                                                public void onCancelled(DatabaseError databaseError) {
+
+                                                }
+                                            });
+
+                                            FirebaseMessaging.getInstance().unsubscribeFromTopic(groupData.GroupUID);
+
+
+                                            onBackPressed();
+
+                                        }
+
+
+                                    }
+                                })
+                                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        //cancel
+                                    }
+                                });
+                        AlertDialog alert = builder.create();
+                        alert.show();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
                 return true;
             case R.id.map:
                 Intent intent = new Intent(this, NavigationActivity.class);
                 intent.putExtra("GroupUID", groupData.GroupUID);
                 intent.putExtra("GroupName", groupData.Name);
-                intent.putExtra("UserUid", groupData.thisUserUid);
+                intent.putExtra("UserUid", userData.UserUid);
                 startActivity(intent);
                 return true;
         }
@@ -187,7 +278,9 @@ public class GroupHomeActivity extends AppCompatActivity {
             // Return a PlaceholderFragment (defined as a static inner class below).
             switch (position) {
                 case 0:
-                    return GroupChatFragment.newInstance();
+                    return GroupChatFragment.newInstance(groupData.GroupUID,
+                            groupData.Name,
+                            userData.UserUid);
                 case 1:
                     return GroupDetailFragment.newInstance(groupData.GroupUID,
                             groupData.Name,

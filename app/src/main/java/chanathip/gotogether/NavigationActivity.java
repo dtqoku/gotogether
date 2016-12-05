@@ -30,6 +30,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -52,7 +53,7 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
     private GoogleApiClient googleApiClient;
     private List<GroupDetailData> memberDatas;
     private Button setmeetingpoint;
-
+    private Button btnok;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +61,7 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
         setContentView(R.layout.activity_navigation);
 
         setmeetingpoint = (Button) findViewById(R.id.btnSubmit);
+        btnok = (Button) findViewById(R.id.btnok);
 
         userData = new UserData();
         groupData = new GroupData();
@@ -100,22 +102,38 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
             }
         });
 
+
         setmeetingpoint.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                final MarkerOptions marker = new MarkerOptions().position(
+                        new LatLng(0, 0)).title("Meeting point");
+                final Marker marker1 = mMap.addMarker(marker);
+
                 mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                     @Override
                     public void onMapClick(LatLng latLng) {
+                        marker1.setPosition(latLng);
+                    }
+                });
+                setmeetingpoint.setVisibility(View.GONE);
+                btnok.setVisibility(View.VISIBLE);
 
-                            MarkerOptions marker = new MarkerOptions().position(
-                                    new LatLng(latLng.latitude, latLng.longitude)).title("Meeting point");
+                btnok.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //LatLng latLng = marker1.getPosition();
+                        LatLng latLng = marker1.getPosition();
+                        
 
-                            mMap.addMarker(marker);
-
+                        btnok.setVisibility(View.GONE);
+                        setmeetingpoint.setVisibility(View.VISIBLE);
                     }
                 });
             }
         });
+
+
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()

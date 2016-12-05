@@ -20,6 +20,17 @@
             tools:context="chanathip.gotogether.NavigationActivity" />
 
         <Button
+            android:id="@+id/btnok"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:background="@android:color/holo_green_light"
+            android:text="ok"
+            android:visibility="gone"
+            android:textColor="@android:color/white" />
+
+        <Button
             android:id="@+id/btnSubmit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

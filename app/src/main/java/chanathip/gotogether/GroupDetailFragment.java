@@ -305,6 +305,7 @@ public class GroupDetailFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_group_detail, container, false);
         return rootView;
     }
+
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);

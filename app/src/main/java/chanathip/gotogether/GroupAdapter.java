@@ -109,10 +109,10 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
         viewHolder.groupname.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(mContext,GroupHomeActivity.class);
-                intent.putExtra("GroupUID",groupData.GroupUID);
-                intent.putExtra("GroupName",groupData.Name);
-                intent.putExtra("UserUid",groupData.thisUserUid);
+                Intent intent = new Intent(mContext, GroupHomeActivity.class);
+                intent.putExtra("GroupUID", groupData.GroupUID);
+                intent.putExtra("GroupName", groupData.Name);
+                intent.putExtra("userUid", groupData.thisUserUid);
                 mContext.startActivity(intent);
             }
         });
@@ -156,11 +156,12 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
                                         alertDialog2.show();
                                     } else if (groupData.rank.equals("leader")) {
                                         //leave group as leader
-                                        DatabaseReference groupdatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups").child(groupData.GroupUID);
-                                        groupdatabaseReference.removeValue();
 
                                         DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(groupData.thisUserUid);
                                         currentuserdatabaseReference.child("group").child(groupData.GroupUID).removeValue();
+
+                                        DatabaseReference groupdatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups").child(groupData.GroupUID);
+                                        groupdatabaseReference.removeValue();
 
                                         FirebaseMessaging.getInstance().unsubscribeFromTopic(groupData.GroupUID);
 
@@ -181,7 +182,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
                                             @Override
                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                 int membercount = Integer.valueOf(String.valueOf(dataSnapshot.child("membercount").getValue()));
-                                                membercount = membercount-1;
+                                                membercount = membercount - 1;
                                                 databaseReference.child("membercount").setValue(membercount);
                                             }
 
@@ -196,7 +197,7 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
                                         groupdatas.remove(groupData);
                                         notifyDataSetChanged();
 
-                                        Snackbar snackbar = Snackbar.make(parentView, "leave " + groupData.Name, Snackbar.LENGTH_LONG);
+                                        Snackbar snackbar = Snackbar.make(parentView, "leave  " + groupData.Name, Snackbar.LENGTH_LONG);
                                         snackbar.show();
 
                                     }

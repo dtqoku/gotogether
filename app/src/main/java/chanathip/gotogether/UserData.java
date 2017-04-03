@@ -1,19 +1,14 @@
 package chanathip.gotogether;
 
-import java.util.ArrayList;
-
 /**
  * Created by neetc on 10/25/2016.
  */
 
 public class UserData {
-    String UserUid;
-    String Firstname;
-    String Lastname;
+    String userUid;
     String password;
-    String Email;
-    String Emailwithoutadd;
-    String Phone;
+    String email;
+    String phone;
     String displayname;
     double LocationLat;
     double LocationLng;
@@ -28,12 +23,9 @@ public class UserData {
 
     int unreadMassage;
 
-    public void setData(String UserUid,String Firstname,String Lastname,String displayname,String Email,String Phone){
-        this.UserUid = UserUid;
-        this.Firstname = Firstname;
-        this.Lastname = Lastname;
+    public void setData(String UserUid, String displayname, String Email){
+        this.userUid = UserUid;
         this.displayname = displayname;
-        this.Email = Email;
-        this.Phone = Phone;
+        this.email = Email;
     }
 }

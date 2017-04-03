@@ -17,9 +17,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -76,7 +73,7 @@ public class AddFriendListAdapter extends RecyclerView.Adapter<AddFriendListAdap
     public void onBindViewHolder(final ViewHolder viewHolder, final int position) {
         final UserData userData = userDatas.get(position);
         viewHolder.friendname.setText(userData.displayname);
-        viewHolder.frienddetail.setText(userData.Firstname + " " + userData.Lastname);
+        viewHolder.frienddetail.setText(userData.email);
 
         viewHolder.noficationcount.setVisibility(View.GONE);
         viewHolder.iconnoficationcount.setVisibility(View.GONE);
@@ -86,7 +83,7 @@ public class AddFriendListAdapter extends RecyclerView.Adapter<AddFriendListAdap
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context,UserdetailActivity.class);
-                intent.putExtra("userUid",userData.UserUid);
+                intent.putExtra("userUid",userData.userUid);
                 intent.putExtra("userDisplayname",userData.displayname);
                 context.startActivity(intent);
             }
@@ -119,10 +116,8 @@ public class AddFriendListAdapter extends RecyclerView.Adapter<AddFriendListAdap
                         Map<String,String> value = (Map<String,String>)entry.getValue();
                         UserData userData = new UserData();
 
-                        userData.UserUid = key;
+                        userData.userUid = key;
                         userData.displayname = value.get("display name");
-                        userData.Firstname = value.get("First name");
-                        userData.Lastname = value.get("Last name");
 
                         userDatas.add(userData);
                     }

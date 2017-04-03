@@ -3,9 +3,7 @@ package chanathip.gotogether;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.PopupMenu;
@@ -144,7 +142,7 @@ public class GroupDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             final ViewHolderMember viewHolderMember = (ViewHolderMember) holder;
 
             viewHolderMember.friendname.setText(groupDetailData.member.displayname);
-            viewHolderMember.frineddetail.setText(groupDetailData.member.Firstname + " " + groupDetailData.member.Lastname);
+            viewHolderMember.frineddetail.setText(groupDetailData.member.email);
             viewHolderMember.nofication_count.setVisibility(View.GONE);
             viewHolderMember.ic_nofication_count.setVisibility(View.GONE);
 
@@ -154,7 +152,7 @@ public class GroupDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             if (!groupDetailData.Rank.equals("leader")) {
                 viewHolderMember.overflow.setVisibility(View.GONE);
             }
-            if (groupDetailData.CurrentuserUid.equals(groupDetailData.member.UserUid)) {
+            if (groupDetailData.CurrentuserUid.equals(groupDetailData.member.userUid)) {
                 viewHolderMember.overflow.setVisibility(View.GONE);
             }
 
@@ -162,7 +160,7 @@ public class GroupDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(context, UserdetailActivity.class);
-                    intent.putExtra("userUid", groupDetailData.member.UserUid);
+                    intent.putExtra("userUid", groupDetailData.member.userUid);
                     intent.putExtra("userDisplayname", groupDetailData.member.displayname);
                     context.startActivity(intent);
                 }
@@ -182,7 +180,7 @@ public class GroupDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     Intent intent = new Intent(context, AddMemberActivity.class);
                     intent.putExtra("GroupUID", groupDetailData.GroupUid);
                     intent.putExtra("GroupName", groupDetailData.groupname);
-                    intent.putExtra("UserUid", groupDetailData.CurrentuserUid);
+                    intent.putExtra("userUid", groupDetailData.CurrentuserUid);
                     intent.putExtra("UserDisplayname", groupDetailData.CurrentuserDisplayname);
                     context.startActivity(intent);
                 }
@@ -191,7 +189,7 @@ public class GroupDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             final ViewHolderInvite viewHolderInvite = (ViewHolderInvite) holder;
 
             viewHolderInvite.friendname.setText(groupDetailData.member.displayname);
-            viewHolderInvite.frineddetail.setText(groupDetailData.member.Firstname + " " + groupDetailData.member.Lastname);
+            viewHolderInvite.frineddetail.setText(groupDetailData.member.email);
             if (!groupDetailData.Rank.equals("leader")) {
                 viewHolderInvite.overflow.setVisibility(View.GONE);
             }
@@ -204,13 +202,13 @@ public class GroupDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                     //invite
-                                    DatabaseReference inviteUserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(groupDetailData.member.UserUid)
+                                    DatabaseReference inviteUserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(groupDetailData.member.userUid)
                                             .child("request").child("group");
                                     inviteUserDatabaseReference.child(groupDetailData.GroupUid).removeValue();
 
                                     DatabaseReference memberDatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups")
                                             .child(groupDetailData.GroupUid).child("invite");
-                                    memberDatabaseReference.child(groupDetailData.member.UserUid).removeValue();
+                                    memberDatabaseReference.child(groupDetailData.member.userUid).removeValue();
 
                                     groupDetailDatas.remove(groupDetailData);
                                     notifyDataSetChanged();

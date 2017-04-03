@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -77,7 +75,7 @@ public class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.Vi
         final UserData userData = userDatas.get(position);
 
         viewHolder.friendname.setText(userData.displayname);
-        viewHolder.frineddetail.setText(userData.Firstname + " " + userData.Lastname);
+        viewHolder.frineddetail.setText(userData.email);
         viewHolder.nofication_count.setText(String.valueOf(userData.unreadMassage));
         if(userData.unreadMassage != 0){
             viewHolder.ic_nofication_count.setColorFilter(ContextCompat.getColor(mContext,R.color.colorPrimary));
@@ -87,7 +85,7 @@ public class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.Vi
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mContext,UserdetailActivity.class);
-                intent.putExtra("userUid",userData.UserUid);
+                intent.putExtra("userUid",userData.userUid);
                 intent.putExtra("userDisplayname",userData.displayname);
                 mContext.startActivity(intent);
             }
@@ -119,9 +117,9 @@ public class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.Vi
             switch (item.getItemId()){
                 case R.id.chat :
                     Intent intent = new Intent(mContext,PersonChatActivity.class);
-                    intent.putExtra("currentChatuserUid",userData.UserUid);
+                    intent.putExtra("currentChatuserUid",userData.userUid);
                     intent.putExtra("currentChatuserDisplayname",userData.displayname);
-                    intent.putExtra("UserUid",currentUserdata.UserUid);
+                    intent.putExtra("userUid",currentUserdata.userUid);
                     intent.putExtra("UserDisplayname",currentUserdata.displayname);
                     mContext.startActivity(intent);
                     return true;
@@ -131,11 +129,11 @@ public class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.Vi
                             .setCancelable(false)
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-                                    DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentUserdata.UserUid);
-                                    currentuserdatabaseReference.child("friend").child(userData.UserUid).removeValue();
+                                    DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentUserdata.userUid);
+                                    currentuserdatabaseReference.child("friend").child(userData.userUid).removeValue();
 
-                                    DatabaseReference requestuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(userData.UserUid);
-                                    requestuserdatabaseReference.child("friend").child(currentUserdata.UserUid).removeValue();
+                                    DatabaseReference requestuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(userData.userUid);
+                                    requestuserdatabaseReference.child("friend").child(currentUserdata.userUid).removeValue();
 
                                     userDatas.remove(userData);
                                     notifyDataSetChanged();
@@ -173,7 +171,7 @@ public class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.Vi
         } else{
             text = text.toLowerCase();
             for(UserData item: userDatasfromdb){
-                if(item.displayname.toLowerCase().contains(text) || item.Firstname.toLowerCase().contains(text) || item.Lastname.toLowerCase().contains(text)){
+                if(item.displayname.toLowerCase().contains(text)){
                     userDatas.add(item);
                 }
             }

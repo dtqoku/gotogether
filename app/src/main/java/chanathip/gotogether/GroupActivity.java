@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -15,7 +14,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
@@ -72,8 +70,8 @@ public class GroupActivity extends AppCompatActivity
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
                 if (firebaseUser != null) {
-                    currentUserData.UserUid = firebaseUser.getUid();
-                    currentUserData.Email = firebaseUser.getEmail();
+                    currentUserData.userUid = firebaseUser.getUid();
+                    currentUserData.email = firebaseUser.getEmail();
 
                     getcurrentuserdata();
                 } else {
@@ -141,7 +139,7 @@ public class GroupActivity extends AppCompatActivity
     }
 
     private void getcurrentuserdata() {
-        DatabaseReference currentuserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentUserData.UserUid);
+        DatabaseReference currentuserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentUserData.userUid);
         currentuserDatabaseReference.keepSynced(true);
         currentuserDatabaseReference
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -149,12 +147,9 @@ public class GroupActivity extends AppCompatActivity
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         currentUserData.setData(
-                                currentUserData.UserUid,
-                                dataSnapshot.child("First name").getValue().toString(),
-                                dataSnapshot.child("Last name").getValue().toString(),
+                                currentUserData.userUid,
                                 dataSnapshot.child("display name").getValue().toString(),
-                                currentUserData.Email,
-                                dataSnapshot.child("Phone").getValue().toString()
+                                currentUserData.email
                         );
                         Map<String, String> groupUserdataMap = (Map<String, String>) dataSnapshot.child("group").getValue();
                         if (groupUserdataMap != null) {
@@ -177,7 +172,7 @@ public class GroupActivity extends AppCompatActivity
                                                 Rank,
                                                 String.valueOf(dataSnapshot.child("settingpoint").getValue()),
                                                 String.valueOf(dataSnapshot.child("membercount").getValue()),
-                                                currentUserData.UserUid
+                                                currentUserData.userUid
                                         );
 
                                         groupDatas.add(groupData);
@@ -215,7 +210,7 @@ public class GroupActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(GroupActivity.this, CreateNewGroupActivity.class);
-                intent.putExtra("userUid", currentUserData.UserUid);
+                intent.putExtra("userUid", currentUserData.userUid);
                 startActivity(intent);
             }
         });
@@ -232,7 +227,7 @@ public class GroupActivity extends AppCompatActivity
         TextView _showuser = (TextView) header.findViewById(R.id.txtshowuser);
         TextView _showuserEmail = (TextView) header.findViewById(R.id.txtShowuserEmail);
         _showuser.setText(currentUserData.displayname);
-        _showuserEmail.setText(currentUserData.Email);
+        _showuserEmail.setText(currentUserData.email);
         navigationView.setNavigationItemSelectedListener(this);
 
         groupAdapter = new GroupAdapter(this, groupDatas, _searchViewgroup);

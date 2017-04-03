@@ -9,7 +9,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.MenuItem;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -42,12 +41,12 @@ public class CreateNewGroupActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             if (extras == null) {
-                userData.UserUid = null;
+                userData.userUid = null;
             } else {
-                userData.UserUid = extras.getString("userUid");
+                userData.userUid = extras.getString("userUid");
             }
         } else {
-            userData.UserUid = (String) savedInstanceState.getSerializable("userUid");
+            userData.userUid = (String) savedInstanceState.getSerializable("userUid");
         }
 
         if (getSupportActionBar() != null) {
@@ -83,7 +82,7 @@ public class CreateNewGroupActivity extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         // Save the user's current game state
-        savedInstanceState.putString("userUid", userData.UserUid);
+        savedInstanceState.putString("userUid", userData.userUid);
         // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);
     }
@@ -111,12 +110,12 @@ public class CreateNewGroupActivity extends AppCompatActivity {
             String key = groupdatabaseReference.push().getKey();
             groupdatabaseReference.child(key).child("name").setValue(groupData.Name);
             groupdatabaseReference.child(key).child("description").setValue(groupData.Description);
-            groupdatabaseReference.child(key).child("member").child(userData.UserUid).setValue("leader");
+            groupdatabaseReference.child(key).child("member").child(userData.userUid).setValue("leader");
             groupdatabaseReference.child(key).child("settingpoint").setValue("notactive");
             groupdatabaseReference.child(key).child("membercount").setValue("1");
 
             DatabaseReference userdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users")
-                    .child(userData.UserUid).child("group");
+                    .child(userData.userUid).child("group");
             userdatabaseReference.child(key).setValue("leader");
 
             FirebaseMessaging.getInstance().subscribeToTopic(key);

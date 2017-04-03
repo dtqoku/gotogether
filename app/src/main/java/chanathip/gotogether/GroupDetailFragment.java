@@ -45,7 +45,7 @@ public class GroupDetailFragment extends Fragment {
         Bundle bundle = new Bundle();
         bundle.putString("GroupUID", GroupUID);
         bundle.putString("GroupName", GroupName);
-        bundle.putString("UserUid", UserUid);
+        bundle.putString("userUid", UserUid);
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -66,16 +66,16 @@ public class GroupDetailFragment extends Fragment {
             if (extras == null) {
                 groupData.GroupUID = null;
                 groupData.Name = null;
-                userData.UserUid = null;
+                userData.userUid = null;
             } else {
                 groupData.GroupUID = extras.getString("GroupUID");
                 groupData.Name = extras.getString("GroupName");
-                userData.UserUid = extras.getString("UserUid");
+                userData.userUid = extras.getString("userUid");
             }
         } else {
             groupData.GroupUID = (String) savedInstanceState.getSerializable("GroupUID");
             groupData.Name = (String) savedInstanceState.getSerializable("GroupName");
-            userData.UserUid = (String) savedInstanceState.getSerializable("UserUid");
+            userData.userUid = (String) savedInstanceState.getSerializable("userUid");
         }
 
 
@@ -95,17 +95,15 @@ public class GroupDetailFragment extends Fragment {
         inviteDatas.clear();
 
         //get current userdata
-        DatabaseReference currentuserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(userData.UserUid);
+        DatabaseReference currentuserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(userData.userUid);
+        currentuserDatabaseReference.keepSynced(true);
         currentuserDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 userData.setData(
-                        userData.UserUid,
-                        String.valueOf(dataSnapshot.child("First name").getValue()),
-                        String.valueOf(dataSnapshot.child("Last name").getValue()),
+                        userData.userUid,
                         String.valueOf(dataSnapshot.child("display name").getValue()),
-                        String.valueOf(dataSnapshot.child("email").getValue()),
-                        String.valueOf(dataSnapshot.child("Phone").getValue())
+                        String.valueOf(dataSnapshot.child("email").getValue())
                 );
 
                 userData.rank = String.valueOf(dataSnapshot.child("group").child(groupData.GroupUID).getValue());
@@ -122,7 +120,7 @@ public class GroupDetailFragment extends Fragment {
                                 userData.rank,
                                 String.valueOf(dataSnapshot.child("settingpoint").getValue()),
                                 String.valueOf(dataSnapshot.child("membercount").getValue()),
-                                userData.UserUid
+                                userData.userUid
                         );
 
                         Map<String, String> memberMap = (Map<String, String>) dataSnapshot.child("member").getValue();
@@ -141,21 +139,18 @@ public class GroupDetailFragment extends Fragment {
                                         UserData memberData = new UserData();
                                         memberData.setData(
                                                 keyData,
-                                                String.valueOf(dataSnapshot.child("First name").getValue()),
-                                                String.valueOf(dataSnapshot.child("Last name").getValue()),
                                                 String.valueOf(dataSnapshot.child("display name").getValue()),
-                                                String.valueOf(dataSnapshot.child("email").getValue()),
-                                                String.valueOf(dataSnapshot.child("Phone").getValue())
+                                                String.valueOf(dataSnapshot.child("email").getValue())
                                         );
                                         memberData.rank = valveData;
 
                                         GroupDetailData groupDetailData = new GroupDetailData();
                                         groupDetailData.Type = "member";
-                                        groupDetailData.CurrentuserUid = userData.UserUid;
+                                        groupDetailData.CurrentuserUid = userData.userUid;
                                         groupDetailData.CurrentuserDisplayname = userData.displayname;
                                         groupDetailData.Rank = userData.rank;
                                         groupDetailData.GroupUid = groupData.GroupUID;
-                                        groupDetailData.CurrentuserUid = userData.UserUid;
+                                        groupDetailData.CurrentuserUid = userData.userUid;
                                         groupDetailData.member = memberData;
 
                                         memberDatas.add(groupDetailData);
@@ -186,21 +181,18 @@ public class GroupDetailFragment extends Fragment {
                                         UserData memberData = new UserData();
                                         memberData.setData(
                                                 keyData,
-                                                String.valueOf(dataSnapshot.child("First name").getValue()),
-                                                String.valueOf(dataSnapshot.child("Last name").getValue()),
                                                 String.valueOf(dataSnapshot.child("display name").getValue()),
-                                                String.valueOf(dataSnapshot.child("email").getValue()),
-                                                String.valueOf(dataSnapshot.child("Phone").getValue())
+                                                String.valueOf(dataSnapshot.child("email").getValue())
                                         );
                                         memberData.rank = valveData;
 
                                         GroupDetailData groupDetailData = new GroupDetailData();
                                         groupDetailData.Type = "invite";
-                                        groupDetailData.CurrentuserUid = userData.UserUid;
+                                        groupDetailData.CurrentuserUid = userData.userUid;
                                         groupDetailData.CurrentuserDisplayname = userData.displayname;
                                         groupDetailData.Rank = userData.rank;
                                         groupDetailData.GroupUid = groupData.GroupUID;
-                                        groupDetailData.CurrentuserUid = userData.UserUid;
+                                        groupDetailData.CurrentuserUid = userData.userUid;
                                         groupDetailData.member = memberData;
 
                                         inviteDatas.add(groupDetailData);
@@ -236,18 +228,18 @@ public class GroupDetailFragment extends Fragment {
 
         GroupDetailData groupDetailData = new GroupDetailData();
         groupDetailData.Type = "title";
-        groupDetailData.CurrentuserUid = userData.UserUid;
+        groupDetailData.CurrentuserUid = userData.userUid;
         groupDetailData.CurrentuserDisplayname = userData.displayname;
         groupDetailData.Rank = userData.rank;
         groupDetailData.GroupUid = groupData.GroupUID;
-        groupDetailData.CurrentuserUid = userData.UserUid;
+        groupDetailData.CurrentuserUid = userData.userUid;
         groupDetailData.titlename = "Groupdetail";
 
         groupDetailDatas.add(groupDetailData);
 
         groupDetailData = new GroupDetailData();
         groupDetailData.Type = "detail";
-        groupDetailData.CurrentuserUid = userData.UserUid;
+        groupDetailData.CurrentuserUid = userData.userUid;
         groupDetailData.CurrentuserDisplayname = userData.displayname;
         groupDetailData.Rank = userData.rank;
         groupDetailData.GroupUid = groupData.GroupUID;
@@ -258,38 +250,27 @@ public class GroupDetailFragment extends Fragment {
 
         groupDetailData = new GroupDetailData();
         groupDetailData.Type = "title";
-        groupDetailData.CurrentuserUid = userData.UserUid;
+        groupDetailData.CurrentuserUid = userData.userUid;
         groupDetailData.CurrentuserDisplayname = userData.displayname;
         groupDetailData.Rank = userData.rank;
         groupDetailData.GroupUid = groupData.GroupUID;
-        groupDetailData.CurrentuserUid = userData.UserUid;
+        groupDetailData.CurrentuserUid = userData.userUid;
         groupDetailData.titlename = "Member";
 
         groupDetailDatas.add(groupDetailData);
 
         groupDetailDatas.addAll(memberDatas);
 
-        groupDetailData = new GroupDetailData();
-        groupDetailData.Type = "title";
-        groupDetailData.CurrentuserUid = userData.UserUid;
-        groupDetailData.CurrentuserDisplayname = userData.displayname;
-        groupDetailData.Rank = userData.rank;
-        groupDetailData.GroupUid = groupData.GroupUID;
-        groupDetailData.CurrentuserUid = userData.UserUid;
-        groupDetailData.titlename = "invite user";
-
-        groupDetailDatas.add(groupDetailData);
-
         groupDetailDatas.addAll(inviteDatas);
 
         if(userData.rank.equals("leader")){
             groupDetailData = new GroupDetailData();
             groupDetailData.Type = "addmember";
-            groupDetailData.CurrentuserUid = userData.UserUid;
+            groupDetailData.CurrentuserUid = userData.userUid;
             groupDetailData.CurrentuserDisplayname = userData.displayname;
             groupDetailData.Rank = userData.rank;
             groupDetailData.GroupUid = groupData.GroupUID;
-            groupDetailData.CurrentuserUid = userData.UserUid;
+            groupDetailData.CurrentuserUid = userData.userUid;
             groupDetailData.groupname = groupData.Name;
 
             groupDetailDatas.add(groupDetailData);
@@ -324,7 +305,7 @@ public class GroupDetailFragment extends Fragment {
         // Save the user's current game state
         savedInstanceState.putString("GroupUID", groupData.GroupUID);
         savedInstanceState.putString("GroupName", groupData.Name);
-        savedInstanceState.putString("UserUid", userData.UserUid);
+        savedInstanceState.putString("userUid", userData.userUid);
 
         // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);

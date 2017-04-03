@@ -24,16 +24,16 @@ public class GroupDetailActivity extends AppCompatActivity {
             if (extras == null) {
                 groupData.GroupUID = null;
                 groupData.Name = null;
-                userData.UserUid = null;
+                userData.userUid = null;
             } else {
                 groupData.GroupUID = extras.getString("GroupUID");
                 groupData.Name = extras.getString("GroupName");
-                userData.UserUid = extras.getString("UserUid");
+                userData.userUid = extras.getString("userUid");
             }
         } else {
             groupData.GroupUID = (String) savedInstanceState.getSerializable("GroupUID");
             groupData.Name = (String) savedInstanceState.getSerializable("GroupName");
-            userData.UserUid = (String) savedInstanceState.getSerializable("UserUid");
+            userData.userUid = (String) savedInstanceState.getSerializable("userUid");
         }
         setTitle(groupData.Name + " Detail");
 
@@ -42,7 +42,7 @@ public class GroupDetailActivity extends AppCompatActivity {
         }
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        GroupDetailFragment myFragment = GroupDetailFragment.newInstance(groupData.GroupUID,groupData.Name,userData.UserUid);
+        GroupDetailFragment myFragment = GroupDetailFragment.newInstance(groupData.GroupUID,groupData.Name,userData.userUid);
 
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
@@ -65,7 +65,7 @@ public class GroupDetailActivity extends AppCompatActivity {
         // Save the user's current game state
         savedInstanceState.putString("GroupUID", groupData.GroupUID);
         savedInstanceState.putString("GroupName", groupData.Name);
-        savedInstanceState.putString("UserUid", userData.UserUid);
+        savedInstanceState.putString("userUid", userData.userUid);
 
         // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);

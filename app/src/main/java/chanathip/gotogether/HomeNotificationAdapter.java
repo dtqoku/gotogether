@@ -164,7 +164,7 @@ public class HomeNotificationAdapter extends RecyclerView.Adapter<RecyclerView.V
             ViewHolderFriendRequest viewHolderFriendRequest = (ViewHolderFriendRequest) holder;
 
             viewHolderFriendRequest.friendname.setText(notificationData.RequestUserdisplayname);
-            viewHolderFriendRequest.frienddetail.setText(notificationData.RequestUserFirstname + " " + notificationData.RequestUserLastname);
+            viewHolderFriendRequest.frienddetail.setText(notificationData.requestEmail);
 
             viewHolderFriendRequest.friendname.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -223,7 +223,7 @@ public class HomeNotificationAdapter extends RecyclerView.Adapter<RecyclerView.V
                     Intent intent = new Intent(context, GroupDetailActivity.class);
                     intent.putExtra("GroupUID",notificationData.RequestGroupUid);
                     intent.putExtra("GroupName",notificationData.RequestGroupname);
-                    intent.putExtra("UserUid",notificationData.CurrentuserUid);
+                    intent.putExtra("userUid",notificationData.CurrentuserUid);
                     context.startActivity(intent);
                 }
             });
@@ -297,7 +297,7 @@ public class HomeNotificationAdapter extends RecyclerView.Adapter<RecyclerView.V
                     Intent intent = new Intent(context,PersonChatActivity.class);
                     intent.putExtra("currentChatuserUid",notificationData.SenderUid);
                     intent.putExtra("currentChatuserDisplayname",notificationData.SenderDisplayname);
-                    intent.putExtra("UserUid",notificationData.CurrentuserUid);
+                    intent.putExtra("userUid",notificationData.CurrentuserUid);
                     intent.putExtra("UserDisplayname",notificationData.CurrentuserDisplayname);
                     context.startActivity(intent);
                 }
@@ -341,7 +341,7 @@ public class HomeNotificationAdapter extends RecyclerView.Adapter<RecyclerView.V
                     Intent intent = new Intent(context,GroupHomeActivity.class);
                     intent.putExtra("GroupUID",notificationData.groupData.GroupUID);
                     intent.putExtra("GroupName",notificationData.groupData.Name);
-                    intent.putExtra("UserUid",notificationData.groupData.thisUserUid);
+                    intent.putExtra("userUid",notificationData.groupData.thisUserUid);
                     context.startActivity(intent);
                 }
             });

@@ -3,7 +3,6 @@ package chanathip.gotogether;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AlertDialog;
@@ -63,16 +62,16 @@ public class GroupHomeActivity extends AppCompatActivity {
             if (extras == null) {
                 groupData.GroupUID = null;
                 groupData.Name = null;
-                userData.UserUid = null;
+                userData.userUid = null;
             } else {
                 groupData.GroupUID = extras.getString("GroupUID");
                 groupData.Name = extras.getString("GroupName");
-                userData.UserUid = extras.getString("UserUid");
+                userData.userUid = extras.getString("userUid");
             }
         } else {
             groupData.GroupUID = (String) savedInstanceState.getSerializable("GroupUID");
             groupData.Name = (String) savedInstanceState.getSerializable("GroupName");
-            userData.UserUid = (String) savedInstanceState.getSerializable("UserUid");
+            userData.userUid = (String) savedInstanceState.getSerializable("userUid");
         }
         setTitle(groupData.Name);
 
@@ -112,7 +111,7 @@ public class GroupHomeActivity extends AppCompatActivity {
         // Save the user's current game state
         savedInstanceState.putString("GroupUID", groupData.GroupUID);
         savedInstanceState.putString("GroupName", groupData.Name);
-        savedInstanceState.putString("UserUid", userData.UserUid);
+        savedInstanceState.putString("userUid", userData.userUid);
 
         // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);
@@ -129,7 +128,7 @@ public class GroupHomeActivity extends AppCompatActivity {
                 groupdatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        groupData.rank = String.valueOf(dataSnapshot.child("member").child(userData.UserUid).getValue());
+                        groupData.rank = String.valueOf(dataSnapshot.child("member").child(userData.userUid).getValue());
                         groupData.Membercount = Integer.valueOf(String.valueOf(dataSnapshot.child("membercount").getValue()));
 
                         AlertDialog.Builder builder = new AlertDialog.Builder(GroupHomeActivity.this);
@@ -151,22 +150,23 @@ public class GroupHomeActivity extends AppCompatActivity {
                                             alertDialog2.show();
                                         } else if (groupData.rank.equals("leader")) {
                                             //leave group as leader
-                                            DatabaseReference groupdatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups").child(groupData.GroupUID);
-                                            groupdatabaseReference.removeValue();
 
                                             DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(groupData.thisUserUid);
                                             currentuserdatabaseReference.child("group").child(groupData.GroupUID).removeValue();
+
+                                            DatabaseReference groupdatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups").child(groupData.GroupUID);
+                                            groupdatabaseReference.removeValue();
 
                                             FirebaseMessaging.getInstance().unsubscribeFromTopic(groupData.GroupUID);
 
                                             onBackPressed();
                                         } else {
                                             //just leave
-                                            DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(userData.UserUid);
+                                            DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(userData.userUid);
                                             currentuserdatabaseReference.child("group").child(groupData.GroupUID).removeValue();
 
                                             DatabaseReference groupdatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups").child(groupData.GroupUID);
-                                            groupdatabaseReference.child("member").child(userData.UserUid).removeValue();
+                                            groupdatabaseReference.child("member").child(userData.userUid).removeValue();
                                             final DatabaseReference databaseReference = groupdatabaseReference;
                                             groupdatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                                                 @Override
@@ -212,7 +212,7 @@ public class GroupHomeActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, NavigationActivity.class);
                 intent.putExtra("GroupUID", groupData.GroupUID);
                 intent.putExtra("GroupName", groupData.Name);
-                intent.putExtra("UserUid", userData.UserUid);
+                intent.putExtra("userUid", userData.userUid);
                 startActivity(intent);
                 return true;
         }
@@ -280,11 +280,11 @@ public class GroupHomeActivity extends AppCompatActivity {
                 case 0:
                     return GroupChatFragment.newInstance(groupData.GroupUID,
                             groupData.Name,
-                            userData.UserUid);
+                            userData.userUid);
                 case 1:
                     return GroupDetailFragment.newInstance(groupData.GroupUID,
                             groupData.Name,
-                            userData.UserUid);
+                            userData.userUid);
             }
             return PlaceholderFragment.newInstance(position + 1);
         }

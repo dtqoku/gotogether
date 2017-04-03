@@ -1,16 +1,10 @@
 package chanathip.gotogether;
 
-import android.content.Intent;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.NavigationView;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -59,18 +53,18 @@ public class AddMemberActivity extends AppCompatActivity {
             if (extras == null) {
                 groupData.GroupUID = null;
                 groupData.Name = null;
-                userData.UserUid = null;
+                userData.userUid = null;
                 userData.displayname = null;
             } else {
                 groupData.GroupUID = extras.getString("GroupUID");
                 groupData.Name = extras.getString("GroupName");
-                userData.UserUid = extras.getString("UserUid");
+                userData.userUid = extras.getString("userUid");
                 userData.displayname = extras.getString("UserDisplayname");
             }
         } else {
             groupData.GroupUID = (String) savedInstanceState.getSerializable("GroupUID");
             groupData.Name = (String) savedInstanceState.getSerializable("GroupName");
-            userData.UserUid = (String) savedInstanceState.getSerializable("UserUid");
+            userData.userUid = (String) savedInstanceState.getSerializable("userUid");
             userData.displayname = (String) savedInstanceState.getSerializable("UserDisplayname");
         }
 
@@ -82,7 +76,7 @@ public class AddMemberActivity extends AppCompatActivity {
         getcurrentuserdata();
 
     }private void getcurrentuserdata() {
-        DatabaseReference currentuserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(userData.UserUid);
+        DatabaseReference currentuserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(userData.userUid);
         currentuserDatabaseReference.keepSynced(true);
         currentuserDatabaseReference.addListenerForSingleValueEvent(
                 new ValueEventListener() {
@@ -90,12 +84,9 @@ public class AddMemberActivity extends AppCompatActivity {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         userData.setData(
-                                userData.UserUid,
-                                dataSnapshot.child("First name").getValue().toString(),
-                                dataSnapshot.child("Last name").getValue().toString(),
+                                userData.userUid,
                                 dataSnapshot.child("display name").getValue().toString(),
-                                dataSnapshot.child("email").getValue().toString(),
-                                dataSnapshot.child("Phone").getValue().toString()
+                                dataSnapshot.child("email").getValue().toString()
                         );
 
 
@@ -114,12 +105,9 @@ public class AddMemberActivity extends AppCompatActivity {
                                             .addListenerForSingleValueEvent(new ValueEventListener() {
                                                 @Override
                                                 public void onDataChange(DataSnapshot dataSnapshot) {
-                                                    friendUserdata.UserUid = Uid;
-                                                    friendUserdata.Firstname = dataSnapshot.child("First name").getValue().toString();
-                                                    friendUserdata.Lastname = dataSnapshot.child("Last name").getValue().toString();
+                                                    friendUserdata.userUid = Uid;
                                                     friendUserdata.displayname = dataSnapshot.child("display name").getValue().toString();
-                                                    friendUserdata.Email = dataSnapshot.child("email").getValue().toString();
-                                                    friendUserdata.Phone = dataSnapshot.child("Phone").getValue().toString();
+                                                    friendUserdata.email = dataSnapshot.child("email").getValue().toString();
                                                     friendUserdata.GroupUid = groupData.GroupUID;
                                                     friendUserdata.GroupName = groupData.Name;
 
@@ -165,7 +153,7 @@ public class AddMemberActivity extends AppCompatActivity {
         // Save the user's current game state
         savedInstanceState.putString("GroupUID", groupData.GroupUID);
         savedInstanceState.putString("GroupName", groupData.Name);
-        savedInstanceState.putString("UserUid", userData.UserUid);
+        savedInstanceState.putString("userUid", userData.userUid);
         savedInstanceState.putString("UserDisplayname", userData.displayname);
 
         // Always call the superclass so it can save the view hierarchy state

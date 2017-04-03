@@ -12,7 +12,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -73,16 +72,16 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
             if (extras == null) {
                 groupData.GroupUID = null;
                 groupData.Name = null;
-                userData.UserUid = null;
+                userData.userUid = null;
             } else {
                 groupData.GroupUID = extras.getString("GroupUID");
                 groupData.Name = extras.getString("GroupName");
-                userData.UserUid = extras.getString("UserUid");
+                userData.userUid = extras.getString("userUid");
             }
         } else {
             groupData.GroupUID = (String) savedInstanceState.getSerializable("GroupUID");
             groupData.Name = (String) savedInstanceState.getSerializable("GroupName");
-            userData.UserUid = (String) savedInstanceState.getSerializable("UserUid");
+            userData.userUid = (String) savedInstanceState.getSerializable("userUid");
         }
         setTitle(groupData.Name + "'s map");
 
@@ -147,17 +146,14 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
                 .addOnConnectionFailedListener(this)
                 .build();
 
-        DatabaseReference currentuserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(userData.UserUid);
+        DatabaseReference currentuserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(userData.userUid);
         currentuserDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 userData.setData(
-                        userData.UserUid,
-                        String.valueOf(dataSnapshot.child("First name").getValue()),
-                        String.valueOf(dataSnapshot.child("Last name").getValue()),
+                        userData.userUid,
                         String.valueOf(dataSnapshot.child("display name").getValue()),
-                        String.valueOf(dataSnapshot.child("email").getValue()),
-                        String.valueOf(dataSnapshot.child("Phone").getValue())
+                        String.valueOf(dataSnapshot.child("email").getValue())
                 );
                 userData.Status = String.valueOf(dataSnapshot.child("status"));
                 userData.rank = String.valueOf(dataSnapshot.child("group").child(groupData.GroupUID).getValue());
@@ -177,7 +173,7 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
                                 userData.rank,
                                 String.valueOf(dataSnapshot.child("settingpoint").getValue()),
                                 String.valueOf(dataSnapshot.child("membercount").getValue()),
-                                userData.UserUid
+                                userData.userUid
                         );
 
                         Map<String, String> memberMap = (Map<String, String>) dataSnapshot.child("member").getValue();
@@ -196,11 +192,8 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
                                         UserData memberData = new UserData();
                                         memberData.setData(
                                                 keyData,
-                                                String.valueOf(dataSnapshot.child("First name").getValue()),
-                                                String.valueOf(dataSnapshot.child("Last name").getValue()),
                                                 String.valueOf(dataSnapshot.child("display name").getValue()),
-                                                String.valueOf(dataSnapshot.child("email").getValue()),
-                                                String.valueOf(dataSnapshot.child("Phone").getValue())
+                                                String.valueOf(dataSnapshot.child("email").getValue())
                                         );
                                         memberData.rank = valveData;
                                         memberData.Status = String.valueOf(dataSnapshot.child("status").getValue());
@@ -214,7 +207,7 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
                                         groupDetailData.member = memberData;
 
                                         //memberDatas.add(groupDetailData);
-                                        if (!memberData.UserUid.equals(userData.UserUid) && memberData.Status.equals("active")) {
+                                        if (!memberData.userUid.equals(userData.userUid) && memberData.Status.equals("active")) {
                                             LatLng sydney = new LatLng(memberData.LocationLat, memberData.LocationLng);
                                             mMap.addMarker(new MarkerOptions().position(sydney).title(memberData.displayname));
                                         }
@@ -263,7 +256,7 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
         // Save the user's current game state
         savedInstanceState.putString("GroupUID", groupData.GroupUID);
         savedInstanceState.putString("GroupName", groupData.Name);
-        savedInstanceState.putString("UserUid", userData.UserUid);
+        savedInstanceState.putString("userUid", userData.userUid);
 
         // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);
@@ -312,7 +305,7 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
     @Override
     public void onStop() {
         super.onStop();
-        DatabaseReference currentUserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(userData.UserUid);
+        DatabaseReference currentUserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(userData.userUid);
         currentUserDatabaseReference.child("lat").removeValue();
         currentUserDatabaseReference.child("lng").removeValue();
         currentUserDatabaseReference.child("status").setValue("notactive");
@@ -351,7 +344,7 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(me, 16));
             userData.Status = "active";
         }
-        DatabaseReference currentUserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(userData.UserUid);
+        DatabaseReference currentUserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(userData.userUid);
         currentUserDatabaseReference.child("lat").setValue(location.getLatitude());
         currentUserDatabaseReference.child("lng").setValue(location.getLongitude());
         currentUserDatabaseReference.child("status").setValue("active");

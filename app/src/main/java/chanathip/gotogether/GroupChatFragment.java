@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.TextView;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -25,15 +24,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
-
-import static android.support.v7.recyclerview.R.attr.layoutManager;
 
 /**
  * Created by neetc on 11/15/2016.
@@ -59,7 +53,7 @@ public class GroupChatFragment extends Fragment {
         Bundle bundle = new Bundle();
         bundle.putString("GroupUID", GroupUID);
         bundle.putString("GroupName", GroupName);
-        bundle.putString("UserUid", UserUid);
+        bundle.putString("userUid", UserUid);
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -78,16 +72,16 @@ public class GroupChatFragment extends Fragment {
             if (extras == null) {
                 groupData.GroupUID = null;
                 groupData.Name = null;
-                userData.UserUid = null;
+                userData.userUid = null;
             } else {
                 groupData.GroupUID = extras.getString("GroupUID");
                 groupData.Name = extras.getString("GroupName");
-                userData.UserUid = extras.getString("UserUid");
+                userData.userUid = extras.getString("userUid");
             }
         } else {
             groupData.GroupUID = (String) savedInstanceState.getSerializable("GroupUID");
             groupData.Name = (String) savedInstanceState.getSerializable("GroupName");
-            userData.UserUid = (String) savedInstanceState.getSerializable("UserUid");
+            userData.userUid = (String) savedInstanceState.getSerializable("userUid");
         }
     }
 
@@ -145,7 +139,7 @@ public class GroupChatFragment extends Fragment {
                 now = dateFormat.format(calendar.getTime());
 
                 DatabaseReference submitChatDatabaseReference = FirebaseDatabase.getInstance().getReference()
-                        .child("groups").child(groupData.GroupUID).child("messages").child(userData.UserUid).child(now);
+                        .child("groups").child(groupData.GroupUID).child("messages").child(userData.userUid).child(now);
                 if (txt_submit_chattemp.getEditText().getText().toString().length() != 0) {
                     submitChatDatabaseReference.child("message").setValue(txt_submit_chattemp.getEditText().getText().toString());
 
@@ -175,7 +169,7 @@ public class GroupChatFragment extends Fragment {
                         UserMessage userMessage = new UserMessage();
 
                         userMessage.message = ChatUserdataMap.get("message");
-                        if (dataSnapshot.getKey().equals(userData.UserUid)) {
+                        if (dataSnapshot.getKey().equals(userData.userUid)) {
                             userMessage.Type = "self";
                         } else userMessage.Type = "notself";
                         userMessage.sender = userData.displayname;
@@ -273,7 +267,7 @@ public class GroupChatFragment extends Fragment {
         // Save the user's current game state
         savedInstanceState.putString("GroupUID", groupData.GroupUID);
         savedInstanceState.putString("GroupName", groupData.Name);
-        savedInstanceState.putString("UserUid", userData.UserUid);
+        savedInstanceState.putString("userUid", userData.userUid);
 
         // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);

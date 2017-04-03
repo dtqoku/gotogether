@@ -14,7 +14,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
@@ -69,8 +68,8 @@ public class FriendActivity extends AppCompatActivity
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
                 if (firebaseUser != null) {
-                    currentUserData.UserUid = firebaseUser.getUid();
-                    currentUserData.Email = firebaseUser.getEmail();
+                    currentUserData.userUid = firebaseUser.getUid();
+                    currentUserData.email = firebaseUser.getEmail();
 
                     getcurrentuserdata();
                 } else {
@@ -141,7 +140,7 @@ public class FriendActivity extends AppCompatActivity
     }
 
     private void getcurrentuserdata() {
-        DatabaseReference currentuserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentUserData.UserUid);
+        DatabaseReference currentuserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentUserData.userUid);
         currentuserDatabaseReference.keepSynced(true);
         currentuserDatabaseReference.addListenerForSingleValueEvent(
                 new ValueEventListener() {
@@ -149,12 +148,9 @@ public class FriendActivity extends AppCompatActivity
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         currentUserData.setData(
-                                currentUserData.UserUid,
-                                dataSnapshot.child("First name").getValue().toString(),
-                                dataSnapshot.child("Last name").getValue().toString(),
+                                currentUserData.userUid,
                                 dataSnapshot.child("display name").getValue().toString(),
-                                dataSnapshot.child("email").getValue().toString(),
-                                dataSnapshot.child("Phone").getValue().toString()
+                                dataSnapshot.child("email").getValue().toString()
                         );
 
 
@@ -173,14 +169,11 @@ public class FriendActivity extends AppCompatActivity
                                             .addListenerForSingleValueEvent(new ValueEventListener() {
                                                 @Override
                                                 public void onDataChange(DataSnapshot dataSnapshot) {
-                                                    friendUserdata.UserUid = Uid;
-                                                    friendUserdata.Firstname = dataSnapshot.child("First name").getValue().toString();
-                                                    friendUserdata.Lastname = dataSnapshot.child("Last name").getValue().toString();
+                                                    friendUserdata.userUid = Uid;
                                                     friendUserdata.displayname = dataSnapshot.child("display name").getValue().toString();
-                                                    friendUserdata.Email = dataSnapshot.child("email").getValue().toString();
-                                                    friendUserdata.Phone = dataSnapshot.child("Phone").getValue().toString();
+                                                    friendUserdata.email = dataSnapshot.child("email").getValue().toString();
 
-                                                    DatabaseReference checkUnreadDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentUserData.UserUid)
+                                                    DatabaseReference checkUnreadDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentUserData.userUid)
                                                             .child("messages").child(Uid);
                                                     checkUnreadDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                                                         @Override
@@ -261,7 +254,7 @@ public class FriendActivity extends AppCompatActivity
         TextView _showuser = (TextView) header.findViewById(R.id.txtshowuser);
         TextView _showuserEmail = (TextView) header.findViewById(R.id.txtShowuserEmail);
         _showuser.setText(currentUserData.displayname);
-        _showuserEmail.setText(currentUserData.Email);
+        _showuserEmail.setText(currentUserData.email);
         navigationView.setNavigationItemSelectedListener(this);
 
 

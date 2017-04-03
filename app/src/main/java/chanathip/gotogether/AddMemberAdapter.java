@@ -3,15 +3,9 @@ package chanathip.gotogether;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -71,13 +65,13 @@ public class AddMemberAdapter extends RecyclerView.Adapter<AddMemberAdapter.View
         final UserData userData = userDatas.get(position);
 
         viewHolder.friendname.setText(userData.displayname);
-        viewHolder.frineddetail.setText(userData.Firstname + " " + userData.Lastname);
+        viewHolder.frineddetail.setText(userData.email);
 
         viewHolder.friendname.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mContext, UserdetailActivity.class);
-                intent.putExtra("userUid", userData.UserUid);
+                intent.putExtra("userUid", userData.userUid);
                 intent.putExtra("userDisplayname", userData.displayname);
                 mContext.startActivity(intent);
             }
@@ -91,16 +85,16 @@ public class AddMemberAdapter extends RecyclerView.Adapter<AddMemberAdapter.View
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 //invite
-                                DatabaseReference inviteUserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(userData.UserUid)
+                                DatabaseReference inviteUserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(userData.userUid)
                                         .child("request").child("group");
                                 inviteUserDatabaseReference.child(userData.GroupUid).setValue("true");
 
                                 DatabaseReference memberDatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups")
                                         .child(userData.GroupUid).child("invite");
-                                memberDatabaseReference.child(userData.UserUid).setValue("true");
+                                memberDatabaseReference.child(userData.userUid).setValue("true");
 
                                 GotogetherNotificationManager gotogetherNotificationManager = new GotogetherNotificationManager(mContext);
-                                gotogetherNotificationManager.sendInvitetoGroup(userData.UserUid,userData.GroupName);
+                                gotogetherNotificationManager.sendInvitetoGroup(userData.userUid,userData.GroupName);
 
                                 ((AddMemberActivity)mContext).onBackPressed();
                             }
@@ -133,7 +127,7 @@ public class AddMemberAdapter extends RecyclerView.Adapter<AddMemberAdapter.View
         } else {
             text = text.toLowerCase();
             for (UserData item : userDatasfromdb) {
-                if (item.displayname.toLowerCase().contains(text) || item.Firstname.toLowerCase().contains(text) || item.Lastname.toLowerCase().contains(text)) {
+                if (item.displayname.toLowerCase().contains(text)) {
                     userDatas.add(item);
                 }
             }

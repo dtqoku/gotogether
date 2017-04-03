@@ -35,13 +35,11 @@ public class LoginActivity extends AppCompatActivity {
     TextInputLayout _username;
     @BindView(R.id.textinputlayout_txtPass)
     TextInputLayout _password;
-    @BindView(R.id.LoginCoordinatorLayout)
-    View _loginCoordinatorLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_login_v2);
 
         ButterKnife.bind(this);
 
@@ -81,7 +79,7 @@ public class LoginActivity extends AppCompatActivity {
 
     @OnClick(R.id.btnLogin)
     public void Login() {
-        userData.Email = _username.getEditText().getText().toString();
+        userData.email = _username.getEditText().getText().toString();
         userData.password = _password.getEditText().getText().toString();
         if (CheckUserData()) {
 
@@ -93,7 +91,7 @@ public class LoginActivity extends AppCompatActivity {
             dialogConect.setCanceledOnTouchOutside(false);
             dialogConect.show();
 
-            firebaseAuth.signInWithEmailAndPassword(userData.Email, userData.password)
+            firebaseAuth.signInWithEmailAndPassword(userData.email, userData.password)
                     .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
@@ -108,7 +106,7 @@ public class LoginActivity extends AppCompatActivity {
                         public void onFailure(@NonNull Exception e) {
                             Log.d("login fail", e.toString());
                             Snackbar snackbar =
-                                    Snackbar.make(_loginCoordinatorLayout, "Authentication failed, check your email and password.", Snackbar.LENGTH_LONG)
+                                    Snackbar.make(_username, "Authentication failed, check your email and password.", Snackbar.LENGTH_LONG)
                                             .setActionTextColor(Color.WHITE);
                             snackbar.getView().setBackgroundColor(Color.RED);
                             snackbar.show();
@@ -125,17 +123,17 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private boolean CheckUserData() {
-        if (userData.Email.length() == 0) {
+        if (userData.email.length() == 0) {
             _username.setError("please type username");
             Snackbar snackbar =
-                    Snackbar.make(_loginCoordinatorLayout, "Please input username", Snackbar.LENGTH_LONG)
+                    Snackbar.make(_username, "Please input username", Snackbar.LENGTH_LONG)
                             .setAction("Action", null);
             snackbar.show();
             return false;
         } else if (userData.password.length() == 0) {
             _password.setError("please type password");
             Snackbar snackbar =
-                    Snackbar.make(_loginCoordinatorLayout, "Please input password", Snackbar.LENGTH_LONG)
+                    Snackbar.make(_username, "Please input password", Snackbar.LENGTH_LONG)
                             .setAction("Action", null);
             snackbar.show();
             return false;

@@ -19,8 +19,7 @@ public class NotificationData {
 
     //friend request
     String RequestUserUid;
-    String RequestUserFirstname;
-    String RequestUserLastname;
+    String requestEmail;
     String RequestUserdisplayname;
 
     //unread message

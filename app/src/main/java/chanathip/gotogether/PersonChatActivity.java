@@ -3,18 +3,14 @@ package chanathip.gotogether;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.TextView;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -22,17 +18,13 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import org.w3c.dom.Text;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -40,8 +32,6 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-
-import android.support.v7.widget.LinearLayoutManager;
 
 public class PersonChatActivity extends AppCompatActivity {
     private UserData currentChatUserData;
@@ -81,26 +71,26 @@ public class PersonChatActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             if (extras == null) {
-                currentChatUserData.UserUid = null;
+                currentChatUserData.userUid = null;
                 currentChatUserData.displayname = null;
-                userData.UserUid = null;
+                userData.userUid = null;
                 userData.displayname = null;
             } else {
-                currentChatUserData.UserUid = extras.getString("currentChatuserUid");
+                currentChatUserData.userUid = extras.getString("currentChatuserUid");
                 currentChatUserData.displayname = extras.getString("currentChatuserDisplayname");
-                userData.UserUid = extras.getString("UserUid");
+                userData.userUid = extras.getString("userUid");
                 userData.displayname = extras.getString("UserDisplayname");
             }
         } else {
-            currentChatUserData.UserUid = (String) savedInstanceState.getSerializable("currentChatuserUid");
+            currentChatUserData.userUid = (String) savedInstanceState.getSerializable("currentChatuserUid");
             currentChatUserData.displayname = (String) savedInstanceState.getSerializable("currentChatuserDisplayname");
-            userData.UserUid = (String) savedInstanceState.getSerializable("UserUid");
+            userData.userUid = (String) savedInstanceState.getSerializable("userUid");
             userData.displayname = (String) savedInstanceState.getSerializable("UserDisplayname");
         }
         setTitle(currentChatUserData.displayname + "'s message");
 
         currentChatUserDatabaseReference = FirebaseDatabase.getInstance().getReference()
-                .child("users").child(currentChatUserData.UserUid).child("messages").child(userData.UserUid);
+                .child("users").child(currentChatUserData.userUid).child("messages").child(userData.userUid);
         currentChatUserDatabaseReferencechildEventListener = new ChildEventListener() {
             @SuppressWarnings("unchecked")
             @Override
@@ -200,7 +190,7 @@ public class PersonChatActivity extends AppCompatActivity {
         };
 
         userDataUserDatabaseReference = FirebaseDatabase.getInstance().getReference()
-                .child("users").child(userData.UserUid).child("messages").child(currentChatUserData.UserUid);
+                .child("users").child(userData.userUid).child("messages").child(currentChatUserData.userUid);
         userDataUserDatabaseReferencechildEventListener = new ChildEventListener() {
             @SuppressWarnings("unchecked")
             @Override
@@ -238,7 +228,7 @@ public class PersonChatActivity extends AppCompatActivity {
                     chatAdapter.notifyDataSetChanged();
 
                     DatabaseReference markReadDatabaseReference = FirebaseDatabase.getInstance().getReference()
-                            .child("users").child(userData.UserUid).child("messages").child(currentChatUserData.UserUid)
+                            .child("users").child(userData.userUid).child("messages").child(currentChatUserData.userUid)
                             .child(dataSnapshot.getKey()).child("read");
                     markReadDatabaseReference.setValue("read");
 
@@ -300,9 +290,9 @@ public class PersonChatActivity extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         // Save the user's current game state
-        savedInstanceState.putString("currentChatuserUid", currentChatUserData.UserUid);
+        savedInstanceState.putString("currentChatuserUid", currentChatUserData.userUid);
         savedInstanceState.putString("currentChatuserDisplayname", currentChatUserData.displayname);
-        savedInstanceState.putString("UserUid", userData.UserUid);
+        savedInstanceState.putString("userUid", userData.userUid);
         savedInstanceState.putString("UserDisplayname", userData.displayname);
 
         // Always call the superclass so it can save the view hierarchy state
@@ -337,7 +327,7 @@ public class PersonChatActivity extends AppCompatActivity {
         now = dateFormat.format(calendar.getTime());
 
         DatabaseReference submitcurrentChatUserDatabaseReference = FirebaseDatabase.getInstance().getReference()
-                .child("users").child(currentChatUserData.UserUid).child("messages").child(userData.UserUid).child(now);
+                .child("users").child(currentChatUserData.userUid).child("messages").child(userData.userUid).child(now);
         if (txt_submit_chat.getEditText().getText().toString().length() != 0) {
             submitcurrentChatUserDatabaseReference.child("message").setValue(txt_submit_chat.getEditText().getText().toString());
             submitcurrentChatUserDatabaseReference.child("read").setValue("unread");
@@ -351,7 +341,7 @@ public class PersonChatActivity extends AppCompatActivity {
             layoutManager.scrollToPosition(userMessages.size() - 1);
 
             GotogetherNotificationManager gotogetherNotificationManager = new GotogetherNotificationManager(this);
-            gotogetherNotificationManager.sendPersonChat(currentChatUserData.UserUid, userData.displayname);
+            gotogetherNotificationManager.sendPersonChat(currentChatUserData.userUid, userData.displayname);
         }
     }
 }

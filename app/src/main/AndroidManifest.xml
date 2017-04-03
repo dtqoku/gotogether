@@ -18,10 +18,12 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".LoginActivity"
-            android:label="gotogether" />
+            android:label="gotogether"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".RegisterActivity"
-            android:label="Register" />
+            android:label="Register"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".HomeActivity"
             android:label="@string/title_activity_home"

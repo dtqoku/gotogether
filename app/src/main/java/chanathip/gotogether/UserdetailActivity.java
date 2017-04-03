@@ -74,14 +74,14 @@ public class UserdetailActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             if (extras == null) {
-                currentViewUserData.UserUid = null;
+                currentViewUserData.userUid = null;
                 currentViewUserData.displayname = null;
             } else {
-                currentViewUserData.UserUid = extras.getString("userUid");
+                currentViewUserData.userUid = extras.getString("userUid");
                 currentViewUserData.displayname = extras.getString("userDisplayname");
             }
         } else {
-            currentViewUserData.UserUid = (String) savedInstanceState.getSerializable("userUid");
+            currentViewUserData.userUid = (String) savedInstanceState.getSerializable("userUid");
             currentViewUserData.displayname = (String) savedInstanceState.getSerializable("userDisplayname");
         }
 
@@ -100,19 +100,16 @@ public class UserdetailActivity extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
                 if (firebaseUser != null) {
-                    currentUserData.UserUid = firebaseUser.getUid();
-                    DatabaseReference currentuserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentUserData.UserUid);
+                    currentUserData.userUid = firebaseUser.getUid();
+                    DatabaseReference currentuserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentUserData.userUid);
                     currentuserDatabaseReference
                             .addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     currentUserData.setData(
-                                            currentUserData.UserUid,
-                                            dataSnapshot.child("First name").getValue().toString(),
-                                            dataSnapshot.child("Last name").getValue().toString(),
+                                            currentUserData.userUid,
                                             dataSnapshot.child("display name").getValue().toString(),
-                                            currentUserData.Email,
-                                            dataSnapshot.child("Phone").getValue().toString()
+                                            currentUserData.email
                                     );
                                 }
                                 @Override
@@ -130,7 +127,7 @@ public class UserdetailActivity extends AppCompatActivity {
         firebaseAuth.addAuthStateListener(authStateListener);
 
         //get current view userdetail
-        DatabaseReference userViewDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentViewUserData.UserUid);
+        DatabaseReference userViewDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentViewUserData.userUid);
         userViewDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @SuppressWarnings("unchecked")
             @Override
@@ -139,15 +136,13 @@ public class UserdetailActivity extends AppCompatActivity {
                     Map<String, Object> userdataMap = (Map<String, Object>) dataSnapshot.getValue();
 
                     currentViewUserData.displayname = String.valueOf(userdataMap.get("display name"));
-                    currentViewUserData.Firstname = String.valueOf(userdataMap.get("First name"));
-                    currentViewUserData.Lastname = String.valueOf(userdataMap.get("Last name"));
-                    currentViewUserData.Email = String.valueOf(userdataMap.get("email"));
-                    currentViewUserData.Phone = String.valueOf(userdataMap.get("phone"));
+                    currentViewUserData.email = String.valueOf(userdataMap.get("email"));
+                    currentViewUserData.phone = String.valueOf(userdataMap.get("phone"));
 
                     if(dataSnapshot.child("request").child("friend").getValue() != null){
                         currentViewUserData.FriendStatus = "request";
                     }
-                    else if(dataSnapshot.child("friend").child(currentUserData.UserUid).getValue() != null){
+                    else if(dataSnapshot.child("friend").child(currentUserData.userUid).getValue() != null){
                         currentViewUserData.FriendStatus = "friend";
                     }
                     else{
@@ -187,7 +182,7 @@ public class UserdetailActivity extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         // Save the user's current game state
-        savedInstanceState.putString("userUid", currentViewUserData.UserUid);
+        savedInstanceState.putString("userUid", currentViewUserData.userUid);
         savedInstanceState.putString("userDisplayname", currentViewUserData.displayname);
 
         // Always call the superclass so it can save the view hierarchy state
@@ -196,13 +191,11 @@ public class UserdetailActivity extends AppCompatActivity {
 
     private void updateContectdetail(){
         _displayname.setText(currentViewUserData.displayname);
-        _firstname.setText(currentViewUserData.Firstname);
-        _lastname.setText(currentViewUserData.Lastname);
-        _email.setText(currentViewUserData.Email);
-        if (currentViewUserData.Phone.contains("null"))
+        _email.setText(currentViewUserData.email);
+        if (currentViewUserData.phone.contains("null"))
             _phone.setText("");
         else
-            _phone.setText(currentViewUserData.Phone);
+            _phone.setText(currentViewUserData.phone);
 
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         if(currentViewUserData.FriendStatus.equals("request")){
@@ -222,11 +215,11 @@ public class UserdetailActivity extends AppCompatActivity {
                             .setCancelable(false)
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-                                    DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentUserData.UserUid);
-                                    currentuserdatabaseReference.child("friend").child(currentViewUserData.UserUid).removeValue();
+                                    DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentUserData.userUid);
+                                    currentuserdatabaseReference.child("friend").child(currentViewUserData.userUid).removeValue();
 
-                                    DatabaseReference requestuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentViewUserData.UserUid);
-                                    requestuserdatabaseReference.child("friend").child(currentUserData.UserUid).removeValue();
+                                    DatabaseReference requestuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentViewUserData.userUid);
+                                    requestuserdatabaseReference.child("friend").child(currentUserData.userUid).removeValue();
 
                                     Snackbar snackbar = Snackbar.make(_cv2, "unfriend with " + currentViewUserData.displayname, Snackbar.LENGTH_LONG);
                                     snackbar.show();
@@ -247,14 +240,14 @@ public class UserdetailActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(UserdetailActivity.this,PersonChatActivity.class);
-                    intent.putExtra("currentChatuserUid",currentViewUserData.UserUid);
+                    intent.putExtra("currentChatuserUid",currentViewUserData.userUid);
                     intent.putExtra("currentChatuserDisplayname",currentViewUserData.displayname);
-                    intent.putExtra("UserUid",currentUserData.UserUid);
+                    intent.putExtra("userUid",currentUserData.userUid);
                     intent.putExtra("UserDisplayname",currentUserData.displayname);
                     startActivity(intent);
                 }
             });
-        } else if(currentUserData.UserUid.equals(currentViewUserData.UserUid)){
+        } else if(currentUserData.userUid.equals(currentViewUserData.userUid)){
             fab.setVisibility(View.GONE);
         }
 
@@ -263,8 +256,8 @@ public class UserdetailActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if(currentViewUserData.FriendStatus.equals("request")){
                     final FloatingActionButton fabtemp = fab;
-                    DatabaseReference currentViewUserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentViewUserData.UserUid);
-                    currentViewUserDatabaseReference.child("request").child("friend").child(currentUserData.UserUid).removeValue();
+                    DatabaseReference currentViewUserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentViewUserData.userUid);
+                    currentViewUserDatabaseReference.child("request").child("friend").child(currentUserData.userUid).removeValue();
 
                     Snackbar snackbar = Snackbar.make(_UserdeailCoordinatorLayout, "cancel " + currentViewUserData.displayname + " friend request", Snackbar.LENGTH_LONG);
                     snackbar.show();
@@ -272,17 +265,17 @@ public class UserdetailActivity extends AppCompatActivity {
                 }
                 else if(currentViewUserData.FriendStatus.equals("friend")){
                     Intent intent = new Intent(UserdetailActivity.this,PersonChatActivity.class);
-                    intent.putExtra("currentChatuserUid",currentViewUserData.UserUid);
+                    intent.putExtra("currentChatuserUid",currentViewUserData.userUid);
                     intent.putExtra("currentChatuserDisplayname",currentViewUserData.displayname);
-                    intent.putExtra("UserUid",currentUserData.UserUid);
+                    intent.putExtra("userUid",currentUserData.userUid);
                     intent.putExtra("UserDisplayname",currentUserData.displayname);
                     startActivity(intent);
                 }
                 else {
-                    gotogetherNotificationManager.sendFriendRequest(currentViewUserData.UserUid, currentUserData.displayname);
+                    gotogetherNotificationManager.sendFriendRequest(currentViewUserData.userUid, currentUserData.displayname);
 
-                    DatabaseReference userViewDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentViewUserData.UserUid);
-                    userViewDatabaseReference.child("request").child("friend").child(currentUserData.UserUid).setValue("true");
+                    DatabaseReference userViewDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentViewUserData.userUid);
+                    userViewDatabaseReference.child("request").child("friend").child(currentUserData.userUid).setValue("true");
 
                     Snackbar snackbar = Snackbar.make(_UserdeailCoordinatorLayout, "sent friend request to " + currentViewUserData.displayname, Snackbar.LENGTH_LONG);
                     snackbar.show();

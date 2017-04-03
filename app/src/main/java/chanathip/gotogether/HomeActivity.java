@@ -14,7 +14,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
@@ -73,8 +72,8 @@ public class HomeActivity extends AppCompatActivity
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
                 if (firebaseUser != null) {
-                    currentUserData.UserUid = firebaseUser.getUid();
-                    currentUserData.Email = firebaseUser.getEmail();
+                    currentUserData.userUid = firebaseUser.getUid();
+                    currentUserData.email = firebaseUser.getEmail();
 
                     getcurrentuserdata();
                 } else {
@@ -145,7 +144,7 @@ public class HomeActivity extends AppCompatActivity
     }
 
     private void getcurrentuserdata() {
-        DatabaseReference currentuserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentUserData.UserUid);
+        DatabaseReference currentuserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentUserData.userUid);
         currentuserDatabaseReference.keepSynced(true);
         currentuserDatabaseReference
                 .addListenerForSingleValueEvent(
@@ -154,12 +153,9 @@ public class HomeActivity extends AppCompatActivity
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 currentUserData.setData(
-                                        currentUserData.UserUid,
-                                        dataSnapshot.child("First name").getValue().toString(),
-                                        dataSnapshot.child("Last name").getValue().toString(),
+                                        currentUserData.userUid,
                                         dataSnapshot.child("display name").getValue().toString(),
-                                        dataSnapshot.child("email").getValue().toString(),
-                                        dataSnapshot.child("Phone").getValue().toString()
+                                        dataSnapshot.child("email").getValue().toString()
                                 );
 
 
@@ -180,11 +176,10 @@ public class HomeActivity extends AppCompatActivity
                                                         @Override
                                                         public void onDataChange(DataSnapshot dataSnapshot) {
                                                             friendRequestNotificationData.RequestUserdisplayname = dataSnapshot.child("display name").getValue().toString();
-                                                            friendRequestNotificationData.RequestUserLastname = dataSnapshot.child("Last name").getValue().toString();
-                                                            friendRequestNotificationData.RequestUserFirstname = dataSnapshot.child("First name").getValue().toString();
                                                             friendRequestNotificationData.Type = "FriendRequest";
                                                             friendRequestNotificationData.RequestUserUid = dataSnapshot.getKey();
-                                                            friendRequestNotificationData.CurrentuserUid = currentUserData.UserUid;
+                                                            friendRequestNotificationData.requestEmail = dataSnapshot.child("email").getValue().toString();
+                                                            friendRequestNotificationData.CurrentuserUid = currentUserData.userUid;
                                                             friendRequestNotificationData.CurrentuserDisplayname = currentUserData.displayname;
 
 
@@ -222,7 +217,7 @@ public class HomeActivity extends AppCompatActivity
                                                             groupRequestNotificationData.RequestGroupdetail = dataSnapshot.child("description").getValue().toString();
                                                             groupRequestNotificationData.Type = "GroupRequest";
                                                             groupRequestNotificationData.RequestGroupUid = dataSnapshot.getKey();
-                                                            groupRequestNotificationData.CurrentuserUid = currentUserData.UserUid;
+                                                            groupRequestNotificationData.CurrentuserUid = currentUserData.userUid;
                                                             groupRequestNotificationData.CurrentuserDisplayname = currentUserData.displayname;
 
 
@@ -276,7 +271,7 @@ public class HomeActivity extends AppCompatActivity
                                                             unreadMassageNotificationData.SenderLastmessage = senderlastmessagedata;
                                                             unreadMassageNotificationData.Type = "Unread";
                                                             unreadMassageNotificationData.SenderUid = dataSnapshot.getKey();
-                                                            unreadMassageNotificationData.CurrentuserUid = currentUserData.UserUid;
+                                                            unreadMassageNotificationData.CurrentuserUid = currentUserData.userUid;
                                                             unreadMassageNotificationData.CurrentuserDisplayname = currentUserData.displayname;
 
 
@@ -318,10 +313,10 @@ public class HomeActivity extends AppCompatActivity
                                                         Rank,
                                                         String.valueOf(dataSnapshot.child("settingpoint").getValue()),
                                                         String.valueOf(dataSnapshot.child("membercount").getValue()),
-                                                        currentUserData.UserUid
+                                                        currentUserData.userUid
                                                 );
                                                 groupNotificationData.Type = "Group";
-                                                groupNotificationData.CurrentuserUid = currentUserData.UserUid;
+                                                groupNotificationData.CurrentuserUid = currentUserData.userUid;
                                                 groupNotificationData.CurrentuserDisplayname = currentUserData.displayname;
 
                                                 groupNotificationDatas.add(groupNotificationData);
@@ -356,28 +351,37 @@ public class HomeActivity extends AppCompatActivity
         notificationDatas.clear();
 
         NotificationData notificationData = new NotificationData();
-        notificationData.Type = "Title";
-        notificationData.titlename = "Friend Request";
-        notificationDatas.add(notificationData);
-        notificationDatas.addAll(friendRequestNotificationDatas);
 
-        notificationData = new NotificationData();
-        notificationData.Type = "Title";
-        notificationData.titlename = "Group Request";
-        notificationDatas.add(notificationData);
-        notificationDatas.addAll(groupRequestNotificationDatas);
+        if (!friendRequestNotificationDatas.isEmpty()) {
+            notificationData.Type = "Title";
+            notificationData.titlename = "Friend Request";
+            notificationDatas.add(notificationData);
+            notificationDatas.addAll(friendRequestNotificationDatas);
+        }
 
-        notificationData = new NotificationData();
-        notificationData.Type = "Title";
-        notificationData.titlename = "Unread Massage";
-        notificationDatas.add(notificationData);
-        notificationDatas.addAll(unreadMassageNotificationDatas);
+        if (!groupRequestNotificationDatas.isEmpty()) {
+            notificationData = new NotificationData();
+            notificationData.Type = "Title";
+            notificationData.titlename = "Group Request";
+            notificationDatas.add(notificationData);
+            notificationDatas.addAll(groupRequestNotificationDatas);
+        }
+        if (!unreadMassageNotificationDatas.isEmpty()) {
+            notificationData = new NotificationData();
+            notificationData.Type = "Title";
+            notificationData.titlename = "Unread Massage";
+            notificationDatas.add(notificationData);
+            notificationDatas.addAll(unreadMassageNotificationDatas);
+        }
+        if (!groupNotificationDatas.isEmpty()) {
 
-        notificationData = new NotificationData();
-        notificationData.Type = "Title";
-        notificationData.titlename = "groups";
-        notificationDatas.add(notificationData);
-        notificationDatas.addAll(groupNotificationDatas);
+            notificationData = new NotificationData();
+            notificationData.Type = "Title";
+            notificationData.titlename = "groups";
+            notificationDatas.add(notificationData);
+            notificationDatas.addAll(groupNotificationDatas);
+        }
+
 
         homeNotificationAdapter.notifyDataSetChanged();
 
@@ -408,7 +412,7 @@ public class HomeActivity extends AppCompatActivity
         TextView _showuser = (TextView) header.findViewById(R.id.txtshowuser);
         TextView _showuserEmail = (TextView) header.findViewById(R.id.txtShowuserEmail);
         _showuser.setText(currentUserData.displayname);
-        _showuserEmail.setText(currentUserData.Email);
+        _showuserEmail.setText(currentUserData.email);
         navigationView.setNavigationItemSelectedListener(this);
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);

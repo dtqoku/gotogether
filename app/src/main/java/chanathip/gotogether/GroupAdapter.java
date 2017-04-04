@@ -42,7 +42,6 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
         public TextView groupdescription;
         public ImageView _overflow;
         public ImageView _leader;
-        public View _line;
         public ImageView _target_status;
         public Button _btn_get_target_location;
 
@@ -54,7 +53,6 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
             _overflow = (ImageView) view.findViewById(R.id.overflow);
             _leader = (ImageView) view.findViewById(R.id.leader);
             _target_status = (ImageView) view.findViewById(R.id.target_status);
-            _line = (View) view.findViewById(R.id.line);
             _btn_get_target_location = (Button) view.findViewById(R.id.btn_get_target_location);
         }
     }
@@ -98,11 +96,9 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
 
         if (groupData.isMeetingPointSet()) {
             viewHolder._target_status.setVisibility(View.VISIBLE);
-            viewHolder._line.setVisibility(View.VISIBLE);
             viewHolder._btn_get_target_location.setVisibility(View.VISIBLE);
         } else {
             viewHolder._target_status.setVisibility(View.GONE);
-            viewHolder._line.setVisibility(View.GONE);
             viewHolder._btn_get_target_location.setVisibility(View.GONE);
         }
 
@@ -233,7 +229,6 @@ public class GroupAdapter extends RecyclerView.Adapter<GroupAdapter.ViewHolder> 
         Log.d("test", text);
         if (text.isEmpty()) {
             groupdatas.addAll(groupdatasfromdb);
-            Log.d("test", "asjdhkajshd");
         } else {
             text = text.toLowerCase();
             for (GroupData item : groupdatasfromdb) {

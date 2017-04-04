@@ -2,18 +2,27 @@ package chanathip.gotogether;
 
 
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -26,8 +35,11 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -50,9 +62,11 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
     private UiSettings uiSettings;
     private static final int PERMISSION_ACCESS_COARSE_LOCATION = 123;
     private GoogleApiClient googleApiClient;
-    private List<GroupDetailData> memberDatas;
+    private List<UserData> memberDatas;
     private Button setmeetingpoint;
     private Button btnok;
+    private Marker selfMarker;
+    private Marker meetPointMarker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,27 +106,22 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
         }
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
 
         setmeetingpoint.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final MarkerOptions marker = new MarkerOptions().position(
-                        new LatLng(0, 0)).title("Meeting point");
-                final Marker marker1 = mMap.addMarker(marker);
+                if (meetPointMarker == null) {
+                    MarkerOptions marker = new MarkerOptions()
+                            .position(new LatLng(0, 0))
+                            .title("Meet Point")
+                            .icon(getMarkerIconFromDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_beenhere_black_48dp, null)));
+                    meetPointMarker = mMap.addMarker(marker);
+                }
 
                 mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                     @Override
                     public void onMapClick(LatLng latLng) {
-                        marker1.setPosition(latLng);
+                        meetPointMarker.setPosition(latLng);
                     }
                 });
                 setmeetingpoint.setVisibility(View.GONE);
@@ -121,9 +130,16 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
                 btnok.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //LatLng latLng = marker1.getPosition();
-                        LatLng latLng = marker1.getPosition();
-                        
+                        mMap.setOnMapClickListener(null);
+                        LatLng latLng = meetPointMarker.getPosition();
+
+                        DatabaseReference currentgroup = FirebaseDatabase.getInstance().getReference().child("groups").child(groupData.GroupUID);
+                        currentgroup.child("settingpoint").setValue("active");
+                        currentgroup.child("lat").setValue(latLng.latitude);
+                        currentgroup.child("lng").setValue(latLng.longitude);
+
+                        GotogetherNotificationManager gotogetherNotificationManager = new GotogetherNotificationManager(NavigationActivity.this);
+                        gotogetherNotificationManager.meetPointSetted(groupData.GroupUID, groupData.Name);
 
                         btnok.setVisibility(View.GONE);
                         setmeetingpoint.setVisibility(View.VISIBLE);
@@ -131,7 +147,6 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
                 });
             }
         });
-
 
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -176,14 +191,32 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
                                 userData.userUid
                         );
 
+                        if (groupData.isMeetingPointSet()) {
+                            LatLng meetpoint = new LatLng(
+                                    Double.valueOf(String.valueOf(dataSnapshot.child("lat").getValue())),
+                                    Double.valueOf(String.valueOf(dataSnapshot.child("lng").getValue())));
+                            meetPointMarker = mMap.addMarker(new MarkerOptions()
+                                    .position(meetpoint)
+                                    .title("Meet Point")
+                                    .icon(getMarkerIconFromDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_beenhere_black_48dp, null)))
+                            );
+
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(meetpoint, 16));
+
+                        }
+
                         Map<String, String> memberMap = (Map<String, String>) dataSnapshot.child("member").getValue();
                         if (memberMap != null) {
                             for (HashMap.Entry<String, String> entry : memberMap.entrySet()) {
                                 String key = entry.getKey();
-                                String valve = entry.getValue();
+                                String value = entry.getValue();
+
+                                if (key.equals(userData.userUid)) {
+                                    continue;
+                                }
 
                                 final String keyData = key;
-                                final String valveData = valve;
+                                final String valueData = value;
 
                                 final DatabaseReference usersDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(key);
                                 usersDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -195,21 +228,37 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
                                                 String.valueOf(dataSnapshot.child("display name").getValue()),
                                                 String.valueOf(dataSnapshot.child("email").getValue())
                                         );
-                                        memberData.rank = valveData;
+                                        memberData.rank = valueData;
                                         memberData.Status = String.valueOf(dataSnapshot.child("status").getValue());
 
                                         if (memberData.Status.equals("active")) {
                                             memberData.LocationLat = Double.valueOf(String.valueOf(dataSnapshot.child("lat").getValue()));
                                             memberData.LocationLng = Double.valueOf(String.valueOf(dataSnapshot.child("lng").getValue()));
-                                        }
 
-                                        GroupDetailData groupDetailData = new GroupDetailData();
-                                        groupDetailData.member = memberData;
+                                            boolean isMemberExistInMemberDatas = false;
+                                            for (UserData member : memberDatas) {
+                                                if (member.userUid.equals(memberData.userUid)) {
+                                                    isMemberExistInMemberDatas = true;
+                                                }
+                                            }
+                                            if (!isMemberExistInMemberDatas) {
+                                                LatLng position = new LatLng(memberData.LocationLat, memberData.LocationLng);
+                                                memberData.marker = mMap.addMarker(new MarkerOptions()
+                                                        .position(position)
+                                                        .title(memberData.displayname)
+                                                        .icon(getMarkerIconFromDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_person_pin_circle_black_48dp, null)))
+                                                );
 
-                                        //memberDatas.add(groupDetailData);
-                                        if (!memberData.userUid.equals(userData.userUid) && memberData.Status.equals("active")) {
-                                            LatLng sydney = new LatLng(memberData.LocationLat, memberData.LocationLng);
-                                            mMap.addMarker(new MarkerOptions().position(sydney).title(memberData.displayname));
+                                                memberDatas.add(memberData);
+                                            } else {
+                                                animateMarker(memberData.marker, new LatLng(memberData.LocationLat, memberData.LocationLng), false);
+                                            }
+                                        } else {
+                                            for (UserData member : memberDatas) {
+                                                if (member.userUid.equals(memberData.userUid)) {
+                                                    memberDatas.remove(member);
+                                                }
+                                            }
                                         }
                                     }
 
@@ -265,11 +314,7 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 16));
+        mMap.setMyLocationEnabled(true);
 
         uiSettings = mMap.getUiSettings();
         uiSettings.setZoomControlsEnabled(true);
@@ -327,10 +372,18 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
         if (locationAvailability.isLocationAvailable()) {
             LocationRequest locationRequest = new LocationRequest()
                     .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                    .setInterval(5000);
+                    .setInterval(10000);
             LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
         } else {
             // Do something when location provider not available
+            Snackbar snackbar = Snackbar.make(btnok, "turn on your location for share yourself position", Snackbar.LENGTH_INDEFINITE)
+                    .setAction("refresh", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            NavigationActivity.this.recreate();
+                        }
+                    });
+            snackbar.show();
         }
 
     }
@@ -339,9 +392,21 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
     public void onLocationChanged(Location location) {
         // Do something when got new current location
         LatLng me = new LatLng(location.getLatitude(), location.getLongitude());
-        mMap.addMarker(new MarkerOptions().position(me).title("me"));
+        if (selfMarker == null) {
+            selfMarker = mMap.addMarker(new MarkerOptions()
+                    .position(me)
+                    .title("me")
+                    .icon(getMarkerIconFromDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_place_black_48dp, null)))
+            );
+
+        } else {
+            animateMarker(selfMarker, me, false);
+        }
         if (!userData.Status.equals("active")) {
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(me, 16));
+            if (meetPointMarker == null) {
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(me, 16));
+
+            }
             userData.Status = "active";
         }
         DatabaseReference currentUserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(userData.userUid);
@@ -349,6 +414,52 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
         currentUserDatabaseReference.child("lng").setValue(location.getLongitude());
         currentUserDatabaseReference.child("status").setValue("active");
 
+    }
+
+    private BitmapDescriptor getMarkerIconFromDrawable(Drawable drawable) {
+        Canvas canvas = new Canvas();
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        canvas.setBitmap(bitmap);
+        drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+        drawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
+    }
+
+    public void animateMarker(final Marker marker, final LatLng toPosition,
+                              final boolean hideMarker) {
+        final Handler handler = new Handler();
+        final long start = SystemClock.uptimeMillis();
+        Projection proj = mMap.getProjection();
+        Point startPoint = proj.toScreenLocation(marker.getPosition());
+        final LatLng startLatLng = proj.fromScreenLocation(startPoint);
+        final long duration = 500;
+
+        final Interpolator interpolator = new LinearInterpolator();
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                long elapsed = SystemClock.uptimeMillis() - start;
+                float t = interpolator.getInterpolation((float) elapsed
+                        / duration);
+                double lng = t * toPosition.longitude + (1 - t)
+                        * startLatLng.longitude;
+                double lat = t * toPosition.latitude + (1 - t)
+                        * startLatLng.latitude;
+                marker.setPosition(new LatLng(lat, lng));
+
+                if (t < 1.0) {
+                    // Post again 16ms later.
+                    handler.postDelayed(this, 16);
+                } else {
+                    if (hideMarker) {
+                        marker.setVisible(false);
+                    } else {
+                        marker.setVisible(true);
+                    }
+                }
+            }
+        });
     }
 
     @Override

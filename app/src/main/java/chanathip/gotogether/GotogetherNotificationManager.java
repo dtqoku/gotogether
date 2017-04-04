@@ -46,11 +46,12 @@ public class GotogetherNotificationManager {
             this.token = token;
         }
     }
-    private class NotificationSendData{
+
+    private class NotificationSendData {
         String ReceiveUid;
         String Message;
 
-        NotificationSendData(String ReceiveUid,String Message){
+        NotificationSendData(String ReceiveUid, String Message) {
             this.ReceiveUid = ReceiveUid;
             this.Message = Message;
         }
@@ -62,52 +63,68 @@ public class GotogetherNotificationManager {
         UpdateTokenToServer updateTokenToServer = new UpdateTokenToServer(uidandtoken);
         updateTokenToServer.launchTask();
     }
-    public void deleteToken(String Uid){
+
+    public void deleteToken(String Uid) {
         Uidandtoken uidandtoken = new Uidandtoken(Uid, "");
 
         UpdateTokenToServer updateTokenToServer = new UpdateTokenToServer(uidandtoken);
         updateTokenToServer.launchTask();
     }
-    public void sendFriendRequest(String ReceiveUid,String SenderName){
+
+    public void sendFriendRequest(String ReceiveUid, String SenderName) {
         String Message = SenderName + " send friend request to you";
-        NotificationSendData requestFriendData = new NotificationSendData(ReceiveUid,Message);
+        NotificationSendData requestFriendData = new NotificationSendData(ReceiveUid, Message);
 
         SendNotificationToServer sendNotificationToServer = new SendNotificationToServer(requestFriendData);
         sendNotificationToServer.launchTask();
     }
-    public void acceptFriendRequest(String ReceiveUid,String SenderName){
+
+    public void acceptFriendRequest(String ReceiveUid, String SenderName) {
         String Message = SenderName + " accept your request already";
-        NotificationSendData requestFriendData = new NotificationSendData(ReceiveUid,Message);
+        NotificationSendData requestFriendData = new NotificationSendData(ReceiveUid, Message);
 
         SendNotificationToServer sendNotificationToServer = new SendNotificationToServer(requestFriendData);
         sendNotificationToServer.launchTask();
     }
-    public void sendPersonChat(String ReceiveUid,String SenderName){
-        String Message = "new Message from "+SenderName;
-        NotificationSendData requestFriendData = new NotificationSendData(ReceiveUid,Message);
+
+    public void sendPersonChat(String ReceiveUid, String SenderName) {
+        String Message = "new Message from " + SenderName;
+        NotificationSendData requestFriendData = new NotificationSendData(ReceiveUid, Message);
 
         SendNotificationToServer sendNotificationToServer = new SendNotificationToServer(requestFriendData);
         sendNotificationToServer.launchTask();
     }
-    public void sendInvitetoGroup(String ReceiveUid,String SenderName){
-        String Message = "get invite to "+SenderName;
-        NotificationSendData requestFriendData = new NotificationSendData(ReceiveUid,Message);
+
+    public void sendInvitetoGroup(String ReceiveUid, String SenderName) {
+        String Message = "get invite to " + SenderName;
+        NotificationSendData requestFriendData = new NotificationSendData(ReceiveUid, Message);
 
         SendNotificationToServer sendNotificationToServer = new SendNotificationToServer(requestFriendData);
         sendNotificationToServer.launchTask();
     }
-    public void acceptGroupRequest(String ReceiveUid,String SenderName){
+
+    public void acceptGroupRequest(String ReceiveUid, String SenderName) {
         String Message = SenderName + " accept group request already";
-        String ReceiveGroup = "/topics/"+ReceiveUid;
-        NotificationSendData requestFriendData = new NotificationSendData(ReceiveGroup,Message);
+        String ReceiveGroup = "/topics/" + ReceiveUid;
+        NotificationSendData requestFriendData = new NotificationSendData(ReceiveGroup, Message);
 
         SendNotificationTopicToServer sendNotificationTopicToServer = new SendNotificationTopicToServer(requestFriendData);
         sendNotificationTopicToServer.launchTask();
     }
-    public void sendGroupChat(String ReceiveUid,String SenderName){
-        String Message = "new Message from "+SenderName+" group";
-        String ReceiveGroup = "/topics/"+ReceiveUid;
-        NotificationSendData requestFriendData = new NotificationSendData(ReceiveGroup,Message);
+
+    public void sendGroupChat(String ReceiveUid, String SenderName) {
+        String Message = "new message from " + SenderName + " group";
+        String ReceiveGroup = "/topics/" + ReceiveUid;
+        NotificationSendData requestFriendData = new NotificationSendData(ReceiveGroup, Message);
+
+        SendNotificationTopicToServer sendNotificationTopicToServer = new SendNotificationTopicToServer(requestFriendData);
+        sendNotificationTopicToServer.launchTask();
+    }
+
+    public void meetPointSetted(String receiveUid, String senderName) {
+        String Message = "meeting point " + senderName + " group set!";
+        String ReceiveGroup = "/topics/" + receiveUid;
+        NotificationSendData requestFriendData = new NotificationSendData(ReceiveGroup, Message);
 
         SendNotificationTopicToServer sendNotificationTopicToServer = new SendNotificationTopicToServer(requestFriendData);
         sendNotificationTopicToServer.launchTask();
@@ -144,6 +161,7 @@ public class GotogetherNotificationManager {
             updateTokenToServerTask.execute(uidandtoken);
         }
     }
+
     private class SendNotificationToServer implements AsyncTaskCompleteListener<String> {
         private NotificationSendData requestFriendData;
 
@@ -174,6 +192,7 @@ public class GotogetherNotificationManager {
             sendNotificationToServerTask.execute(requestFriendData);
         }
     }
+
     private class SendNotificationTopicToServer implements AsyncTaskCompleteListener<String> {
         private NotificationSendData requestFriendData;
 
@@ -276,6 +295,7 @@ public class GotogetherNotificationManager {
             callback.OnTaskComplete(result);
         }
     }
+
     private class SendNotificationToServerTask extends AsyncTask<NotificationSendData, Void, String> {
         private HttpURLConnection urlConnection;
         private AsyncTaskCompleteListener<String> callback;
@@ -346,6 +366,7 @@ public class GotogetherNotificationManager {
             callback.OnTaskComplete(result);
         }
     }
+
     private class SendNotificationTopicToServerTask extends AsyncTask<NotificationSendData, Void, String> {
         private HttpURLConnection urlConnection;
         private AsyncTaskCompleteListener<String> callback;

@@ -1,5 +1,7 @@
 package chanathip.gotogether;
 
+import com.google.android.gms.maps.model.Marker;
+
 /**
  * Created by neetc on 10/25/2016.
  */
@@ -12,6 +14,7 @@ public class UserData {
     String displayname;
     double LocationLat;
     double LocationLng;
+    Marker marker;
 
     String rank;
     String GroupUid;

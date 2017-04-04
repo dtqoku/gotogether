@@ -127,10 +127,10 @@ public class GroupDetailFragment extends Fragment {
                         if (memberMap != null) {
                             for (HashMap.Entry<String, String> entry : memberMap.entrySet()) {
                                 String key = entry.getKey();
-                                String valve = entry.getValue();
+                                String value = entry.getValue();
 
                                 final String keyData = key;
-                                final String valveData = valve;
+                                final String valueData = value;
 
                                 DatabaseReference usersDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(key);
                                 usersDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -142,7 +142,7 @@ public class GroupDetailFragment extends Fragment {
                                                 String.valueOf(dataSnapshot.child("display name").getValue()),
                                                 String.valueOf(dataSnapshot.child("email").getValue())
                                         );
-                                        memberData.rank = valveData;
+                                        memberData.rank = valueData;
 
                                         GroupDetailData groupDetailData = new GroupDetailData();
                                         groupDetailData.Type = "member";
@@ -169,10 +169,10 @@ public class GroupDetailFragment extends Fragment {
                         if (inviteMap != null) {
                             for (HashMap.Entry<String, String> entry : inviteMap.entrySet()) {
                                 String key = entry.getKey();
-                                String valve = entry.getValue();
+                                String value = entry.getValue();
 
                                 final String keyData = key;
-                                final String valveData = valve;
+                                final String valueData = value;
 
                                 DatabaseReference usersDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(key);
                                 usersDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -184,7 +184,7 @@ public class GroupDetailFragment extends Fragment {
                                                 String.valueOf(dataSnapshot.child("display name").getValue()),
                                                 String.valueOf(dataSnapshot.child("email").getValue())
                                         );
-                                        memberData.rank = valveData;
+                                        memberData.rank = valueData;
 
                                         GroupDetailData groupDetailData = new GroupDetailData();
                                         groupDetailData.Type = "invite";
@@ -227,17 +227,7 @@ public class GroupDetailFragment extends Fragment {
         groupDetailDatas.clear();
 
         GroupDetailData groupDetailData = new GroupDetailData();
-        groupDetailData.Type = "title";
-        groupDetailData.CurrentuserUid = userData.userUid;
-        groupDetailData.CurrentuserDisplayname = userData.displayname;
-        groupDetailData.Rank = userData.rank;
-        groupDetailData.GroupUid = groupData.GroupUID;
-        groupDetailData.CurrentuserUid = userData.userUid;
-        groupDetailData.titlename = "Groupdetail";
 
-        groupDetailDatas.add(groupDetailData);
-
-        groupDetailData = new GroupDetailData();
         groupDetailData.Type = "detail";
         groupDetailData.CurrentuserUid = userData.userUid;
         groupDetailData.CurrentuserDisplayname = userData.displayname;

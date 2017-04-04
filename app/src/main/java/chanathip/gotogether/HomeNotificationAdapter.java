@@ -109,7 +109,6 @@ public class HomeNotificationAdapter extends RecyclerView.Adapter<RecyclerView.V
         public TextView groupdescription;
         public ImageView _overflow;
         public ImageView _leader;
-        public View _line;
         public ImageView _target_status;
         public Button _btn_get_target_location;
 
@@ -121,7 +120,6 @@ public class HomeNotificationAdapter extends RecyclerView.Adapter<RecyclerView.V
             _overflow = (ImageView) view.findViewById(R.id.overflow);
             _leader = (ImageView) view.findViewById(R.id.leader);
             _target_status = (ImageView) view.findViewById(R.id.target_status);
-            _line = (View) view.findViewById(R.id.line);
             _btn_get_target_location = (Button) view.findViewById(R.id.btn_get_target_location);
         }
     }
@@ -327,11 +325,19 @@ public class HomeNotificationAdapter extends RecyclerView.Adapter<RecyclerView.V
 
             if (notificationData.groupData.isMeetingPointSet()) {
                 viewHolderGroup._target_status.setVisibility(View.VISIBLE);
-                viewHolderGroup._line.setVisibility(View.VISIBLE);
                 viewHolderGroup._btn_get_target_location.setVisibility(View.VISIBLE);
+                viewHolderGroup._btn_get_target_location.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(context, NavigationActivity.class);
+                        intent.putExtra("GroupUID", notificationData.groupData.GroupUID);
+                        intent.putExtra("GroupName", notificationData.groupData.Name);
+                        intent.putExtra("userUid", notificationData.groupData.thisUserUid);
+                        context.startActivity(intent);
+                    }
+                });
             } else {
                 viewHolderGroup._target_status.setVisibility(View.GONE);
-                viewHolderGroup._line.setVisibility(View.GONE);
                 viewHolderGroup._btn_get_target_location.setVisibility(View.GONE);
             }
 

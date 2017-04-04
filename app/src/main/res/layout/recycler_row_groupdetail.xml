@@ -21,7 +21,6 @@
                 android:id="@+id/lblgroupname"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/text_margin"
                 android:layout_marginTop="@dimen/text_margin"
                 android:text="@string/groupname"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
@@ -40,18 +39,11 @@
                 android:text="@string/loading"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
-            <View
-                android:id="@+id/line"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_below="@+id/txtname"
-                android:background="@android:color/darker_gray" />
-
             <TextView
                 android:id="@+id/lbldescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/line"
+                android:layout_below="@+id/lblgroupname"
                 android:layout_marginBottom="@dimen/text_margin"
                 android:layout_marginTop="@dimen/text_margin"
                 android:text="@string/groupdescription"

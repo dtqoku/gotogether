@@ -289,7 +289,7 @@ public class HomeActivity extends AppCompatActivity
                                     }
                                 }
 
-                                //check friend
+                                //check group
                                 groupNotificationDatas.clear();
                                 Map<String, String> groupUserdataMap = (Map<String, String>) dataSnapshot.child("group").getValue();
                                 if (groupUserdataMap != null) {

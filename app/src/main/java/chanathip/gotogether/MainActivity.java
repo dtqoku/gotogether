@@ -33,8 +33,14 @@ public class MainActivity extends AppCompatActivity {
                     GotogetherNotificationManager gotogetherNotificationManager = new GotogetherNotificationManager(MainActivity.this);
                     gotogetherNotificationManager.updateToken(firebaseUser.getUid(), FirebaseInstanceId.getInstance().getToken());
 
-                    Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-                    startActivity(intent);
+                    if(firebaseUser.isEmailVerified()){
+                        Intent intent = new Intent(MainActivity.this, HomeActivityV2.class);
+                        startActivity(intent);
+                    }
+                    else{
+                        Intent intent = new Intent(MainActivity.this, VerificationEmailActivity.class);
+                        startActivity(intent);
+                    }
                 } else {
                     Intent intent = new Intent(MainActivity.this,LoginActivity.class );
                     startActivity(intent);

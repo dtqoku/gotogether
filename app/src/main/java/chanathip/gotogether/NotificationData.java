@@ -5,10 +5,6 @@ package chanathip.gotogether;
  */
 
 public class NotificationData {
-    NotificationData(){
-        UserData userData = new UserData();
-        GroupData groupData = new GroupData();
-    }
 
     String Type;
     String CurrentuserUid;

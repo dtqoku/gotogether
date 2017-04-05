@@ -8,7 +8,7 @@
          location permissions for the 'MyLocation' functionality. 
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -19,7 +19,7 @@
         <activity
             android:name=".LoginActivity"
             android:label="gotogether"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".RegisterActivity"
             android:label="Register"
@@ -97,10 +97,19 @@
             android:name=".NavigationActivity"
             android:label="@string/title_activity_navigation"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".AddMemberActivity"
-            android:label="Add member"/>
-        <activity android:name=".GroupDetailActivity"
-            android:label="Group Detail"></activity>
+        <activity
+            android:name=".AddMemberActivity"
+            android:label="Add member" />
+        <activity
+            android:name=".GroupDetailActivity"
+            android:label="Group Detail" />
+        <activity
+            android:name=".VerificationEmailActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".HomeActivityV2"
+            android:label="@string/title_activity_home_v2"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

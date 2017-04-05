@@ -51,9 +51,15 @@ public class LoginActivity extends AppCompatActivity {
                 if (firebaseUser != null) {
                     GotogetherNotificationManager gotogetherNotificationManager = new GotogetherNotificationManager(LoginActivity.this);
                     gotogetherNotificationManager.updateToken(firebaseUser.getUid(), FirebaseInstanceId.getInstance().getToken());
-                    
-                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-                    startActivity(intent);
+
+                    if(firebaseUser.isEmailVerified()){
+                        Intent intent = new Intent(LoginActivity.this, HomeActivityV2.class);
+                        startActivity(intent);
+                    }
+                    else{
+                        Intent intent = new Intent(LoginActivity.this, VerificationEmailActivity.class);
+                        startActivity(intent);
+                    }
                 }
             }
         };

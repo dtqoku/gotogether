@@ -54,7 +54,7 @@ public class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.Vi
 
     public FriendListAdapter(Context context, List<UserData> dataset,View view,UserData userData) {
         userDatasfromdb = dataset;
-        userDatas = new ArrayList<>(userDatasfromdb);
+        userDatas = dataset;
         mContext = context;
         this.parentView = view;
         this.currentUserdata = userData;

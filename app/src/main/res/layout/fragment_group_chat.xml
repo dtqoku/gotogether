@@ -13,16 +13,22 @@
         android:layout_width="match_parent"
         android:layout_height="425dp"
         android:scrollbars="vertical"
+        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/txt_submit_chat"/>
+        android:layout_alignParentStart="true" />
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/txt_submit_chat"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/Send"
+        android:textColor="@color/white"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
         <android.support.design.widget.TextInputEditText
-            android:layout_width="229dp"
+            android:layout_width="231dp"
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="@string/submit_chat"
@@ -36,9 +42,11 @@
         android:id="@+id/submit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@color/colorPrimary"
         android:text="@string/Send"
         android:textColor="@color/white"
-        android:background="@color/colorPrimary"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 

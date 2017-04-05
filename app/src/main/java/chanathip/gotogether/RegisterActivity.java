@@ -57,6 +57,7 @@ public class RegisterActivity extends AppCompatActivity {
                             .build();
 
                     firebaseUser.updateProfile(userProfileChangeRequest);
+                    firebaseUser.sendEmailVerification();
 
                     DatabaseReference userdetail = databaseReference.child(firebaseUser.getUid());
                     userdetail.child("display name").setValue(userData.displayname);

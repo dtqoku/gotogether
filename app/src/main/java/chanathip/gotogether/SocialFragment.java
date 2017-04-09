@@ -23,6 +23,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,25 @@ import java.util.Map;
 
 public class SocialFragment extends Fragment {
     private class OnUserSocialDetailChange implements ValueEventListener {
+        private void updateDataList(List<SocialData> socialDataList, SocialData socialData) {
+            boolean isListcontains = false;
+            for (SocialData item : socialDataList) {
+
+                if (socialData.Type.equals("Group") && item.groupData.GroupUID.equals(socialData.groupData.GroupUID)) {
+                    isListcontains = true;
+                    socialDataList.remove(item);
+                    break;
+                } else if (socialData.Type.equals("FriendList") &&
+                        item.userData.userUid.equals(socialData.userData.userUid)) {
+                    isListcontains = true;
+                    socialDataList.remove(item);
+                    break;
+                }
+            }
+            socialDataList.add(socialData);
+
+        }
+
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
             currentUserData.setData(
@@ -72,7 +92,10 @@ public class SocialFragment extends Fragment {
                             groupData.CurrentuserUid = currentUserData.userUid;
                             groupData.CurrentuserDisplayname = currentUserData.displayname;
 
-                            groupDatas.add(groupData);
+
+                            //groupDatas.add(groupData);
+                            updateDataList(groupDatas, groupData);
+
 
                             updateUI();
 
@@ -136,7 +159,8 @@ public class SocialFragment extends Fragment {
                                                 friendSocialData.CurrentuserUid = currentUserData.userUid;
                                                 friendSocialData.CurrentuserDisplayname = currentUserData.displayname;
 
-                                                friendUserdatas.add(friendSocialData);
+                                                //friendUserdatas.add(friendSocialData);
+                                                updateDataList(friendUserdatas, friendSocialData);
                                                 updateUI();
                                             }
 
@@ -166,6 +190,7 @@ public class SocialFragment extends Fragment {
 
         }
     }
+
     private Context context;
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
@@ -210,7 +235,7 @@ public class SocialFragment extends Fragment {
         currentUserData.userUid = firebaseUser.getUid();
         currentUserData.email = firebaseUser.getEmail();
 
-        final FloatingActionMenu floatingActionMenu = (FloatingActionMenu)getActivity().findViewById(R.id.fab);
+        final FloatingActionMenu floatingActionMenu = (FloatingActionMenu) getActivity().findViewById(R.id.fab);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -258,7 +283,7 @@ public class SocialFragment extends Fragment {
 
         SocialData socialData = new SocialData();
 
-        if(!groupDatas.isEmpty()){
+        if (!groupDatas.isEmpty()) {
 
             socialData.Type = "Title";
             socialData.titlename = "group";
@@ -266,7 +291,7 @@ public class SocialFragment extends Fragment {
             socialDatas.addAll(groupDatas);
         }
 
-        if(!friendUserdatas.isEmpty()){
+        if (!friendUserdatas.isEmpty()) {
             socialData = new SocialData();
             socialData.Type = "Title";
             socialData.titlename = "Friend";

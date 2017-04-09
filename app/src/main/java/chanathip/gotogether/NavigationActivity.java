@@ -68,6 +68,9 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
     private Marker selfMarker;
     private Marker meetPointMarker;
 
+    private DatabaseReference usersDatabaseReference;
+    private List<ValueEventListener> userValueEventListenerList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,6 +82,7 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
         userData = new UserData();
         groupData = new GroupData();
         memberDatas = new ArrayList<>();
+        userValueEventListenerList = new ArrayList<>();
 
         //get information from bundle
         if (savedInstanceState == null) {
@@ -217,8 +221,8 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
                                 final String keyData = key;
                                 final String valueData = value;
 
-                                final DatabaseReference usersDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(key);
-                                usersDatabaseReference.addValueEventListener(new ValueEventListener() {
+                                usersDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(key);
+                                ValueEventListener userEventListener = usersDatabaseReference.addValueEventListener(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                         UserData memberData = new UserData();
@@ -252,12 +256,14 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
 
                                                 memberDatas.add(memberData);
                                             } else {
-                                                if(oldMarker != null)
+                                                if(oldMarker != null){
                                                     animateMarker(oldMarker, new LatLng(memberData.LocationLat, memberData.LocationLng), false);
+                                                }
                                             }
                                         } else {
                                             for (UserData member : memberDatas) {
                                                 if (member.userUid.equals(memberData.userUid)) {
+                                                    member.marker.remove();
                                                     memberDatas.remove(member);
                                                 }
                                             }
@@ -269,6 +275,8 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
 
                                     }
                                 });
+
+                                userValueEventListenerList.add(userEventListener);
                             }
                         }
 
@@ -353,9 +361,15 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
     public void onStop() {
         super.onStop();
         DatabaseReference currentUserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(userData.userUid);
+
+        currentUserDatabaseReference.child("status").setValue("notactive");
         currentUserDatabaseReference.child("lat").removeValue();
         currentUserDatabaseReference.child("lng").removeValue();
-        currentUserDatabaseReference.child("status").setValue("notactive");
+
+
+        for (ValueEventListener valueEventListener:userValueEventListenerList){
+            usersDatabaseReference.removeEventListener(valueEventListener);
+        }
 
         if (googleApiClient != null && googleApiClient.isConnected()) {
             // Disconnect Google API Client if available and connected

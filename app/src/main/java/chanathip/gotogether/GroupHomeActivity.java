@@ -151,7 +151,7 @@ public class GroupHomeActivity extends AppCompatActivity {
                                         } else if (groupData.rank.equals("leader")) {
                                             //leave group as leader
 
-                                            DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(groupData.thisUserUid);
+                                            DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(userData.userUid);
                                             currentuserdatabaseReference.child("group").child(groupData.GroupUID).removeValue();
 
                                             DatabaseReference groupdatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups").child(groupData.GroupUID);

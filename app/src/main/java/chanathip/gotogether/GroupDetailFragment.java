@@ -25,6 +25,114 @@ import java.util.Map;
  */
 
 public class GroupDetailFragment extends Fragment {
+    private class OnGroupDetailChange implements ValueEventListener {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            if (dataSnapshot.getValue() != null) {
+
+                groupData.setData(
+                        groupData.GroupUID,
+                        String.valueOf(dataSnapshot.child("name").getValue()),
+                        String.valueOf(dataSnapshot.child("description").getValue()),
+                        userData.rank,
+                        String.valueOf(dataSnapshot.child("settingpoint").getValue()),
+                        String.valueOf(dataSnapshot.child("membercount").getValue()),
+                        userData.userUid
+                );
+
+                Map<String, String> memberMap = (Map<String, String>) dataSnapshot.child("member").getValue();
+                if (memberMap != null) {
+                    for (HashMap.Entry<String, String> entry : memberMap.entrySet()) {
+                        String key = entry.getKey();
+                        String value = entry.getValue();
+
+                        final String keyData = key;
+                        final String valueData = value;
+
+                        DatabaseReference usersDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(key);
+                        usersDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                UserData memberData = new UserData();
+                                memberData.setData(
+                                        keyData,
+                                        String.valueOf(dataSnapshot.child("display name").getValue()),
+                                        String.valueOf(dataSnapshot.child("email").getValue())
+                                );
+                                memberData.rank = valueData;
+
+                                GroupDetailData groupDetailData = new GroupDetailData();
+                                groupDetailData.Type = "member";
+                                groupDetailData.CurrentuserUid = userData.userUid;
+                                groupDetailData.CurrentuserDisplayname = userData.displayname;
+                                groupDetailData.Rank = userData.rank;
+                                groupDetailData.GroupUid = groupData.GroupUID;
+                                groupDetailData.CurrentuserUid = userData.userUid;
+                                groupDetailData.member = memberData;
+
+                                memberDatas.add(groupDetailData);
+                                updateData();
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
+                }
+            }
+
+            Map<String, String> inviteMap = (Map<String, String>) dataSnapshot.child("invite").getValue();
+            if (inviteMap != null) {
+                for (HashMap.Entry<String, String> entry : inviteMap.entrySet()) {
+                    String key = entry.getKey();
+                    String value = entry.getValue();
+
+                    final String keyData = key;
+                    final String valueData = value;
+
+                    DatabaseReference usersDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(key);
+                    usersDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            UserData memberData = new UserData();
+                            memberData.setData(
+                                    keyData,
+                                    String.valueOf(dataSnapshot.child("display name").getValue()),
+                                    String.valueOf(dataSnapshot.child("email").getValue())
+                            );
+                            memberData.rank = valueData;
+
+                            GroupDetailData groupDetailData = new GroupDetailData();
+                            groupDetailData.Type = "invite";
+                            groupDetailData.CurrentuserUid = userData.userUid;
+                            groupDetailData.CurrentuserDisplayname = userData.displayname;
+                            groupDetailData.Rank = userData.rank;
+                            groupDetailData.GroupUid = groupData.GroupUID;
+                            groupDetailData.CurrentuserUid = userData.userUid;
+                            groupDetailData.member = memberData;
+
+                            inviteDatas.add(groupDetailData);
+                            updateData();
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+                }
+            }
+            updateData();
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+
+        }
+    }
+
     private UserData userData;
     private GroupData groupData;
     private List<GroupDetailData> groupDetailDatas;
@@ -34,6 +142,9 @@ public class GroupDetailFragment extends Fragment {
     private Context context;
     private List<GroupDetailData> memberDatas;
     private List<GroupDetailData> inviteDatas;
+
+    private DatabaseReference groupDatabaseReference;
+    private OnGroupDetailChange onGroupDetailChange;
 
 
     public GroupDetailFragment() {
@@ -108,112 +219,8 @@ public class GroupDetailFragment extends Fragment {
 
                 userData.rank = String.valueOf(dataSnapshot.child("group").child(groupData.GroupUID).getValue());
 
-                final DatabaseReference groupDatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups").child(groupData.GroupUID);
-                groupDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @SuppressWarnings("unchecked")
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        groupData.setData(
-                                groupData.GroupUID,
-                                String.valueOf(dataSnapshot.child("name").getValue()),
-                                String.valueOf(dataSnapshot.child("description").getValue()),
-                                userData.rank,
-                                String.valueOf(dataSnapshot.child("settingpoint").getValue()),
-                                String.valueOf(dataSnapshot.child("membercount").getValue()),
-                                userData.userUid
-                        );
-
-                        Map<String, String> memberMap = (Map<String, String>) dataSnapshot.child("member").getValue();
-                        if (memberMap != null) {
-                            for (HashMap.Entry<String, String> entry : memberMap.entrySet()) {
-                                String key = entry.getKey();
-                                String value = entry.getValue();
-
-                                final String keyData = key;
-                                final String valueData = value;
-
-                                DatabaseReference usersDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(key);
-                                usersDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                        UserData memberData = new UserData();
-                                        memberData.setData(
-                                                keyData,
-                                                String.valueOf(dataSnapshot.child("display name").getValue()),
-                                                String.valueOf(dataSnapshot.child("email").getValue())
-                                        );
-                                        memberData.rank = valueData;
-
-                                        GroupDetailData groupDetailData = new GroupDetailData();
-                                        groupDetailData.Type = "member";
-                                        groupDetailData.CurrentuserUid = userData.userUid;
-                                        groupDetailData.CurrentuserDisplayname = userData.displayname;
-                                        groupDetailData.Rank = userData.rank;
-                                        groupDetailData.GroupUid = groupData.GroupUID;
-                                        groupDetailData.CurrentuserUid = userData.userUid;
-                                        groupDetailData.member = memberData;
-
-                                        memberDatas.add(groupDetailData);
-                                        updateData();
-                                    }
-
-                                    @Override
-                                    public void onCancelled(DatabaseError databaseError) {
-
-                                    }
-                                });
-                            }
-                        }
-
-                        Map<String, String> inviteMap = (Map<String, String>) dataSnapshot.child("invite").getValue();
-                        if (inviteMap != null) {
-                            for (HashMap.Entry<String, String> entry : inviteMap.entrySet()) {
-                                String key = entry.getKey();
-                                String value = entry.getValue();
-
-                                final String keyData = key;
-                                final String valueData = value;
-
-                                DatabaseReference usersDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(key);
-                                usersDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                        UserData memberData = new UserData();
-                                        memberData.setData(
-                                                keyData,
-                                                String.valueOf(dataSnapshot.child("display name").getValue()),
-                                                String.valueOf(dataSnapshot.child("email").getValue())
-                                        );
-                                        memberData.rank = valueData;
-
-                                        GroupDetailData groupDetailData = new GroupDetailData();
-                                        groupDetailData.Type = "invite";
-                                        groupDetailData.CurrentuserUid = userData.userUid;
-                                        groupDetailData.CurrentuserDisplayname = userData.displayname;
-                                        groupDetailData.Rank = userData.rank;
-                                        groupDetailData.GroupUid = groupData.GroupUID;
-                                        groupDetailData.CurrentuserUid = userData.userUid;
-                                        groupDetailData.member = memberData;
-
-                                        inviteDatas.add(groupDetailData);
-                                        updateData();
-                                    }
-
-                                    @Override
-                                    public void onCancelled(DatabaseError databaseError) {
-
-                                    }
-                                });
-                            }
-                        }
-                        updateData();
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
+                groupDatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups").child(groupData.GroupUID);
+                groupDatabaseReference.addValueEventListener(onGroupDetailChange);
             }
 
             @Override
@@ -221,6 +228,20 @@ public class GroupDetailFragment extends Fragment {
 
             }
         });
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        groupDatabaseReference.removeEventListener(onGroupDetailChange);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        groupDatabaseReference.removeEventListener(onGroupDetailChange);
     }
 
     private void updateData() {
@@ -253,7 +274,7 @@ public class GroupDetailFragment extends Fragment {
 
         groupDetailDatas.addAll(inviteDatas);
 
-        if(userData.rank.equals("leader")){
+        if (userData.rank.equals("leader")) {
             groupDetailData = new GroupDetailData();
             groupDetailData.Type = "addmember";
             groupDetailData.CurrentuserUid = userData.userUid;
@@ -283,11 +304,12 @@ public class GroupDetailFragment extends Fragment {
 
         recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
 
-        groupDetailAdapter = new GroupDetailAdapter(context,groupDetailDatas,recyclerView);
+        groupDetailAdapter = new GroupDetailAdapter(context, groupDetailDatas, recyclerView);
         layoutManager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(groupDetailAdapter);
 
+        onGroupDetailChange = new OnGroupDetailChange();
     }
 
     @Override

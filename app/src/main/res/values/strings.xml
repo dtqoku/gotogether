@@ -165,4 +165,5 @@
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="title_activity_navigation">Navigation</string>
     <string name="title_activity_home_v2">Gotogether</string>
+    <string name="log_out">Sign out</string>
 </resources>

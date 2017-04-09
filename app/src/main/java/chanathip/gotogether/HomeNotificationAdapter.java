@@ -178,12 +178,12 @@ public class HomeNotificationAdapter extends RecyclerView.Adapter<RecyclerView.V
                 @Override
                 public void onClick(View v) {
                     DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(notificationData.CurrentuserUid);
-                    currentuserdatabaseReference.child("friend").child(notificationData.RequestUserUid).setValue("true");
                     currentuserdatabaseReference.child("request").child("friend").child(notificationData.RequestUserUid).removeValue();
+                    currentuserdatabaseReference.child("friend").child(notificationData.RequestUserUid).setValue("true");
 
                     DatabaseReference requestuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(notificationData.RequestUserUid);
-                    requestuserdatabaseReference.child("friend").child(notificationData.CurrentuserUid).setValue("true");
                     requestuserdatabaseReference.child("request").child("friend").child(notificationData.CurrentuserDisplayname).removeValue();
+                    requestuserdatabaseReference.child("friend").child(notificationData.CurrentuserUid).setValue("true");
 
                     GotogetherNotificationManager gotogetherNotificationManager = new GotogetherNotificationManager(context);
                     gotogetherNotificationManager.acceptFriendRequest(notificationData.RequestUserUid, notificationData.CurrentuserDisplayname);

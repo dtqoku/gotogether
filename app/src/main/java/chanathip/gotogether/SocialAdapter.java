@@ -17,8 +17,12 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.List;
 
@@ -140,7 +144,7 @@ public class SocialAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             viewHolderFriendList.overflow.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    showpopupmenu(viewHolderFriendList.overflow, socialData);
+                    showFriendPopUpmenu(viewHolderFriendList.overflow, socialData);
                 }
             });
         } else if (holder instanceof ViewHolderGroup) {
@@ -153,7 +157,7 @@ public class SocialAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             viewHolderGroup._overflow.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    showpopupmenu(viewHolderGrouptemp._overflow, socialData);
+                    showGroupPopUpmenu(viewHolderGrouptemp._overflow, socialData);
                 }
             });
 
@@ -194,19 +198,27 @@ public class SocialAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    private void showpopupmenu(View view, SocialData socialData) {
+    private void showFriendPopUpmenu(View view, SocialData socialData) {
         PopupMenu popupMenu = new PopupMenu(context, view);
         MenuInflater inflater = popupMenu.getMenuInflater();
         inflater.inflate(R.menu.menu_friend, popupMenu.getMenu());
-        popupMenu.setOnMenuItemClickListener(new MyMenuItemClickListener(socialData));
+        popupMenu.setOnMenuItemClickListener(new FriendMenuItemClickListener(socialData));
         popupMenu.show();
     }
 
-    private class MyMenuItemClickListener implements PopupMenu.OnMenuItemClickListener {
+    private void showGroupPopUpmenu(View view, SocialData socialData) {
+        PopupMenu popupMenu = new PopupMenu(context, view);
+        MenuInflater inflater = popupMenu.getMenuInflater();
+        inflater.inflate(R.menu.menu_group, popupMenu.getMenu());
+        popupMenu.setOnMenuItemClickListener(new GroupMenuItemClickListener(socialData));
+        popupMenu.show();
+    }
+
+    private class FriendMenuItemClickListener implements PopupMenu.OnMenuItemClickListener {
         SocialData socialData;
 
 
-        MyMenuItemClickListener(SocialData socialData) {
+        FriendMenuItemClickListener(SocialData socialData) {
             this.socialData = socialData;
         }
 
@@ -252,7 +264,97 @@ public class SocialAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             return false;
         }
     }
+    private class GroupMenuItemClickListener implements PopupMenu.OnMenuItemClickListener{
+        SocialData socialData;
 
+        GroupMenuItemClickListener(SocialData socialData) {
+            this.socialData = socialData;
+        }
+
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.action_leave:
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setMessage("Are you sure to leave this group?")
+                            .setCancelable(false)
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    //leave group
+                                    if (socialData.groupData.isleader() && socialData.groupData.Membercount > 1) {
+                                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                                        builder.setMessage("you cannot leave group if you are leader or not last one in group")
+                                                .setCancelable(false)
+                                                .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int id) {
+                                                        //do nothing
+                                                    }
+                                                });
+                                        AlertDialog alertDialog2 = builder.create();
+                                        alertDialog2.show();
+                                    } else if (socialData.groupData.rank.equals("leader")) {
+                                        //leave group as leader
+
+                                        DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(socialData.groupData.thisUserUid);
+                                        currentuserdatabaseReference.child("group").child(socialData.groupData.GroupUID).removeValue();
+
+                                        DatabaseReference groupdatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups").child(socialData.groupData.GroupUID);
+                                        groupdatabaseReference.removeValue();
+
+                                        FirebaseMessaging.getInstance().unsubscribeFromTopic(socialData.groupData.GroupUID);
+
+                                        socialDatas.remove(socialData);
+                                        notifyDataSetChanged();
+
+                                        Snackbar snackbar = Snackbar.make(parentView, "leave" + socialData.groupData.Name, Snackbar.LENGTH_LONG);
+                                        snackbar.show();
+                                    } else {
+                                        //just leave
+                                        DatabaseReference currentuserdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(socialData.groupData.thisUserUid);
+                                        currentuserdatabaseReference.child("group").child(socialData.groupData.GroupUID).removeValue();
+
+                                        DatabaseReference groupdatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups").child(socialData.groupData.GroupUID);
+                                        groupdatabaseReference.child("member").child(socialData.groupData.thisUserUid).removeValue();
+                                        final DatabaseReference databaseReference = groupdatabaseReference;
+                                        groupdatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                int membercount = Integer.valueOf(String.valueOf(dataSnapshot.child("membercount").getValue()));
+                                                membercount = membercount - 1;
+                                                databaseReference.child("membercount").setValue(membercount);
+                                            }
+
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+
+                                            }
+                                        });
+
+                                        FirebaseMessaging.getInstance().unsubscribeFromTopic(socialData.groupData.GroupUID);
+
+                                        socialDatas.remove(socialData);
+                                        notifyDataSetChanged();
+
+                                        Snackbar snackbar = Snackbar.make(parentView, "leave  " + socialData.groupData.Name, Snackbar.LENGTH_LONG);
+                                        snackbar.show();
+
+                                    }
+
+
+                                }
+                            })
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    //cancel
+                                }
+                            });
+                    AlertDialog alert = builder.create();
+                    alert.show();
+                    return true;
+            }
+            return false;
+        }
+    }
 
     @Override
     public int getItemViewType(int position) {

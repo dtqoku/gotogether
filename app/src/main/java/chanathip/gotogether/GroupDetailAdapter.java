@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.PopupMenu;
@@ -16,8 +17,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
@@ -29,11 +33,13 @@ public class GroupDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private List<GroupDetailData> groupDetailDatas;
     private Context context;
     private View parentView;
+    private GroupDetailFragment groupDetailFragment;
 
-    GroupDetailAdapter(Context context, List<GroupDetailData> dataset, View view) {
+    GroupDetailAdapter(Context context, List<GroupDetailData> dataset, View view, GroupDetailFragment fragment) {
         groupDetailDatas = dataset;
         this.context = context;
         this.parentView = view;
+        this.groupDetailFragment = fragment;
     }
 
     public static class ViewHolderTitle extends RecyclerView.ViewHolder {
@@ -145,7 +151,7 @@ public class GroupDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             viewHolderMember.frineddetail.setText(groupDetailData.member.email);
             viewHolderMember.nofication_count.setVisibility(View.GONE);
             viewHolderMember.ic_nofication_count.setVisibility(View.GONE);
-
+            viewHolderMember.ic_leader.setVisibility(View.GONE);
             if (groupDetailData.member.rank.equals("leader")) {
                 viewHolderMember.ic_leader.setVisibility(View.VISIBLE);
             }
@@ -246,8 +252,40 @@ public class GroupDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
         @Override
         public boolean onMenuItemClick(MenuItem item) {
+            DatabaseReference groupDatabaseReference = FirebaseDatabase.getInstance().getReference()
+                    .child("groups").child(groupDetailData.GroupUid);
+            DatabaseReference userDatabaseReference = FirebaseDatabase.getInstance().getReference()
+                    .child("users");
             switch (item.getItemId()) {
-                case R.id.chat:
+                case R.id.setleader:
+                    groupDatabaseReference.child("member").child(groupDetailData.member.userUid).setValue("leader");
+                    groupDatabaseReference.child("member").child(groupDetailData.CurrentuserUid).setValue("member");
+
+                    userDatabaseReference.child(groupDetailData.CurrentuserUid).child("group").child(groupDetailData.GroupUid).setValue("member");
+                    userDatabaseReference.child(groupDetailData.member.userUid).child("group").child(groupDetailData.GroupUid).setValue("leader");
+
+                    groupDetailFragment.onMemberDetailChange();
+                    return true;
+
+                case R.id.kick:
+                    groupDatabaseReference.child("member").child(groupDetailData.member.userUid).removeValue();
+                    final DatabaseReference databaseReference = groupDatabaseReference;
+                    groupDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            int membercount = Integer.valueOf(String.valueOf(dataSnapshot.child("membercount").getValue()));
+                            membercount = membercount-1;
+                            databaseReference.child("membercount").setValue(membercount);
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+                    userDatabaseReference.child(groupDetailData.member.userUid).child("group").child(groupDetailData.GroupUid).removeValue();
+                    groupDetailFragment.onMemberDetailChange();
                     return true;
             }
             return false;

@@ -202,7 +202,6 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
                             );
 
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(meetpoint, 16));
-
                         }
 
                         Map<String, String> memberMap = (Map<String, String>) dataSnapshot.child("member").getValue();
@@ -219,7 +218,7 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
                                 final String valueData = value;
 
                                 final DatabaseReference usersDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(key);
-                                usersDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                usersDatabaseReference.addValueEventListener(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                         UserData memberData = new UserData();
@@ -236,9 +235,11 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
                                             memberData.LocationLng = Double.valueOf(String.valueOf(dataSnapshot.child("lng").getValue()));
 
                                             boolean isMemberExistInMemberDatas = false;
+                                            Marker oldMarker = null;
                                             for (UserData member : memberDatas) {
                                                 if (member.userUid.equals(memberData.userUid)) {
                                                     isMemberExistInMemberDatas = true;
+                                                    oldMarker = member.marker;
                                                 }
                                             }
                                             if (!isMemberExistInMemberDatas) {
@@ -251,7 +252,8 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
 
                                                 memberDatas.add(memberData);
                                             } else {
-                                                animateMarker(memberData.marker, new LatLng(memberData.LocationLat, memberData.LocationLng), false);
+                                                if(oldMarker != null)
+                                                    animateMarker(oldMarker, new LatLng(memberData.LocationLat, memberData.LocationLng), false);
                                             }
                                         } else {
                                             for (UserData member : memberDatas) {

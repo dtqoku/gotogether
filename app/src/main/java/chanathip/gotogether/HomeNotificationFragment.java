@@ -238,7 +238,7 @@ public class HomeNotificationFragment extends Fragment {
     public void onStart() {
         super.onStart();
         currentuserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentUserData.userUid);
-
+        currentuserDatabaseReference.addValueEventListener(onNotificationChange);
     }
 
     @Override

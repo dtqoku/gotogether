@@ -25,7 +25,7 @@ import java.util.Map;
  */
 
 public class GroupDetailFragment extends Fragment {
-    private class OnGroupDetailChange implements ValueEventListener {
+    public class OnGroupDetailChange implements ValueEventListener {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
             if (dataSnapshot.getValue() != null) {
@@ -40,6 +40,7 @@ public class GroupDetailFragment extends Fragment {
                         userData.userUid
                 );
 
+                memberDatas.clear();
                 Map<String, String> memberMap = (Map<String, String>) dataSnapshot.child("member").getValue();
                 if (memberMap != null) {
                     for (HashMap.Entry<String, String> entry : memberMap.entrySet()) {
@@ -48,7 +49,6 @@ public class GroupDetailFragment extends Fragment {
 
                         final String keyData = key;
                         final String valueData = value;
-
                         DatabaseReference usersDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(key);
                         usersDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
@@ -83,6 +83,7 @@ public class GroupDetailFragment extends Fragment {
                 }
             }
 
+            inviteDatas.clear();
             Map<String, String> inviteMap = (Map<String, String>) dataSnapshot.child("invite").getValue();
             if (inviteMap != null) {
                 for (HashMap.Entry<String, String> entry : inviteMap.entrySet()) {
@@ -91,7 +92,6 @@ public class GroupDetailFragment extends Fragment {
 
                     final String keyData = key;
                     final String valueData = value;
-
                     DatabaseReference usersDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(key);
                     usersDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -170,6 +170,8 @@ public class GroupDetailFragment extends Fragment {
         groupDetailDatas = new ArrayList<>();
         memberDatas = new ArrayList<>();
         inviteDatas = new ArrayList<>();
+        onGroupDetailChange = new OnGroupDetailChange();
+
 
         //get information from bundle
         if (savedInstanceState == null) {
@@ -188,7 +190,6 @@ public class GroupDetailFragment extends Fragment {
             groupData.Name = (String) savedInstanceState.getSerializable("GroupName");
             userData.userUid = (String) savedInstanceState.getSerializable("userUid");
         }
-
 
     }
 
@@ -221,6 +222,8 @@ public class GroupDetailFragment extends Fragment {
 
                 groupDatabaseReference = FirebaseDatabase.getInstance().getReference().child("groups").child(groupData.GroupUID);
                 groupDatabaseReference.addValueEventListener(onGroupDetailChange);
+
+
             }
 
             @Override
@@ -304,12 +307,11 @@ public class GroupDetailFragment extends Fragment {
 
         recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
 
-        groupDetailAdapter = new GroupDetailAdapter(context, groupDetailDatas, recyclerView);
+        groupDetailAdapter = new GroupDetailAdapter(context, groupDetailDatas, recyclerView ,GroupDetailFragment.this);
         layoutManager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(groupDetailAdapter);
 
-        onGroupDetailChange = new OnGroupDetailChange();
     }
 
     @Override
@@ -321,5 +323,13 @@ public class GroupDetailFragment extends Fragment {
 
         // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);
+    }
+
+    public void onMemberDetailChange(){
+        groupDatabaseReference.removeEventListener(onGroupDetailChange);
+        groupDetailDatas.clear();
+        memberDatas.clear();
+        inviteDatas.clear();
+        groupDatabaseReference.addValueEventListener(onGroupDetailChange);
     }
 }

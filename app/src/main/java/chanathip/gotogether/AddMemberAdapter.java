@@ -96,7 +96,7 @@ public class AddMemberAdapter extends RecyclerView.Adapter<AddMemberAdapter.View
                                 GotogetherNotificationManager gotogetherNotificationManager = new GotogetherNotificationManager(mContext);
                                 gotogetherNotificationManager.sendInvitetoGroup(userData.userUid,userData.GroupName);
 
-                                ((AddMemberActivity)mContext).onBackPressed();
+                                //((AddMemberActivity)mContext).onBackPressed();
                             }
                         })
                         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

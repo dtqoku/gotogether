@@ -238,11 +238,6 @@ public class SocialFragment extends Fragment {
         super.onStart();
         currentuserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(currentUserData.userUid);
         currentuserDatabaseReference.keepSynced(true);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
         currentuserDatabaseReference.addValueEventListener(onUserSocialDetailChange);
     }
 

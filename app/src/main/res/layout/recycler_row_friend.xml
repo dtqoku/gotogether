@@ -9,7 +9,8 @@
         android:id="@+id/cv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        card_view:cardUseCompatPadding="true">
+        card_view:cardUseCompatPadding="true"
+        android:backgroundTint="@color/colorPrimary">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -55,6 +56,7 @@
 
             <TextView
                 android:id="@+id/txtfriendname"
+                android:textColor="@color/white"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/loading"
@@ -82,6 +84,7 @@
 
             <TextView
                 android:id="@+id/txtfrienddetail"
+                android:textColor="@color/white"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/loading"

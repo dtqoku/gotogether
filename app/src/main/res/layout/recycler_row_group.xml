@@ -9,7 +9,8 @@
         android:id="@+id/cv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        card_view:cardUseCompatPadding="true">
+        card_view:cardUseCompatPadding="true"
+        android:backgroundTint="@color/colorPrimary">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -42,15 +43,14 @@
                 android:layout_marginTop="13dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_more_vert_black_24dp"
-                android:tint="@color/gray" />
+                android:tint="@color/white" />
 
             <TextView
+                android:textColor="@color/white"
                 android:id="@+id/txtgroupname"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
-                android:layout_marginLeft="16dp"
-                android:layout_marginStart="16dp"
                 android:layout_toEndOf="@+id/leader"
                 android:layout_toRightOf="@+id/leader"
                 android:text="@string/loading"
@@ -88,7 +88,7 @@
                 android:layout_height="wrap_content"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_record_voice_over_black_24dp"
-                android:tint="@color/colorPrimary"
+                android:tint="@color/colorPrimaryDark"
                 android:layout_alignTop="@+id/target_status"
                 android:layout_toRightOf="@+id/target_status"
                 android:layout_toEndOf="@+id/target_status"
@@ -100,13 +100,14 @@
                 android:layout_height="wrap_content"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_pin_drop_black_24dp"
-                android:tint="@color/colorPrimary"
+                android:tint="@color/colorPrimaryDark"
                 android:layout_alignTop="@+id/nofication_count"
                 android:layout_toRightOf="@+id/ic_nofication_count"
                 android:layout_toEndOf="@+id/ic_nofication_count"
                 android:visibility="gone"/>
 
             <TextView
+                android:textColor="@color/white"
                 android:id="@+id/txtgroupdescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

@@ -142,9 +142,11 @@ public class SocialFragment extends Fragment {
                                                     for (HashMap.Entry<String, Object> entry : massageMap.entrySet()) {
                                                         String key2 = entry.getKey();
                                                         Map<String, String> value2 = (Map<String, String>) entry.getValue();
+                                                        if (value2.get("read") != null) {
 
-                                                        if (value2.get("read").equals("unread")) {
-                                                            unreadcount = unreadcount + 1;
+                                                            if (value2.get("read").equals("unread")) {
+                                                                unreadcount = unreadcount + 1;
+                                                            }
                                                         }
                                                     }
 

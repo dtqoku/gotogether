@@ -39,14 +39,8 @@ public class UserdetailActivity extends AppCompatActivity {
 
     @BindView(R.id.txtdisplayname)
     TextView _displayname;
-    @BindView(R.id.txtFirstname)
-    TextView _firstname;
-    @BindView(R.id.txtLastname)
-    TextView _lastname;
     @BindView(R.id.txtEmail)
     TextView _email;
-    @BindView(R.id.txtPhone)
-    TextView _phone;
     @BindView(R.id.UserdeailCoordinatorLayout)
     View _UserdeailCoordinatorLayout;
     @BindView(R.id.lbl_Operation)
@@ -192,10 +186,6 @@ public class UserdetailActivity extends AppCompatActivity {
     private void updateContectdetail(){
         _displayname.setText(currentViewUserData.displayname);
         _email.setText(currentViewUserData.email);
-        if (currentViewUserData.phone.contains("null"))
-            _phone.setText("");
-        else
-            _phone.setText(currentViewUserData.phone);
 
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         if(currentViewUserData.FriendStatus.equals("request")){

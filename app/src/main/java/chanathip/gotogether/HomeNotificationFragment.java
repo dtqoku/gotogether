@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -140,9 +141,11 @@ public class HomeNotificationFragment extends Fragment {
                         String key2 = entry2.getKey();
                         Map<String, String> value2 = (Map<String, String>) entry2.getValue();
 
-                        if (value2.get("read").equals("unread")) {
-                            unreadcount = unreadcount + 1;
-                            sendermessage = value2.get("message");
+                        if (value2.get("read") != null) {
+                            if (value2.get("read").equals("unread")) {
+                                unreadcount = unreadcount + 1;
+                                sendermessage = value2.get("message");
+                            }
                         }
                     }
 
@@ -240,6 +243,7 @@ public class HomeNotificationFragment extends Fragment {
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private HomeNotificationAdapter homeNotificationAdapter;
+    private TextView emptyView;
 
     private UserData currentUserData;
 
@@ -275,6 +279,7 @@ public class HomeNotificationFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
+        emptyView = (TextView) view.findViewById(R.id.empty_view);
 
         homeNotificationAdapter = new HomeNotificationAdapter(context, notificationDatas, recyclerView);
         layoutManager = new LinearLayoutManager(context);
@@ -351,6 +356,11 @@ public class HomeNotificationFragment extends Fragment {
             notificationDatas.addAll(groupNotificationDatas);
         }
 
+        if (notificationDatas.isEmpty()) {
+            emptyView.setVisibility(View.VISIBLE);
+        } else {
+            emptyView.setVisibility(View.GONE);
+        }
         homeNotificationAdapter.notifyDataSetChanged();
 
     }

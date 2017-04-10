@@ -20,15 +20,30 @@
             tools:context="chanathip.gotogether.NavigationActivity" />
 
         <Button
+            android:id="@+id/btnclear"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:background="@android:color/holo_red_dark"
+            android:text="clear"
+            android:textColor="@android:color/white"
+            android:layout_alignParentBottom="true"
+            android:visibility="gone"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
+    <Button
             android:id="@+id/btnok"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
             android:background="@android:color/holo_green_light"
-            android:text="ok"
+        android:text="set meet point"
+        android:textColor="@android:color/white"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@+id/btnclear"
             android:visibility="gone"
-            android:textColor="@android:color/white" />
+        android:layout_toStartOf="@+id/btnclear" />
 
         <Button
             android:id="@+id/btnSubmit"

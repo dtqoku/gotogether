@@ -65,6 +65,7 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
     private List<UserData> memberDatas;
     private Button setmeetingpoint;
     private Button btnok;
+    private Button btnClear;
     private Marker selfMarker;
     private Marker meetPointMarker;
 
@@ -78,6 +79,7 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
 
         setmeetingpoint = (Button) findViewById(R.id.btnSubmit);
         btnok = (Button) findViewById(R.id.btnok);
+        btnClear = (Button) findViewById(R.id.btnclear);
 
         userData = new UserData();
         groupData = new GroupData();
@@ -130,6 +132,7 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
                 });
                 setmeetingpoint.setVisibility(View.GONE);
                 btnok.setVisibility(View.VISIBLE);
+                btnClear.setVisibility(View.VISIBLE);
 
                 btnok.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -146,6 +149,24 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
                         gotogetherNotificationManager.meetPointSetted(groupData.GroupUID, groupData.Name);
 
                         btnok.setVisibility(View.GONE);
+                        btnClear.setVisibility(View.GONE);
+                        setmeetingpoint.setVisibility(View.VISIBLE);
+                    }
+                });
+
+                btnClear.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mMap.setOnMapClickListener(null);
+                        meetPointMarker.remove();
+
+                        DatabaseReference currentgroup = FirebaseDatabase.getInstance().getReference().child("groups").child(groupData.GroupUID);
+                        currentgroup.child("settingpoint").setValue("notactive");
+                        currentgroup.child("lat").removeValue();
+                        currentgroup.child("lng").removeValue();
+
+                        btnok.setVisibility(View.GONE);
+                        btnClear.setVisibility(View.GONE);
                         setmeetingpoint.setVisibility(View.VISIBLE);
                     }
                 });
@@ -301,7 +322,29 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
         switch (requestCode) {
             case PERMISSION_ACCESS_COARSE_LOCATION:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // All good!
+
+                    mMap.setMyLocationEnabled(true);
+
+                    uiSettings = mMap.getUiSettings();
+                    uiSettings.setZoomControlsEnabled(true);
+
+                    LocationAvailability locationAvailability = LocationServices.FusedLocationApi.getLocationAvailability(googleApiClient);
+                    if (locationAvailability.isLocationAvailable()) {
+                        LocationRequest locationRequest = new LocationRequest()
+                                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                                .setInterval(10000);
+                        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+                    } else {
+                        // Do something when location provider not available
+                        Snackbar snackbar = Snackbar.make(btnok, "turn on your location for share yourself position", Snackbar.LENGTH_INDEFINITE)
+                                .setAction("refresh", new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        NavigationActivity.this.recreate();
+                                    }
+                                });
+                        snackbar.show();
+                    }
                 } else {
                     Toast.makeText(this, "Need your location!", Toast.LENGTH_SHORT).show();
                 }
@@ -324,19 +367,17 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        mMap.setMyLocationEnabled(true);
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
+                    PERMISSION_ACCESS_COARSE_LOCATION);
+        } else {
+            mMap.setMyLocationEnabled(true);
 
-        uiSettings = mMap.getUiSettings();
-        uiSettings.setZoomControlsEnabled(true);
+            uiSettings = mMap.getUiSettings();
+            uiSettings.setZoomControlsEnabled(true);
+        }
     }
-
-/*
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.navigation, menu);
-        return true;
-    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -383,23 +424,25 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
                     PERMISSION_ACCESS_COARSE_LOCATION);
-        }
-        LocationAvailability locationAvailability = LocationServices.FusedLocationApi.getLocationAvailability(googleApiClient);
-        if (locationAvailability.isLocationAvailable()) {
-            LocationRequest locationRequest = new LocationRequest()
-                    .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                    .setInterval(10000);
-            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
         } else {
-            // Do something when location provider not available
-            Snackbar snackbar = Snackbar.make(btnok, "turn on your location for share yourself position", Snackbar.LENGTH_INDEFINITE)
-                    .setAction("refresh", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            NavigationActivity.this.recreate();
-                        }
-                    });
-            snackbar.show();
+            LocationAvailability locationAvailability = LocationServices.FusedLocationApi.getLocationAvailability(googleApiClient);
+            if (locationAvailability.isLocationAvailable()) {
+                LocationRequest locationRequest = new LocationRequest()
+                        .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                        .setInterval(10000);
+                LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+            } else {
+                // Do something when location provider not available
+                Snackbar snackbar = Snackbar.make(btnok, "turn on your location for share yourself position", Snackbar.LENGTH_INDEFINITE)
+                        .setAction("refresh", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                NavigationActivity.this.recreate();
+                            }
+                        });
+                snackbar.show();
+            }
+
         }
 
     }

@@ -6,7 +6,8 @@
     android:id="@+id/main_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true" >
+    android:fitsSystemWindows="true"
+    android:background="@drawable/gradient_home_background">
 
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/rootLayout"

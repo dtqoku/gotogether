@@ -77,9 +77,6 @@ public class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.Vi
         viewHolder.friendname.setText(userData.displayname);
         viewHolder.frineddetail.setText(userData.email);
         viewHolder.nofication_count.setText(String.valueOf(userData.unreadMassage));
-        if(userData.unreadMassage != 0){
-            viewHolder.ic_nofication_count.setColorFilter(ContextCompat.getColor(mContext,R.color.colorPrimary));
-        }
 
         viewHolder.friendname.setOnClickListener(new View.OnClickListener() {
             @Override

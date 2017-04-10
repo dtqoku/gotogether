@@ -201,7 +201,7 @@ public class PersonChatActivity extends AppCompatActivity {
 
                     userMessage.message = ChatUserdataMap.get("message");
                     userMessage.Type = "notself";
-                    userMessage.sender = userData.displayname;
+                    userMessage.sender = currentChatUserData.displayname;
 
                     Locale locale;
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

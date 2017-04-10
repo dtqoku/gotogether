@@ -128,9 +128,9 @@ public class SocialAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             viewHolderFriendList.friendname.setText(socialData.userData.displayname);
             viewHolderFriendList.frineddetail.setText(socialData.userData.email);
             viewHolderFriendList.nofication_count.setText(String.valueOf(socialData.userData.unreadMassage));
-            if (socialData.userData.unreadMassage != 0) {
-                viewHolderFriendList.ic_nofication_count.setColorFilter(ContextCompat.getColor(context, R.color.colorPrimary));
-            }
+            //if (socialData.userData.unreadMassage != 0) {
+            //    viewHolderFriendList.ic_nofication_count.setColorFilter(ContextCompat.getColor(context, R.color.colorPrimary));
+            //}
 
             viewHolderFriendList.friendname.setOnClickListener(new View.OnClickListener() {
                 @Override

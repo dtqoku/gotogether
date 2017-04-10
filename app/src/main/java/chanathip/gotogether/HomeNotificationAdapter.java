@@ -301,7 +301,7 @@ public class HomeNotificationAdapter extends RecyclerView.Adapter<RecyclerView.V
                 }
             });
 
-            viewHolderUnread.ic_nofication_count.setColorFilter(ContextCompat.getColor(context,R.color.colorPrimary));
+            //viewHolderUnread.ic_nofication_count.setColorFilter(ContextCompat.getColor(context,R.color.colorPrimary));
 
         } else if (holder instanceof ViewHolderGroup){
             ViewHolderGroup viewHolderGroup = (ViewHolderGroup) holder;

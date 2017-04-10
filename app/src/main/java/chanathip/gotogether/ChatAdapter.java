@@ -47,6 +47,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         TextView Message;
         TextView Messagedetail;
         CardView cardView;
+        TextView sender;
 
         ViewHolderOtherMessage(View view) {
             super(view);
@@ -54,6 +55,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             Message = (TextView) view.findViewById(R.id.txt_chat);
             Messagedetail = (TextView) view.findViewById(R.id.txt_chatdetail);
             cardView = (CardView) view.findViewById(R.id.cv);
+            sender = (TextView) view.findViewById(R.id.sender_name);
         }
     }
 
@@ -103,8 +105,9 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         } else if (holder instanceof ChatAdapter.ViewHolderOtherMessage) {
             final ChatAdapter.ViewHolderOtherMessage viewHolderOtherMessage = (ChatAdapter.ViewHolderOtherMessage) holder;
 
+            viewHolderOtherMessage.sender.setText(userMessage.sender);
             viewHolderOtherMessage.Message.setText(userMessage.message);
-            viewHolderOtherMessage.Messagedetail.setText("send by " + userMessage.sender + "\nat " + userMessage.time);
+            viewHolderOtherMessage.Messagedetail.setText(userMessage.time);
 
             viewHolderOtherMessage.cardView.setOnClickListener(new View.OnClickListener() {
                 @Override

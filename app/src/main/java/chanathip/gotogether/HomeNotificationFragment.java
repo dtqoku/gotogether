@@ -31,10 +31,8 @@ import java.util.Map;
 public class HomeNotificationFragment extends Fragment {
     private class OnNotificationChange implements ValueEventListener {
         private void updateDataList(List<NotificationData> notificationDataList, NotificationData notificationData) {
-            boolean isListcontains = false;
             for (NotificationData item : notificationDataList) {
                 if (notificationData.Type.equals("Group") && item.groupData.GroupUID.equals(notificationData.groupData.GroupUID)) {
-                    isListcontains = true;
                     notificationDataList.remove(item);
                     break;
                 }

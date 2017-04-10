@@ -7,6 +7,7 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,13 +19,16 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -42,7 +46,7 @@ public class GroupChatFragment extends Fragment {
     private ChatAdapter chatAdapter;
     private List<UserMessage> userMessages;
     private DatabaseReference groupChatDatabaseReference;
-    private ChildEventListener groupChatDatabaseReferenceChildEventListener;
+    private ValueEventListener groupChatDatabaseReferenceChildEventListener;
 
     public GroupChatFragment() {
 
@@ -91,7 +95,7 @@ public class GroupChatFragment extends Fragment {
 
         groupChatDatabaseReference = FirebaseDatabase.getInstance().getReference()
                 .child("groups").child(groupData.GroupUID).child("messages");
-        groupChatDatabaseReference.addChildEventListener(groupChatDatabaseReferenceChildEventListener);
+        groupChatDatabaseReference.addValueEventListener(groupChatDatabaseReferenceChildEventListener);
 
     }
 
@@ -157,102 +161,78 @@ public class GroupChatFragment extends Fragment {
             }
         });
 
-        groupChatDatabaseReferenceChildEventListener = new ChildEventListener() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {/*
-                Map<String, Objects> ChatUserdataMap = (Map<String, Objects>) dataSnapshot.getValue();
-                if (ChatUserdataMap != null) {
-                    for (HashMap.Entry<String, Objects> entry : ChatUserdataMap.entrySet()) {
-
-
-                        UserMessage userMessage = new UserMessage();
-
-                        userMessage.message = ChatUserdataMap.get("message");
-                        if (dataSnapshot.getKey().equals(userData.userUid)) {
-                            userMessage.Type = "self";
-                        } else userMessage.Type = "notself";
-                        userMessage.sender = userData.displayname;
-
-                        Locale locale;
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                            locale = getResources().getConfiguration().getLocales().get(0);
-                        } else {
-                            locale = getResources().getConfiguration().locale;
-                        }
-                        DateFormat dateFormat = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss", locale);
-                        try {
-                            userMessage.calendar = Calendar.getInstance();
-                            userMessage.calendar.setTime(dateFormat.parse(dataSnapshot.getKey()));
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                        DateFormat dateFormat1 = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", locale);
-                        userMessage.time = dateFormat1.format(userMessage.calendar.getTime());
-                        if (ChatUserdataMap.get("read") != null) {
-                            userMessage.readstatus = ChatUserdataMap.get("read");
-                        } else {
-                            userMessage.readstatus = "unread";
-                        }
-
-                        userMessages.add(userMessage);
-                        Collections.sort(userMessages);
-                        chatAdapter.notifyDataSetChanged();
-                        layoutManager.scrollToPosition(userMessages.size() - 1);
+        groupChatDatabaseReferenceChildEventListener = new ValueEventListener() {
+            private void updateData(List<UserMessage> userMessageList, UserMessage userMessage) {
+                for (UserMessage item : userMessageList) {
+                    if (item.time.equals(userMessage.time) && item.sender.equals(userMessage.sender)) {
+                        userMessageList.remove(item);
+                        break;
                     }
-                }*/
+                }
+                userMessageList.add(userMessage);
             }
-
-            @SuppressWarnings("unchecked")
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                UserMessage userMessage = new UserMessage();
+            public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue() != null) {
-                    Map<String, String> ChatUserdataMap = (Map<String, String>) dataSnapshot.getValue();
+                    HashMap<String, HashMap> ChatUserdataMap = (HashMap<String, HashMap>) dataSnapshot.getValue();
 
-                    userMessage.message = ChatUserdataMap.get("message");
-                    userMessage.Type = "self";
-                    userMessage.sender = userData.displayname;
+                    for (HashMap.Entry<String, HashMap> entry : ChatUserdataMap.entrySet()) {
+                        String key = entry.getKey();
+                        HashMap<String, HashMap> value = entry.getValue();
+                        for (HashMap.Entry<String, HashMap> entry2 : value.entrySet()) {
+                            HashMap<String, String> value2 = entry2.getValue();
+                            final UserMessage userMessage = new UserMessage();
 
-                    Locale locale;
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        locale = getResources().getConfiguration().getLocales().get(0);
-                    } else {
-                        locale = getResources().getConfiguration().locale;
-                    }
-                    DateFormat dateFormat = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss", locale);
-                    try {
-                        userMessage.calendar = Calendar.getInstance();
-                        userMessage.calendar.setTime(dateFormat.parse(dataSnapshot.getKey()));
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-                    DateFormat dateFormat1 = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", locale);
-                    userMessage.time = dateFormat1.format(userMessage.calendar.getTime());
-                    if (ChatUserdataMap.get("read") != null) {
-                        userMessage.readstatus = ChatUserdataMap.get("read");
-                    } else {
-                        userMessage.readstatus = "unread";
+                            userMessage.message = value2.get("message");
+
+                            Locale locale;
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                                locale = getResources().getConfiguration().getLocales().get(0);
+                            } else {
+                                locale = getResources().getConfiguration().locale;
+                            }
+                            DateFormat dateFormat = new SimpleDateFormat("yyyy:MM:dd:HH:mm:ss", locale);
+                            try {
+                                userMessage.calendar = Calendar.getInstance();
+                                userMessage.calendar.setTime(dateFormat.parse(entry2.getKey()));
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                            DateFormat dateFormat1 = new SimpleDateFormat("dd/MM HH:mm:ss", locale);
+                            userMessage.time = dateFormat1.format(userMessage.calendar.getTime());
+                            userMessage.readstatus = "notneed";
+
+                            String userUid;
+                            if (key.equals(userData.userUid)) {
+                                userMessage.Type = "self";
+                                userUid = userData.userUid;
+                            } else {
+                                userMessage.Type = "notself";
+                                userUid = key;
+                            }
+                            DatabaseReference userRef = FirebaseDatabase.getInstance().getReference()
+                                    .child("users").child(userUid).child("display name");
+                            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    userMessage.sender = dataSnapshot.getValue().toString();
+
+                                    updateData(userMessages, userMessage);
+                                    Collections.sort(userMessages);
+                                    chatAdapter.notifyDataSetChanged();
+
+                                    layoutManager.scrollToPosition(userMessages.size() - 1);
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+
+                        }
                     }
                 }
-
-                for (UserMessage obj : userMessages) {
-                    if (obj.time.equals(userMessage.time)) {
-                        obj.readstatus = userMessage.readstatus;
-                        chatAdapter.notifyDataSetChanged();
-                    }
-
-                }
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
             }
 
             @Override

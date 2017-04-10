@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -76,6 +77,7 @@ public class SocialAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         public ImageView _leader;
         public ImageView _target_status;
         public Button _btn_get_target_location;
+        public CardView cv;
 
         public ViewHolderGroup(View view) {
             super(view);
@@ -86,6 +88,7 @@ public class SocialAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             _leader = (ImageView) view.findViewById(R.id.leader);
             _target_status = (ImageView) view.findViewById(R.id.target_status);
             _btn_get_target_location = (Button) view.findViewById(R.id.btn_get_target_location);
+            cv = (CardView) view.findViewById(R.id.cv);
         }
     }
 
@@ -186,6 +189,17 @@ public class SocialAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             }
 
             viewHolderGroup.groupname.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, GroupHomeActivity.class);
+                    intent.putExtra("GroupUID", socialData.groupData.GroupUID);
+                    intent.putExtra("GroupName", socialData.groupData.Name);
+                    intent.putExtra("userUid", socialData.groupData.thisUserUid);
+                    context.startActivity(intent);
+                }
+            });
+
+            viewHolderGroup.cv.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(context, GroupHomeActivity.class);

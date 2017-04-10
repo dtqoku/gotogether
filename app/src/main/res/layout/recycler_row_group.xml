@@ -8,8 +8,8 @@
         android:id="@+id/cv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        card_view:cardUseCompatPadding="true"
-        card_view:cardBackgroundColor="@color/colorPrimary">
+        card_view:cardBackgroundColor="@color/colorPrimary"
+        card_view:cardUseCompatPadding="true">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -23,14 +23,14 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/txtgroupdescription"
                 android:layout_centerHorizontal="true"
+                android:layout_marginTop="3dp"
+                android:background="@color/yellow"
                 android:paddingBottom="10dp"
                 android:paddingTop="10dp"
                 android:text="@string/group_activity_meetingpointset"
                 android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                android:layout_marginTop="3dp"
-                android:background="@color/yellow"
                 android:textColor="@color/white"
-                android:visibility="gone"/>
+                android:visibility="gone" />
 
             <ImageView
                 android:id="@+id/overflow"
@@ -45,14 +45,13 @@
                 android:tint="@color/white" />
 
             <TextView
-                android:textColor="@color/white"
                 android:id="@+id/txtgroupname"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
-                android:layout_toEndOf="@+id/leader"
                 android:layout_toRightOf="@+id/leader"
                 android:text="@string/loading"
+                android:textColor="@color/white"
                 android:textSize="20sp" />
 
             <ImageView
@@ -65,57 +64,57 @@
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_brightness_1_black_48dp"
                 android:tint="@color/colorPrimary"
-                android:visibility="gone"/>
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/nofication_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignLeft="@+id/ic_nofication_count"
-                android:layout_alignTop="@+id/ic_nofication_count"
-                android:layout_alignRight="@+id/ic_nofication_count"
                 android:layout_alignBottom="@+id/ic_nofication_count"
+                android:layout_alignLeft="@+id/ic_nofication_count"
+                android:layout_alignRight="@+id/ic_nofication_count"
+                android:layout_alignTop="@+id/ic_nofication_count"
                 android:layout_margin="1dp"
                 android:gravity="center"
                 android:text="0"
                 android:textColor="@color/white"
-                android:visibility="gone"/>
+                android:visibility="gone" />
 
             <ImageView
                 android:id="@+id/leader"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/target_status"
+                android:layout_toEndOf="@+id/target_status"
+                android:layout_toRightOf="@+id/target_status"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_record_voice_over_black_24dp"
                 android:tint="@color/colorPrimaryDark"
-                android:layout_alignTop="@+id/target_status"
-                android:layout_toRightOf="@+id/target_status"
-                android:layout_toEndOf="@+id/target_status"
-                android:visibility="gone"/>
+                android:visibility="gone" />
 
             <ImageView
                 android:id="@+id/target_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/nofication_count"
+                android:layout_toEndOf="@+id/ic_nofication_count"
+                android:layout_toRightOf="@+id/ic_nofication_count"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_pin_drop_black_24dp"
                 android:tint="@color/colorPrimaryDark"
-                android:layout_alignTop="@+id/nofication_count"
-                android:layout_toRightOf="@+id/ic_nofication_count"
-                android:layout_toEndOf="@+id/ic_nofication_count"
-                android:visibility="gone"/>
+                android:visibility="gone" />
 
             <TextView
-                android:textColor="@color/white"
                 android:id="@+id/txtgroupdescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_below="@+id/txtgroupname"
+                android:layout_toEndOf="@+id/ic_nofication_count"
+                android:layout_toRightOf="@+id/ic_nofication_count"
                 android:paddingBottom="10dp"
                 android:paddingTop="10dp"
                 android:text="@string/loading"
-                android:layout_below="@+id/txtgroupname"
-                android:layout_toRightOf="@+id/ic_nofication_count"
-                android:layout_toEndOf="@+id/ic_nofication_count" />
+                android:textColor="@color/white" />
 
 
         </RelativeLayout>

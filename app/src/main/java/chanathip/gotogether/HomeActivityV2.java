@@ -177,7 +177,7 @@ public class HomeActivityV2 extends AppCompatActivity implements MoreFragment.on
         if (locationAvailability.isLocationAvailable()) {
             LocationRequest locationRequest = new LocationRequest()
                     .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                    .setInterval(1000);
+                    .setInterval(10000);
             LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
         } else {
             Snackbar snackbar = Snackbar.make(fabmenu, "turn on your location for share yourself position", Snackbar.LENGTH_INDEFINITE)

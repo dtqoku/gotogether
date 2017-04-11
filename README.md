@@ -1,6 +1,6 @@
 # Setmeetpoint
 Android App thats help for a Group Trip.
-built with firebase api, google api (map)
+built with firebase api, google api
 
 ## CURRENTLY IN DEVELOPMENT
 

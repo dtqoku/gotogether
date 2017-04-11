@@ -1,6 +1,8 @@
 package chanathip.gotogether;
 
 
+import android.*;
+import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -60,7 +62,7 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
     private UserData userData;
     private GroupData groupData;
     private UiSettings uiSettings;
-    private static final int PERMISSION_ACCESS_COARSE_LOCATION = 123;
+    private static final int PERMISSION_ACCESS_FINE_LOCATION = 123;
     private GoogleApiClient googleApiClient;
     private List<UserData> memberDatas;
     private Button setmeetingpoint;
@@ -130,7 +132,7 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
                         meetPointMarker.setPosition(latLng);
                     }
                 });
-                setmeetingpoint.setVisibility(View.GONE);
+                setmeetingpoint.setVisibility(View.INVISIBLE);
                 btnok.setVisibility(View.VISIBLE);
                 btnClear.setVisibility(View.VISIBLE);
 
@@ -320,31 +322,9 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
-            case PERMISSION_ACCESS_COARSE_LOCATION:
+            case PERMISSION_ACCESS_FINE_LOCATION:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                    mMap.setMyLocationEnabled(true);
-
-                    uiSettings = mMap.getUiSettings();
-                    uiSettings.setZoomControlsEnabled(true);
-
-                    LocationAvailability locationAvailability = LocationServices.FusedLocationApi.getLocationAvailability(googleApiClient);
-                    if (locationAvailability.isLocationAvailable()) {
-                        LocationRequest locationRequest = new LocationRequest()
-                                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                                .setInterval(10000);
-                        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
-                    } else {
-                        // Do something when location provider not available
-                        Snackbar snackbar = Snackbar.make(btnok, "turn on your location for share yourself position", Snackbar.LENGTH_INDEFINITE)
-                                .setAction("refresh", new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        NavigationActivity.this.recreate();
-                                    }
-                                });
-                        snackbar.show();
-                    }
                 } else {
                     Toast.makeText(this, "Need your location!", Toast.LENGTH_SHORT).show();
                 }
@@ -367,10 +347,10 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
-                    PERMISSION_ACCESS_COARSE_LOCATION);
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSION_ACCESS_FINE_LOCATION);
         } else {
             mMap.setMyLocationEnabled(true);
 
@@ -401,29 +381,22 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
     @Override
     public void onStop() {
         super.onStop();
-        DatabaseReference currentUserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(userData.userUid);
-
-        currentUserDatabaseReference.child("status").setValue("notactive");
-        currentUserDatabaseReference.child("lat").removeValue();
-        currentUserDatabaseReference.child("lng").removeValue();
-
 
         for (ValueEventListener valueEventListener:userValueEventListenerList){
             usersDatabaseReference.removeEventListener(valueEventListener);
         }
 
         if (googleApiClient != null && googleApiClient.isConnected()) {
-            // Disconnect Google API Client if available and connected
             googleApiClient.disconnect();
         }
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION},
-                    PERMISSION_ACCESS_COARSE_LOCATION);
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSION_ACCESS_FINE_LOCATION);
         } else {
             LocationAvailability locationAvailability = LocationServices.FusedLocationApi.getLocationAvailability(googleApiClient);
             if (locationAvailability.isLocationAvailable()) {
@@ -468,10 +441,6 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
             }
             userData.Status = "active";
         }
-        DatabaseReference currentUserDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users").child(userData.userUid);
-        currentUserDatabaseReference.child("lat").setValue(location.getLatitude());
-        currentUserDatabaseReference.child("lng").setValue(location.getLongitude());
-        currentUserDatabaseReference.child("status").setValue("active");
 
     }
 

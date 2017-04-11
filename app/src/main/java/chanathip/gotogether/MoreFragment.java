@@ -8,8 +8,14 @@ import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Switch;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 /**
  * Created by neetc on 4/5/2017.
@@ -18,6 +24,7 @@ import com.google.firebase.auth.FirebaseAuth;
 public class MoreFragment extends Fragment {
     private Context context;
     private CardView cv_exit;
+    private Switch locationSwitch;
 
     public static MoreFragment newInstance() {
         MoreFragment fragment = new MoreFragment();
@@ -53,5 +60,36 @@ public class MoreFragment extends Fragment {
                 startActivity(intent);
             }
         });
+        DatabaseReference userLocationStatusRef = FirebaseDatabase.getInstance().getReference()
+                .child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("status");
+        userLocationStatusRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue().toString().equals("active")) {
+                    locationSwitch.setChecked(true);
+                } else
+                    locationSwitch.setChecked(false);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        locationSwitch = (Switch) view.findViewById(R.id.switch_location);
+        locationSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (locationSwitch.isChecked()) {
+                    ((onSharedLocationListener) context).onSharedLocationChange(true, locationSwitch);
+                } else {
+                    ((onSharedLocationListener) context).onSharedLocationChange(false, locationSwitch);
+                }
+            }
+        });
+    }
+
+    public interface onSharedLocationListener {
+        void onSharedLocationChange(boolean isShared, Switch locationSwitch);
     }
 }

@@ -2,7 +2,7 @@
 Android App thats help for a Group Trip.
 built with firebase api, google api (map)
 
-CURRENTLY IN DEVELOPMENT
+# CURRENTLY IN DEVELOPMENT
 
 feature
 - login 

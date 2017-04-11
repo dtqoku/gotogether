@@ -2,8 +2,7 @@
 Android App thats help for a Group Trip.
 built with firebase api, google api (map)
 
-in development
-- map
+CURRENTLY IN DEVELOPMENT
 
 feature
 - login 
@@ -13,3 +12,4 @@ feature
 - create new group
 - chat
 - push notification
+- map

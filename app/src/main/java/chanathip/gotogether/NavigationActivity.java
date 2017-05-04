@@ -21,6 +21,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Interpolator;
@@ -161,6 +162,7 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
                     public void onClick(View v) {
                         mMap.setOnMapClickListener(null);
                         meetPointMarker.remove();
+                        meetPointMarker = null;
 
                         DatabaseReference currentgroup = FirebaseDatabase.getInstance().getReference().child("groups").child(groupData.GroupUID);
                         currentgroup.child("settingpoint").setValue("notactive");

@@ -76,7 +76,9 @@
             android:name=".PersonChatActivity"
             android:label="@string/title_activity_person_chat"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".CreateNewGroupActivity" />
+        <activity
+            android:name=".CreateNewGroupActivity"
+            android:label="Create new group" />
         <activity
             android:name=".GroupHomeActivity"
             android:label="@string/title_activity_group_home"

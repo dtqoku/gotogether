@@ -1,6 +1,7 @@
 package chanathip.gotogether;
 
 import android.graphics.Color;
+import android.media.Image;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
@@ -9,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -38,6 +40,8 @@ public class RegisterActivity extends AppCompatActivity {
     TextInputLayout _email;
     @BindView(R.id.textinputlayout_txtDisplayname)
     TextInputLayout _displayname;
+    @BindView(R.id.back)
+    ImageView back;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +75,13 @@ public class RegisterActivity extends AppCompatActivity {
 
         databaseReference = FirebaseDatabase.getInstance().getReference().child("users");
         userData = new UserData();
+
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
 
     }
 
@@ -140,15 +151,6 @@ public class RegisterActivity extends AppCompatActivity {
 
         }
         _password2.getEditText().setText("");
-    }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-        }
-        return (super.onOptionsItemSelected(item));
     }
 
     private boolean CheckUserData() {

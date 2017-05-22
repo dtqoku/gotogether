@@ -67,6 +67,7 @@ public class RegisterActivity extends AppCompatActivity {
                     userdetail.child("display name").setValue(userData.displayname);
                     userdetail.child("phone").setValue(userData.phone);
                     userdetail.child("email").setValue(firebaseUser.getEmail());
+                    userdetail.child("status").setValue("notactive");
 
                     onBackPressed();
                 }

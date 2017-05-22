@@ -257,19 +257,13 @@ public class GotogetherNotificationManager {
                 urlConnection.setReadTimeout(10000 /*milliseconds*/);
                 urlConnection.setConnectTimeout(15000 /* milliseconds */);
                 urlConnection.setRequestMethod("POST");
-                urlConnection.setDoInput(true);
+                urlConnection.setRequestProperty("id", outputJson);
                 urlConnection.setDoOutput(true);
-                urlConnection.setFixedLengthStreamingMode(outputJson.getBytes().length);
                 urlConnection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
 
                 //open
                 urlConnection.connect();
 
-                //prepare send
-                os = new BufferedOutputStream(urlConnection.getOutputStream());
-                os.write(outputJson.getBytes());
-                //clean up
-                os.flush();
 
                 //do something with response
                 in = new BufferedInputStream(urlConnection.getInputStream());
@@ -279,8 +273,6 @@ public class GotogetherNotificationManager {
                     result.append(line);
                 }
 
-                //clean up
-                os.close();
                 in.close();
             } catch (Exception e) {
                 Log.e("ConnectDatabase", "exception", e);
